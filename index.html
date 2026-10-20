@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ye Hongyu 的个人主页、作品与联系方式。">
+  <meta name="theme-color" content="#f8f4ee">
+  <title>Ye Hongyu｜robin.hye</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="#home" aria-label="返回首页">YH</a>
+    <nav aria-label="主导航">
+      <a href="#about">关于</a>
+      <a href="#projects">作品</a>
+      <a href="#contact">联系</a>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="切换深色模式">◐</button>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">HELLO, I'M YE HONGYU</p>
+        <h1>把想法变成<br><em>清晰而美好的作品。</em></h1>
+        <p class="intro">你好，我是 Ye Hongyu。这里记录我的作品、经历与持续探索的事情。欢迎认识我，也欢迎一起创造有趣的项目。</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#projects">查看作品</a>
+          <a class="button secondary" href="#contact">联系我</a>
+        </div>
+      </div>
+      <div class="portrait-card reveal" aria-label="个人照片占位区域">
+        <div class="portrait-placeholder">
+          <span>E</span>
+          <small>在此替换你的照片</small>
+        </div>
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+      </div>
+    </section>
+
+    <section class="section about" id="about">
+      <div class="section-heading reveal">
+        <p class="eyebrow">ABOUT ME</p>
+        <h2>关于我</h2>
+      </div>
+      <div class="about-grid">
+        <p class="about-lead reveal">我喜欢把复杂的问题整理得简单、直观，并用设计与技术创造真正有用的体验。</p>
+        <div class="about-details reveal">
+          <p>请把这里替换成你的个人介绍：你是谁、正在做什么，以及你最希望别人通过这个网站了解什么。</p>
+          <div class="skills" aria-label="技能标签">
+            <span>创意设计</span><span>内容表达</span><span>项目策划</span><span>持续学习</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects" id="projects">
+      <div class="section-heading reveal">
+        <p class="eyebrow">SELECTED WORK</p>
+        <h2>精选作品</h2>
+      </div>
+      <div class="project-grid">
+        <article class="project-card featured reveal">
+          <div class="project-visual visual-one"><span>01</span></div>
+          <div class="project-info">
+            <p class="project-type">个人项目 · 2026</p>
+            <h3>你的第一个项目</h3>
+            <p>简单介绍项目背景、你的职责，以及最终取得的成果。</p>
+            <a href="#" aria-label="查看第一个项目">查看详情 →</a>
+          </div>
+        </article>
+        <article class="project-card reveal">
+          <div class="project-visual visual-two"><span>02</span></div>
+          <div class="project-info">
+            <p class="project-type">作品案例</p>
+            <h3>你的第二个项目</h3>
+            <p>展示你的能力、过程和思考。</p>
+            <a href="#" aria-label="查看第二个项目">查看详情 →</a>
+          </div>
+        </article>
+        <article class="project-card reveal">
+          <div class="project-visual visual-three"><span>03</span></div>
+          <div class="project-info">
+            <p class="project-type">兴趣探索</p>
+            <h3>你的第三个项目</h3>
+            <p>也可以放文章、摄影或其他作品。</p>
+            <a href="#" aria-label="查看第三个项目">查看详情 →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="contact section" id="contact">
+      <div class="contact-card reveal">
+        <p class="eyebrow">LET'S CONNECT</p>
+        <h2>有想法？来聊聊。</h2>
+        <p>你可以通过邮件或社交账号联系我。我很乐意认识新朋友，也欢迎讨论合作机会。</p>
+        <a class="email-link" href="mailto:hello@example.com">hello@example.com ↗</a>
+        <div class="social-links">
+          <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="#">小红书</a>
+          <a href="#">LinkedIn</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> Ye Hongyu · robin.hye</span>
+    <a href="#home">回到顶部 ↑</a>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
