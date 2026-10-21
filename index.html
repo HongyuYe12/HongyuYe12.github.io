@@ -6,13 +6,21 @@
   <meta name="description" content="Ye Hongyu 的个人主页，记录学习、探索与成长。">
   <meta name="theme-color" content="#ffffff">
   <title>Ye Hongyu｜robin.hye</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="ambient-light ambient-one" aria-hidden="true"></div>
   <div class="ambient-light ambient-two" aria-hidden="true"></div>
   <header class="site-header liquid-glass">
-    <a class="logo" href="#home" aria-label="返回首页">YH</a>
+    <a class="logo" href="#home" aria-label="返回首页">
+      <picture>
+        <source srcset="assets/hye-mark-white.png" media="(prefers-color-scheme: dark)">
+        <img src="assets/hye-mark-black.png" alt="HYe">
+      </picture>
+    </a>
     <nav aria-label="主导航">
       <a href="#about" data-i18n="navAbout">关于</a>
       <a href="#projects" data-i18n="navProjects">探索</a>
@@ -36,7 +44,10 @@
       </div>
       <div class="portrait-card reveal" aria-label="个人照片占位区域">
         <div class="portrait-placeholder liquid-glass">
-          <span>YH</span>
+          <picture class="hero-mark">
+            <source srcset="assets/hye-mark-white.png" media="(prefers-color-scheme: dark)">
+            <img src="assets/hye-mark-black.png" alt="HYe handwritten mark">
+          </picture>
           <small data-i18n="photoPlaceholder">个人照片即将更新</small>
         </div>
         <div class="orbit orbit-one"></div>
