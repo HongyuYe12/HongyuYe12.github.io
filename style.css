@@ -52,27 +52,17 @@ a { color: inherit; }
 }
 .ambient-one { top: -20vw; right: -12vw; background: radial-gradient(circle, rgba(0,113,227,.32), transparent 66%); }
 .ambient-two { top: 42vh; left: -24vw; background: radial-gradient(circle, rgba(174,174,178,.32), transparent 66%); }
-.liquid-glass, .liquid-control {
-  --mx: 50%; --my: 50%;
-  position: relative; isolation: isolate;
-}
-.liquid-glass::before, .liquid-control::before {
-  content: ""; position: absolute; inset: 0; z-index: -2; border-radius: inherit; pointer-events: none;
-  background:
-    radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,.46) 0, rgba(255,255,255,.14) 20%, transparent 46%),
-    linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,.06) 42%, rgba(255,255,255,.18));
-  opacity: .7; transition: opacity .25s ease;
-}
+.liquid-glass, .liquid-control { position: relative; isolation: isolate; }
 .liquid-glass::after, .liquid-control::after {
   content: ""; position: absolute; inset: 1px; z-index: -1; border-radius: inherit; pointer-events: none;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.58), inset 0 -1px 0 rgba(255,255,255,.12), inset 1px 0 0 rgba(255,255,255,.16), 0 1px 1px rgba(0,0,0,.04);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(255,255,255,.1), inset 1px 0 0 rgba(255,255,255,.14), 0 1px 1px rgba(0,0,0,.04);
 }
 .site-header {
   position: sticky; top: 0; z-index: 10;
   width: min(1120px, calc(100% - 28px));
   height: 52px; margin: 10px auto 0; padding: 0 14px;
   display: flex; align-items: center; justify-content: space-between;
-  background: color-mix(in srgb, var(--glass) 78%, transparent);
+  background: color-mix(in srgb, var(--glass) 46%, transparent);
   -webkit-backdrop-filter: saturate(190%) contrast(108%) blur(22px);
   backdrop-filter: saturate(190%) contrast(108%) blur(22px);
   border: 1px solid color-mix(in srgb, var(--glass-border) 78%, transparent);
@@ -89,7 +79,7 @@ nav a, footer a { text-decoration: none; font-size: .92rem; }
 nav a:hover, footer a:hover { color: var(--accent); }
 .header-actions { display: flex; align-items: center; gap: 9px; }
 .language-toggle {
-  border: 1px solid color-mix(in srgb, var(--glass-border) 80%, transparent); background: color-mix(in srgb, var(--glass) 55%, transparent); color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--glass-border) 80%, transparent); background: color-mix(in srgb, var(--glass) 38%, transparent); color: var(--text);
   width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem;
   -webkit-backdrop-filter: saturate(180%) blur(14px); backdrop-filter: saturate(180%) blur(14px);
 }
@@ -109,9 +99,9 @@ h1 span { color: var(--muted); font-weight: 700; font-style: normal; }
 .button { padding: 11px 20px; border-radius: 999px; text-decoration: none; font-size: .9rem; font-weight: 500; transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s ease; }
 .button:hover, .language-toggle:hover { transform: scale(1.035); }
 .button:active, .language-toggle:active { transform: scale(.965); }
-.button.primary { background: color-mix(in srgb, #0071e3 84%, transparent); color: #ffffff; border: 1px solid rgba(255,255,255,.28); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 5px 18px rgba(0,113,227,.24); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); }
+.button.primary { background: color-mix(in srgb, #0071e3 76%, transparent); color: #ffffff; border: 1px solid rgba(255,255,255,.28); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 5px 18px rgba(0,113,227,.24); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); }
 .button.primary:hover { background: #0077ed; }
-.button.secondary { color: #0071e3; background: color-mix(in srgb, var(--glass) 55%, transparent); border: 1px solid color-mix(in srgb, #0071e3 52%, transparent); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); }
+.button.secondary { color: #0071e3; background: color-mix(in srgb, var(--glass) 32%, transparent); border: 1px solid color-mix(in srgb, #0071e3 52%, transparent); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); }
 .portrait-card { position: relative; min-height: 280px; width: 100%; display: grid; place-items: center; }
 .portrait-placeholder {
   position: relative; z-index: 2; width: min(720px, 92vw); height: 280px;

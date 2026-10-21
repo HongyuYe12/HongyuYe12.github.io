@@ -1,3 +1,5 @@
+import { createLiquidGlass, isChromium } from './liquid-glass.js';
+
 const languageButton = document.querySelector('.language-toggle');
 const translations = {
   zh: {
@@ -60,16 +62,16 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
 
-if (window.matchMedia('(pointer: fine)').matches) {
-  document.querySelectorAll('.liquid-glass, .liquid-control').forEach((element) => {
-    element.addEventListener('pointermove', (event) => {
-      const rect = element.getBoundingClientRect();
-      element.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-      element.style.setProperty('--my', `${event.clientY - rect.top}px`);
-    });
-    element.addEventListener('pointerleave', () => {
-      element.style.setProperty('--mx', '50%');
-      element.style.setProperty('--my', '50%');
-    });
+const reduceTransparency = window.matchMedia('(prefers-reduced-transparency: reduce)').matches;
+if (!reduceTransparency) {
+  const glassTargets = [
+    [document.querySelector('.site-header'), { scale: -72, borderRadius: 19, border: 0.075, blur: 7, lightness: 54, alpha: 0.9, aberration: [0, 4, 8], saturation: 1.35, fallbackFilter: 'saturate(180%) blur(22px)' }],
+    [document.querySelector('.language-toggle'), { scale: -44, borderRadius: 17, border: 0.11, blur: 5, lightness: 56, alpha: 0.9, aberration: [0, 3, 6], saturation: 1.25, fallbackFilter: 'saturate(170%) blur(14px)' }],
+    ...[...document.querySelectorAll('.hero-actions .button')].map((element) => [element, { scale: -52, borderRadius: 999, border: 0.1, blur: 5, lightness: 54, alpha: 0.91, aberration: [0, 3, 7], saturation: 1.3, fallbackFilter: 'saturate(170%) blur(16px)' }])
+  ];
+
+  glassTargets.forEach(([element, options]) => {
+    if (element) createLiquidGlass(element, options);
   });
+  document.documentElement.classList.toggle('chromium-liquid-glass', isChromium);
 }
