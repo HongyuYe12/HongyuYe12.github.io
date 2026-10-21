@@ -1,18 +1,18 @@
 :root {
-  --bg: #f7f7f5;
+  --bg: #ffffff;
   --surface: #ffffff;
   --text: #111111;
   --muted: #686868;
   --accent: #111111;
-  --accent-soft: #dedede;
+  --accent-soft: #f5f5f7;
   --green: #111111;
   --line: rgba(17, 17, 17, 0.16);
   --shadow: none;
 }
 
 body.dark {
-  --bg: #111111;
-  --surface: #191919;
+  --bg: #000000;
+  --surface: #111111;
   --text: #f5f5f5;
   --muted: #a5a5a5;
   --accent: #f5f5f5;
@@ -28,7 +28,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   line-height: 1.55;
   letter-spacing: -.01em;
   transition: background .3s ease, color .3s ease;
@@ -44,17 +44,17 @@ a { color: inherit; }
   border-bottom: 1px solid transparent;
 }
 .logo {
-  display: grid; place-items: center; width: 43px; height: 43px;
-  border: 1px solid var(--text); border-radius: 50%;
-  font-weight: 700; text-decoration: none; font-size: .8rem; letter-spacing: -.03em;
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border: 0; border-radius: 0;
+  font-weight: 650; text-decoration: none; font-size: .78rem; letter-spacing: -.03em;
 }
 nav { display: flex; gap: 34px; }
 nav a, footer a { text-decoration: none; font-size: .92rem; }
 nav a:hover, footer a:hover { color: var(--accent); }
 .header-actions { display: flex; align-items: center; gap: 9px; }
 .theme-toggle, .language-toggle {
-  border: 1px solid var(--line); background: var(--surface); color: var(--text);
-  width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
+  border: 0; background: transparent; color: var(--text);
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem;
 }
 .language-toggle { font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
 main { width: min(1120px, calc(100% - 40px)); margin: auto; }
@@ -65,19 +65,20 @@ main { width: min(1120px, calc(100% - 40px)); margin: auto; }
 .hero-copy { max-width: 980px; }
 .eyebrow { color: var(--muted); font-size: .72rem; font-weight: 600; letter-spacing: .2em; }
 h1, h2, h3 { margin-top: 0; line-height: 1.06; }
-h1 { font-size: clamp(3.5rem, 8vw, 7.2rem); font-weight: 700; letter-spacing: -.065em; margin-bottom: 30px; }
-h1 em { color: var(--muted); font-weight: 600; }
+h1 { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", "PingFang SC", sans-serif; font-size: clamp(3.5rem, 8vw, 7.2rem); font-weight: 700; font-style: normal; letter-spacing: -.065em; margin-bottom: 30px; }
+h1 span { color: var(--muted); font-weight: 700; font-style: normal; }
 .intro { max-width: 700px; margin-inline: auto; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.55; }
 .hero-actions { display: flex; justify-content: center; gap: 14px; margin-top: 38px; }
-.button { padding: 13px 24px; border-radius: 2px; text-decoration: none; font-weight: 600; }
-.button.primary { background: var(--text); color: var(--bg); }
-.button.secondary { border: 1px solid var(--line); }
+.button { padding: 11px 20px; border-radius: 999px; text-decoration: none; font-size: .9rem; font-weight: 500; }
+.button.primary { background: #0071e3; color: #ffffff; }
+.button.primary:hover { background: #0077ed; }
+.button.secondary { color: #0071e3; border: 1px solid #0071e3; }
 .portrait-card { position: relative; min-height: 280px; width: 100%; display: grid; place-items: center; }
 .portrait-placeholder {
   position: relative; z-index: 2; width: min(720px, 92vw); height: 280px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   background: var(--accent-soft);
-  border: 1px solid var(--line); border-radius: 24px; box-shadow: none; overflow: hidden;
+  border: 0; border-radius: 0; box-shadow: none; overflow: hidden;
 }
 .portrait-placeholder::after { display: none; }
 .portrait-placeholder span { font-size: clamp(4rem, 10vw, 7rem); font-weight: 700; letter-spacing: -.08em; color: var(--text); z-index: 1; }
@@ -87,21 +88,22 @@ h1 em { color: var(--muted); font-weight: 600; }
 .orbit-two { width: 480px; height: 310px; transform: rotate(40deg); }
 .section { padding: 150px 0; border-top: 1px solid var(--line); }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 55px; }
-h2 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 700; letter-spacing: -.055em; }
+h2 { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", "PingFang SC", sans-serif; font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 700; font-style: normal; letter-spacing: -.055em; }
 .about-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 90px; }
 .about-lead { font-size: clamp(1.8rem, 3.3vw, 3rem); font-weight: 600; line-height: 1.16; letter-spacing: -.04em; margin: 0; }
 .about-details { color: var(--muted); font-size: 1.05rem; }
 .skills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
 .skills span { padding: 7px 13px; border: 1px solid var(--line); border-radius: 2px; font-size: .85rem; }
 .project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-.project-card { background: var(--surface); border: 0; border-radius: 24px; overflow: hidden; box-shadow: none; }
+.project-card { background: #f5f5f7; border: 0; border-radius: 0; overflow: hidden; box-shadow: none; }
+body.dark .project-card { background: #111111; }
 .project-card.featured { grid-column: 1 / -1; display: grid; grid-template-columns: 1.25fr .75fr; }
 .project-visual { min-height: 280px; display: grid; place-items: center; }
 .featured .project-visual { min-height: 420px; }
-.project-visual span { font: 700 5rem "Playfair Display", serif; color: rgba(255,255,255,.74); }
+.project-visual span { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; font-size: 5rem; font-weight: 700; font-style: normal; letter-spacing: -.06em; color: rgba(255,255,255,.82); }
 .visual-one { background: #181818; }
 .visual-two { background: #777777; }
-.visual-three { background: #c8c8c8; }
+.visual-three { background: #d2d2d7; }
 .project-info { padding: 32px; }
 .featured .project-info { display: flex; flex-direction: column; justify-content: center; padding: 50px; }
 .project-type { color: var(--accent); font-size: .78rem; letter-spacing: .1em; }
@@ -109,12 +111,12 @@ h2 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 700; letter-spacing: -.05
 .project-info p { color: var(--muted); }
 .project-info a { display: inline-block; margin-top: 12px; text-decoration: none; font-weight: 600; }
 .coming-soon { display: inline-block; margin-top: 12px; color: var(--accent); font-size: .88rem; font-weight: 600; }
-.contact-card { padding: clamp(55px, 9vw, 110px); color: var(--bg); background: var(--text); border-radius: 28px; text-align: center; }
+.contact-card { padding: clamp(55px, 9vw, 110px); color: #ffffff; background: #000000; border-radius: 0; text-align: center; }
 .contact-card h2 { margin-bottom: 20px; }
 .contact-card > p:not(.eyebrow) { max-width: 650px; margin: 0 auto 28px; opacity: .75; }
-.email-link { display: inline-block; font-size: clamp(1.4rem, 4vw, 3rem); font-weight: 600; letter-spacing: -.04em; color: var(--bg); text-decoration-color: var(--muted); text-underline-offset: 8px; }
+.email-link { display: inline-block; font-size: clamp(1.4rem, 4vw, 3rem); font-weight: 600; font-style: normal; letter-spacing: -.04em; color: #ffffff; text-decoration-color: #86868b; text-underline-offset: 8px; }
 .social-links { display: flex; justify-content: center; gap: 28px; margin-top: 40px; }
-.social-links a { color: var(--bg); text-decoration: none; opacity: .8; }
+.social-links a { color: #2997ff; text-decoration: none; opacity: 1; }
 footer { width: min(1180px, calc(100% - 40px)); margin: auto; padding: 28px 0 45px; display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; }
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.visible { opacity: 1; transform: translateY(0); }

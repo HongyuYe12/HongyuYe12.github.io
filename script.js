@@ -4,7 +4,7 @@ const savedTheme = localStorage.getItem('theme');
 const translations = {
   zh: {
     navAbout: '关于', navProjects: '探索', navContact: '联系',
-    heroTitle: '在学习中探索，<br><em>在实践中成长。</em>',
+    heroTitle: '在学习中探索。<br><span>在实践中成长。</span>',
     heroIntro: '你好，我是 Ye Hongyu，一名学生。这里记录我的学习、经历与持续探索的事情。',
     viewProjects: '查看探索', contactMe: '联系我', photoPlaceholder: '个人照片即将更新',
     aboutTitle: '关于我', aboutLead: '我是一名保持好奇、乐于学习和探索新事物的学生。',
@@ -19,7 +19,7 @@ const translations = {
   },
   en: {
     navAbout: 'About', navProjects: 'Explore', navContact: 'Contact',
-    heroTitle: 'Explore through learning,<br><em>grow through practice.</em>',
+    heroTitle: 'Explore through learning.<br><span>Grow through practice.</span>',
     heroIntro: "Hi, I'm Ye Hongyu, a student documenting what I learn, experience, and explore.",
     viewProjects: 'View exploration', contactMe: 'Contact me', photoPlaceholder: 'Photo coming soon',
     aboutTitle: 'About me', aboutLead: "I'm a curious student who enjoys learning and exploring new things.",
