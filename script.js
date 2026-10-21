@@ -59,3 +59,17 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 
 document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+
+if (window.matchMedia('(pointer: fine)').matches) {
+  document.querySelectorAll('.liquid-glass, .liquid-control').forEach((element) => {
+    element.addEventListener('pointermove', (event) => {
+      const rect = element.getBoundingClientRect();
+      element.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+      element.style.setProperty('--my', `${event.clientY - rect.top}px`);
+    });
+    element.addEventListener('pointerleave', () => {
+      element.style.setProperty('--mx', '50%');
+      element.style.setProperty('--my', '50%');
+    });
+  });
+}
