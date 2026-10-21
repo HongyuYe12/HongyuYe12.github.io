@@ -1,5 +1,6 @@
 import { createLiquidGlass, isChromium } from './liquid-glass.js';
 
+document.documentElement.classList.add('js');
 const languageButton = document.querySelector('.language-toggle');
 const translations = {
   zh: {

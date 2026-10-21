@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Ye Hongyu 的个人主页，记录学习、探索与成长。">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <title>Ye Hongyu｜robin.hye</title>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=2">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png?v=2">
@@ -12,18 +13,19 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
   <div class="ambient-light ambient-one" aria-hidden="true"></div>
   <div class="ambient-light ambient-two" aria-hidden="true"></div>
   <header class="site-header liquid-glass">
     <a class="logo" href="#home" aria-label="返回首页">
       <picture>
         <source srcset="assets/hye-mark-white.png?v=2" media="(prefers-color-scheme: dark)">
-        <img src="assets/hye-mark-black.png?v=2" alt="HYe">
+        <img src="assets/hye-mark-black.png?v=2" alt="HYe" width="1783" height="957">
       </picture>
     </a>
     <nav aria-label="主导航">
-      <a href="#about" data-i18n="navAbout">关于</a>
       <a href="#projects" data-i18n="navProjects">探索</a>
+      <a href="#about" data-i18n="navAbout">关于</a>
       <a href="#contact" data-i18n="navContact">联系</a>
     </nav>
     <div class="header-actions">
@@ -31,7 +33,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <section class="hero" id="home">
       <div class="hero-copy reveal">
         <p class="eyebrow">HELLO, I'M YE HONGYU</p>
@@ -42,32 +44,16 @@
           <a class="button secondary liquid-control" href="#contact" data-i18n="contactMe">联系我</a>
         </div>
       </div>
-      <div class="portrait-card reveal" aria-label="个人照片占位区域">
-        <div class="portrait-placeholder liquid-glass">
+      <div class="portrait-card reveal" aria-label="HYe 个人标识">
+        <div class="portrait-placeholder">
           <picture class="hero-mark">
             <source srcset="assets/hye-mark-white.png?v=2" media="(prefers-color-scheme: dark)">
-            <img src="assets/hye-mark-black.png?v=2" alt="HYe handwritten mark">
+            <img src="assets/hye-mark-black.png?v=2" alt="HYe handwritten mark" width="1783" height="957">
           </picture>
           <small data-i18n="photoPlaceholder">个人照片即将更新</small>
         </div>
         <div class="orbit orbit-one"></div>
         <div class="orbit orbit-two"></div>
-      </div>
-    </section>
-
-    <section class="section about" id="about">
-      <div class="section-heading reveal">
-        <p class="eyebrow">ABOUT ME</p>
-        <h2 data-i18n="aboutTitle">关于我</h2>
-      </div>
-      <div class="about-grid">
-        <p class="about-lead reveal" data-i18n="aboutLead">我是一名保持好奇、乐于学习和探索新事物的学生。</p>
-        <div class="about-details reveal">
-          <p data-i18n="aboutDetail">目前我正在积累知识与实践经验。这个网站会持续记录我的成长、想法和未来完成的项目。</p>
-          <div class="skills" aria-label="技能标签">
-            <span data-i18n="skill1">持续学习</span><span data-i18n="skill2">独立思考</span><span data-i18n="skill3">探索实践</span><span data-i18n="skill4">开放合作</span>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -104,6 +90,22 @@
             <span class="coming-soon" data-i18n="comingSoon">持续更新中</span>
           </div>
         </article>
+      </div>
+    </section>
+
+    <section class="section about" id="about">
+      <div class="section-heading reveal">
+        <p class="eyebrow">ABOUT ME</p>
+        <h2 data-i18n="aboutTitle">关于我</h2>
+      </div>
+      <div class="about-grid">
+        <p class="about-lead reveal" data-i18n="aboutLead">我是一名保持好奇、乐于学习和探索新事物的学生。</p>
+        <div class="about-details reveal">
+          <p data-i18n="aboutDetail">目前我正在积累知识与实践经验。这个网站会持续记录我的成长、想法和未来完成的项目。</p>
+          <div class="skills" aria-label="技能标签">
+            <span data-i18n="skill1">持续学习</span><span data-i18n="skill2">独立思考</span><span data-i18n="skill3">探索实践</span><span data-i18n="skill4">开放合作</span>
+          </div>
+        </div>
       </div>
     </section>
 
