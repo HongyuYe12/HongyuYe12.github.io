@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Ye Hongyu 的个人主页、作品与联系方式。">
+  <meta name="description" content="Ye Hongyu 的个人主页，记录学习、探索与成长。">
   <meta name="theme-color" content="#f8f4ee">
   <title>Ye Hongyu｜robin.hye</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,28 +15,31 @@
   <header class="site-header">
     <a class="logo" href="#home" aria-label="返回首页">YH</a>
     <nav aria-label="主导航">
-      <a href="#about">关于</a>
-      <a href="#projects">作品</a>
-      <a href="#contact">联系</a>
+      <a href="#about" data-i18n="navAbout">关于</a>
+      <a href="#projects" data-i18n="navProjects">探索</a>
+      <a href="#contact" data-i18n="navContact">联系</a>
     </nav>
-    <button class="theme-toggle" type="button" aria-label="切换深色模式">◐</button>
+    <div class="header-actions">
+      <button class="language-toggle" type="button" aria-label="Switch language">EN</button>
+      <button class="theme-toggle" type="button" aria-label="切换深色模式">◐</button>
+    </div>
   </header>
 
   <main>
     <section class="hero" id="home">
       <div class="hero-copy reveal">
         <p class="eyebrow">HELLO, I'M YE HONGYU</p>
-        <h1>把想法变成<br><em>清晰而美好的作品。</em></h1>
-        <p class="intro">你好，我是 Ye Hongyu。这里记录我的作品、经历与持续探索的事情。欢迎认识我，也欢迎一起创造有趣的项目。</p>
+        <h1 data-i18n="heroTitle">在学习中探索，<br><em>在实践中成长。</em></h1>
+        <p class="intro" data-i18n="heroIntro">你好，我是 Ye Hongyu，一名学生。这里记录我的学习、经历与持续探索的事情。</p>
         <div class="hero-actions">
-          <a class="button primary" href="#projects">查看作品</a>
-          <a class="button secondary" href="#contact">联系我</a>
+          <a class="button primary" href="#projects" data-i18n="viewProjects">查看探索</a>
+          <a class="button secondary" href="#contact" data-i18n="contactMe">联系我</a>
         </div>
       </div>
       <div class="portrait-card reveal" aria-label="个人照片占位区域">
         <div class="portrait-placeholder">
-          <span>E</span>
-          <small>在此替换你的照片</small>
+          <span>YH</span>
+          <small data-i18n="photoPlaceholder">个人照片即将更新</small>
         </div>
         <div class="orbit orbit-one"></div>
         <div class="orbit orbit-two"></div>
@@ -46,14 +49,14 @@
     <section class="section about" id="about">
       <div class="section-heading reveal">
         <p class="eyebrow">ABOUT ME</p>
-        <h2>关于我</h2>
+        <h2 data-i18n="aboutTitle">关于我</h2>
       </div>
       <div class="about-grid">
-        <p class="about-lead reveal">我喜欢把复杂的问题整理得简单、直观，并用设计与技术创造真正有用的体验。</p>
+        <p class="about-lead reveal" data-i18n="aboutLead">我是一名保持好奇、乐于学习和探索新事物的学生。</p>
         <div class="about-details reveal">
-          <p>请把这里替换成你的个人介绍：你是谁、正在做什么，以及你最希望别人通过这个网站了解什么。</p>
+          <p data-i18n="aboutDetail">目前我正在积累知识与实践经验。这个网站会持续记录我的成长、想法和未来完成的项目。</p>
           <div class="skills" aria-label="技能标签">
-            <span>创意设计</span><span>内容表达</span><span>项目策划</span><span>持续学习</span>
+            <span data-i18n="skill1">持续学习</span><span data-i18n="skill2">独立思考</span><span data-i18n="skill3">探索实践</span><span data-i18n="skill4">开放合作</span>
           </div>
         </div>
       </div>
@@ -62,34 +65,34 @@
     <section class="section projects" id="projects">
       <div class="section-heading reveal">
         <p class="eyebrow">SELECTED WORK</p>
-        <h2>精选作品</h2>
+        <h2 data-i18n="projectsTitle">学习与探索</h2>
       </div>
       <div class="project-grid">
         <article class="project-card featured reveal">
           <div class="project-visual visual-one"><span>01</span></div>
           <div class="project-info">
-            <p class="project-type">个人项目 · 2026</p>
-            <h3>你的第一个项目</h3>
-            <p>简单介绍项目背景、你的职责，以及最终取得的成果。</p>
-            <a href="#" aria-label="查看第一个项目">查看详情 →</a>
+            <p class="project-type" data-i18n="projectType1">个人成长</p>
+            <h3 data-i18n="projectTitle1">学习记录</h3>
+            <p data-i18n="projectDesc1">未来将在这里分享课程学习、读书笔记和实践成果。</p>
+            <span class="coming-soon" data-i18n="comingSoon">持续更新中</span>
           </div>
         </article>
         <article class="project-card reveal">
           <div class="project-visual visual-two"><span>02</span></div>
           <div class="project-info">
-            <p class="project-type">作品案例</p>
-            <h3>你的第二个项目</h3>
-            <p>展示你的能力、过程和思考。</p>
-            <a href="#" aria-label="查看第二个项目">查看详情 →</a>
+            <p class="project-type" data-i18n="projectType2">项目实践</p>
+            <h3 data-i18n="projectTitle2">未来项目</h3>
+            <p data-i18n="projectDesc2">完成新的个人或团队项目后，我会在这里记录过程与收获。</p>
+            <span class="coming-soon" data-i18n="comingSoon">持续更新中</span>
           </div>
         </article>
         <article class="project-card reveal">
           <div class="project-visual visual-three"><span>03</span></div>
           <div class="project-info">
-            <p class="project-type">兴趣探索</p>
-            <h3>你的第三个项目</h3>
-            <p>也可以放文章、摄影或其他作品。</p>
-            <a href="#" aria-label="查看第三个项目">查看详情 →</a>
+            <p class="project-type" data-i18n="projectType3">兴趣探索</p>
+            <h3 data-i18n="projectTitle3">想法与发现</h3>
+            <p data-i18n="projectDesc3">这里将收录我感兴趣的主题、文章以及生活中的新发现。</p>
+            <span class="coming-soon" data-i18n="comingSoon">持续更新中</span>
           </div>
         </article>
       </div>
@@ -98,13 +101,11 @@
     <section class="contact section" id="contact">
       <div class="contact-card reveal">
         <p class="eyebrow">LET'S CONNECT</p>
-        <h2>有想法？来聊聊。</h2>
-        <p>你可以通过邮件或社交账号联系我。我很乐意认识新朋友，也欢迎讨论合作机会。</p>
-        <a class="email-link" href="mailto:hello@example.com">hello@example.com ↗</a>
+        <h2 data-i18n="contactTitle">欢迎与我联系。</h2>
+        <p data-i18n="contactText">如果你想交流学习、兴趣或合作想法，可以通过邮件或 GitHub 找到我。</p>
+        <a class="email-link" href="mailto:robin.hye@icloud.com">robin.hye@icloud.com ↗</a>
         <div class="social-links">
           <a href="https://github.com/HongyuYe12" target="_blank" rel="noopener noreferrer" aria-label="访问 Ye Hongyu 的 GitHub 主页">GitHub</a>
-          <a href="#">小红书</a>
-          <a href="#">LinkedIn</a>
         </div>
       </div>
     </section>
@@ -112,7 +113,7 @@
 
   <footer>
     <span>© <span id="year"></span> Ye Hongyu · robin.hye</span>
-    <a href="#home">回到顶部 ↑</a>
+    <a href="#home" data-i18n="backToTop">回到顶部 ↑</a>
   </footer>
 
   <script src="script.js"></script>
