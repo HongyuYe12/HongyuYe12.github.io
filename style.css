@@ -112,13 +112,11 @@ h1 span { color: var(--muted); font-weight: 700; font-style: normal; }
 .portrait-placeholder {
   position: relative; z-index: 2; width: min(720px, 92vw); height: 280px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: var(--accent-soft);
+  background: linear-gradient(180deg, var(--accent-soft), color-mix(in srgb, var(--accent-soft) 72%, var(--bg)));
   border: 1px solid var(--line); border-radius: 32px; box-shadow: none; overflow: hidden;
 }
 .portrait-placeholder::after { display: none; }
-.hero-mark { display: block; width: min(540px, 84%); z-index: 1; }
-.hero-mark img { display: block; width: 100%; height: auto; object-fit: contain; }
-.portrait-placeholder small { z-index: 1; color: var(--muted); }
+.memoji { display: block; width: auto; height: 118%; max-width: 86%; object-fit: contain; object-position: center bottom; transform: translateY(8%); filter: drop-shadow(0 18px 28px rgba(0,0,0,.12)); }
 .orbit { display: none; }
 .orbit-one { width: 410px; height: 410px; }
 .orbit-two { width: 480px; height: 310px; transform: rotate(40deg); }
@@ -171,7 +169,8 @@ footer { width: min(1180px, calc(100% - 40px)); margin: auto; padding: 28px 0 45
   .project-card.featured { grid-column: auto; }
   .featured .project-visual { min-height: 300px; }
   .featured .project-info { padding: 32px; }
-  .portrait-placeholder { height: 220px; border-radius: 24px; }
+  .portrait-placeholder { height: 250px; border-radius: 24px; }
+  .memoji { height: 112%; max-width: 94%; }
   .social-links { flex-wrap: wrap; }
   footer { gap: 20px; flex-direction: column; }
 }
