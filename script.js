@@ -1,6 +1,4 @@
-const themeButton = document.querySelector('.theme-toggle');
 const languageButton = document.querySelector('.language-toggle');
-const savedTheme = localStorage.getItem('theme');
 const translations = {
   zh: {
     navAbout: '关于', navProjects: '探索', navContact: '联系',
@@ -33,13 +31,6 @@ const translations = {
     contactText: 'Reach out by email or GitHub to talk about learning, shared interests, or collaboration.', backToTop: 'Back to top ↑'
   }
 };
-
-if (savedTheme === 'dark') document.body.classList.add('dark');
-
-themeButton.addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-  localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-});
 
 function setLanguage(language) {
   document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
