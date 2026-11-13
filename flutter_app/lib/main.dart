@@ -58,6 +58,10 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage> {
+  static const _compactGlassShape =
+      LiquidRoundedSuperellipse(borderRadius: 14);
+  static const _actionGlassShape =
+      LiquidRoundedSuperellipse(borderRadius: 16);
   final _homeKey = GlobalKey();
   final _projectsKey = GlobalKey();
   final _aboutKey = GlobalKey();
@@ -112,6 +116,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
             label: _english ? '切换为中文' : 'Switch to English',
             onTap: () => setState(() => _english = !_english),
             width: 58, height: 44, stretch: .12, useOwnLayer: true,
+            shape: _compactGlassShape,
+            glowColor: const Color(0x330071E3),
+            pressLightColor: const Color(0xFF0071E3),
             child: Text(_english ? '中' : 'EN', style: TextStyle(fontSize: 14, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600)),
           ),
         ],
@@ -159,8 +166,8 @@ class _Hero extends StatelessWidget {
         ConstrainedBox(constraints: const BoxConstraints(maxWidth: 620), child: Text(text['heroIntro']!, textAlign: compact ? TextAlign.center : TextAlign.left, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: compact ? 18 : 21, color: dark ? Colors.white70 : Colors.black54))),
         const SizedBox(height: 30),
         Wrap(alignment: compact ? WrapAlignment.center : WrapAlignment.start, spacing: 12, runSpacing: 12, children: [
-          GlassButton.custom(label: text['viewProjects']!, onTap: onProjects, useOwnLayer: true, width: 132, height: 50, style: GlassButtonStyle.prominent, child: Text(text['viewProjects']!, style: TextStyle(fontSize: 15, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600))),
-          GlassButton.custom(label: text['contactMe']!, onTap: onContact, useOwnLayer: true, width: 112, height: 50, style: GlassButtonStyle.filled, child: Text(text['contactMe']!, style: TextStyle(fontSize: 15, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600))),
+          GlassButton.custom(label: text['viewProjects']!, onTap: onProjects, useOwnLayer: true, width: 132, height: 50, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), style: GlassButtonStyle.prominent, child: Text(text['viewProjects']!, style: TextStyle(fontSize: 15, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600))),
+          GlassButton.custom(label: text['contactMe']!, onTap: onContact, useOwnLayer: true, width: 112, height: 50, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), style: GlassButtonStyle.filled, child: Text(text['contactMe']!, style: TextStyle(fontSize: 15, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600))),
         ]),
       ],
     );
@@ -244,7 +251,7 @@ class _SkillChip extends StatelessWidget {
   const _SkillChip(this.label, {required this.dark});
   final String label; final bool dark;
   @override
-  Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), decoration: BoxDecoration(color: dark ? Colors.white10 : Colors.black.withValues(alpha: .055), borderRadius: BorderRadius.circular(99)), child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)));
+  Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), decoration: BoxDecoration(color: dark ? Colors.white10 : Colors.black.withValues(alpha: .055), borderRadius: BorderRadius.circular(12)), child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)));
 }
 
 class _Contact extends StatelessWidget {
@@ -256,8 +263,8 @@ class _Contact extends StatelessWidget {
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(text['contactText']!, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 18)), const SizedBox(height: 26),
       Wrap(spacing: 12, runSpacing: 12, children: [
-        GlassButton.custom(label: 'Email robin.hye@icloud.com', onTap: onEmail, useOwnLayer: true, width: 238, height: 52, child: Text('robin.hye@icloud.com ↗', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-        GlassButton.custom(label: 'GitHub HongyuYe12', onTap: onGithub, useOwnLayer: true, width: 120, height: 52, style: GlassButtonStyle.filled, child: Text('GitHub ↗', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+        GlassButton.custom(label: 'Email robin.hye@icloud.com', onTap: onEmail, useOwnLayer: true, width: 238, height: 52, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), child: Text('robin.hye@icloud.com ↗', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+        GlassButton.custom(label: 'GitHub HongyuYe12', onTap: onGithub, useOwnLayer: true, width: 120, height: 52, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), style: GlassButtonStyle.filled, child: Text('GitHub ↗', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
       ]),
     ]),
   );
