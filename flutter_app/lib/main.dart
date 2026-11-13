@@ -58,8 +58,7 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage> {
-  static const _compactGlassShape =
-      LiquidRoundedSuperellipse(borderRadius: 14);
+  static const _compactGlassShape = LiquidOval();
   static const _actionGlassShape =
       LiquidRoundedSuperellipse(borderRadius: 16);
   final _homeKey = GlobalKey();
@@ -115,7 +114,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
           GlassButton.custom(
             label: _english ? '切换为中文' : 'Switch to English',
             onTap: () => setState(() => _english = !_english),
-            width: 58, height: 44, stretch: .12, useOwnLayer: true,
+            width: 44, height: 44, stretch: .08, useOwnLayer: true,
             shape: _compactGlassShape,
             glowColor: const Color(0x330071E3),
             pressLightColor: const Color(0xFF0071E3),
