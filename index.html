@@ -1,130 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <base href="/">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Ye Hongyu 的个人主页，记录学习、探索与成长。">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-  <title>Ye Hongyu｜robin.hye</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=3" media="(prefers-color-scheme: light)">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32-white.png?v=3" media="(prefers-color-scheme: dark)">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png?v=3" media="(prefers-color-scheme: light)">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192-white.png?v=3" media="(prefers-color-scheme: dark)">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=2">
-  <link rel="stylesheet" href="style.css">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ye Hongyu">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" href="favicon-dark.png" media="(prefers-color-scheme: dark)">
+  <title>Ye Hongyu | robin.hye</title>
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <a class="skip-link" href="#main-content">跳到主要内容</a>
-  <div class="ambient-light ambient-one" aria-hidden="true"></div>
-  <div class="ambient-light ambient-two" aria-hidden="true"></div>
-  <header class="site-header liquid-glass">
-    <a class="logo" href="#home" aria-label="返回首页">
-      <picture>
-        <source srcset="assets/hye-mark-white.png?v=2" media="(prefers-color-scheme: dark)">
-        <img src="assets/hye-mark-black.png?v=2" alt="HYe" width="1783" height="957">
-      </picture>
-    </a>
-    <nav aria-label="主导航">
-      <a href="#projects" data-i18n="navProjects">探索</a>
-      <a href="#about" data-i18n="navAbout">关于</a>
-      <a href="#contact" data-i18n="navContact">联系</a>
-    </nav>
-    <div class="header-actions">
-      <button class="language-toggle liquid-control" type="button" aria-label="Switch language">EN</button>
-    </div>
-  </header>
-
-  <main id="main-content" tabindex="-1">
-    <section class="hero" id="home">
-      <div class="hero-copy reveal">
-        <p class="eyebrow">HELLO, I'M YE HONGYU</p>
-        <h1 data-i18n="heroTitle">在学习中探索。<br><span>在实践中成长。</span></h1>
-        <p class="intro" data-i18n="heroIntro">你好，我是 Ye Hongyu，一名学生。这里记录我的学习、经历与持续探索的事情。</p>
-        <div class="hero-actions">
-          <a class="button primary liquid-control" href="#projects" data-i18n="viewProjects">查看探索</a>
-          <a class="button secondary liquid-control" href="#contact" data-i18n="contactMe">联系我</a>
-        </div>
-      </div>
-      <div class="portrait-card reveal" aria-label="Ye Hongyu 的拟我头像">
-        <div class="portrait-placeholder">
-          <img class="memoji" src="assets/memoji-transparent.png?v=1" alt="Ye Hongyu 的拟我头像：黑色短发，佩戴黑框眼镜" width="950" height="1205">
-        </div>
-        <div class="orbit orbit-one"></div>
-        <div class="orbit orbit-two"></div>
-      </div>
-    </section>
-
-    <section class="section projects" id="projects">
-      <div class="section-heading reveal">
-        <p class="eyebrow">SELECTED WORK</p>
-        <h2 data-i18n="projectsTitle">学习与探索</h2>
-      </div>
-      <div class="project-grid">
-        <article class="project-card featured reveal">
-          <div class="project-visual visual-one"><span>01</span></div>
-          <div class="project-info">
-            <p class="project-type" data-i18n="projectType1">个人成长</p>
-            <h3 data-i18n="projectTitle1">学习记录</h3>
-            <p data-i18n="projectDesc1">未来将在这里分享课程学习、读书笔记和实践成果。</p>
-            <span class="coming-soon" data-i18n="comingSoon">持续更新中</span>
-          </div>
-        </article>
-        <article class="project-card reveal">
-          <div class="project-visual visual-two"><span>02</span></div>
-          <div class="project-info">
-            <p class="project-type" data-i18n="projectType2">项目实践</p>
-            <h3 data-i18n="projectTitle2">未来项目</h3>
-            <p data-i18n="projectDesc2">完成新的个人或团队项目后，我会在这里记录过程与收获。</p>
-            <span class="coming-soon" data-i18n="comingSoon">持续更新中</span>
-          </div>
-        </article>
-        <article class="project-card reveal">
-          <div class="project-visual visual-three"><span>03</span></div>
-          <div class="project-info">
-            <p class="project-type" data-i18n="projectType3">兴趣探索</p>
-            <h3 data-i18n="projectTitle3">想法与发现</h3>
-            <p data-i18n="projectDesc3">这里将收录我感兴趣的主题、文章以及生活中的新发现。</p>
-            <span class="coming-soon" data-i18n="comingSoon">持续更新中</span>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="section about" id="about">
-      <div class="section-heading reveal">
-        <p class="eyebrow">ABOUT ME</p>
-        <h2 data-i18n="aboutTitle">关于我</h2>
-      </div>
-      <div class="about-grid">
-        <p class="about-lead reveal" data-i18n="aboutLead">我是一名保持好奇、乐于学习和探索新事物的学生。</p>
-        <div class="about-details reveal">
-          <p data-i18n="aboutDetail">目前我正在积累知识与实践经验。这个网站会持续记录我的成长、想法和未来完成的项目。</p>
-          <div class="skills" aria-label="技能标签">
-            <span data-i18n="skill1">持续学习</span><span data-i18n="skill2">独立思考</span><span data-i18n="skill3">探索实践</span><span data-i18n="skill4">开放合作</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="contact section" id="contact">
-      <div class="contact-card reveal">
-        <p class="eyebrow">LET'S CONNECT</p>
-        <h2 data-i18n="contactTitle">欢迎与我联系。</h2>
-        <p data-i18n="contactText">如果你想交流学习、兴趣或合作想法，可以通过邮件或 GitHub 找到我。</p>
-        <a class="email-link" href="mailto:robin.hye@icloud.com">robin.hye@icloud.com ↗</a>
-        <div class="social-links">
-          <a href="https://github.com/HongyuYe12" target="_blank" rel="noopener noreferrer" aria-label="访问 Ye Hongyu 的 GitHub 主页">GitHub</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <span>© <span id="year"></span> Ye Hongyu · robin.hye</span>
-    <a href="#home" data-i18n="backToTop">回到顶部 ↑</a>
-  </footer>
-
-  <script type="module" src="script.js"></script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
