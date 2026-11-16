@@ -96,16 +96,17 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _homeKey = GlobalKey();
   final _projectsKey = GlobalKey();
   final _contactKey = GlobalKey();
   final _scrollController = ScrollController();
   late final AnimationController _menuAnimation;
+  late final AnimationController _navAnimation;
   bool _english = false;
   bool _menuOpen = false;
   bool _menuVisible = false;
-  double _navProgress = 0;
+  bool _navFloating = false;
   Map<String, String> get t => _english ? _en : _zh;
 
   @override
@@ -116,13 +117,22 @@ class _PortfolioPageState extends State<PortfolioPage>
       duration: const Duration(milliseconds: 360),
       reverseDuration: const Duration(milliseconds: 300),
     );
+    _navAnimation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 460),
+      reverseDuration: const Duration(milliseconds: 380),
+    );
     _scrollController.addListener(_handleScroll);
   }
 
   void _handleScroll() {
-    final next = (_scrollController.offset / 150).clamp(0.0, 1.0);
-    if ((next - _navProgress).abs() > .006 && mounted) {
-      setState(() => _navProgress = next);
+    final offset = _scrollController.offset;
+    if (!_navFloating && offset > 28) {
+      _navFloating = true;
+      _navAnimation.forward();
+    } else if (_navFloating && offset < 8) {
+      _navFloating = false;
+      _navAnimation.reverse();
     }
   }
 
@@ -146,6 +156,7 @@ class _PortfolioPageState extends State<PortfolioPage>
       ..removeListener(_handleScroll)
       ..dispose();
     _menuAnimation.dispose();
+    _navAnimation.dispose();
     super.dispose();
   }
 
@@ -257,19 +268,27 @@ class _PortfolioPageState extends State<PortfolioPage>
                 ),
               ),
             ),
-          Positioned(
-            left: compact ? 12 : 28,
-            right: compact ? 12 : 28,
-            top: 8 + (compact ? 2 : 10) * _navProgress,
-            child: _AdaptiveNav(
-              dark: dark,
-              compact: compact,
-              english: _english,
-              progress: _navProgress,
-              menuAnimation: _menuAnimation,
-              onHome: () => _scrollTo(_homeKey),
-              onMenu: _toggleMenu,
-            ),
+          AnimatedBuilder(
+            animation: _navAnimation,
+            builder: (context, _) {
+              final progress = Curves.easeOutCubic.transform(
+                _navAnimation.value,
+              );
+              return Positioned(
+                left: compact ? 12 : 28,
+                right: compact ? 12 : 28,
+                top: 8 + (compact ? 2 : 10) * progress,
+                child: _AdaptiveNav(
+                  dark: dark,
+                  compact: compact,
+                  english: _english,
+                  progress: progress,
+                  menuAnimation: _menuAnimation,
+                  onHome: () => _scrollTo(_homeKey),
+                  onMenu: _toggleMenu,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -727,14 +746,14 @@ class _Projects extends StatelessWidget {
     width: double.infinity,
     color: dark ? _darkPage : Colors.white,
     padding: EdgeInsets.fromLTRB(
-      compact ? 16 : 32,
-      compact ? 32 : 56,
-      compact ? 16 : 32,
+      compact ? 8 : 14,
+      compact ? 22 : 36,
+      compact ? 8 : 14,
       compact ? 88 : 136,
     ),
     child: Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1440),
+        constraints: const BoxConstraints(maxWidth: 1600),
         child: SizedBox(
           width: double.infinity,
           child: Column(
@@ -785,6 +804,7 @@ class _ThemeCard extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Container(
+    width: double.infinity,
     constraints: BoxConstraints(minHeight: compact ? 570 : 680),
     clipBehavior: Clip.antiAlias,
     decoration: BoxDecoration(
