@@ -104,6 +104,7 @@ class _PortfolioPageState extends State<PortfolioPage>
   late final AnimationController _menuAnimation;
   bool _english = false;
   bool _menuOpen = false;
+  bool _menuVisible = false;
   double _navProgress = 0;
   Map<String, String> get t => _english ? _en : _zh;
 
@@ -125,13 +126,18 @@ class _PortfolioPageState extends State<PortfolioPage>
     }
   }
 
-  void _toggleMenu() {
-    setState(() => _menuOpen = !_menuOpen);
+  Future<void> _toggleMenu() async {
     if (_menuOpen) {
-      _menuAnimation.forward();
-    } else {
-      _menuAnimation.reverse();
+      setState(() => _menuOpen = false);
+      await _menuAnimation.reverse();
+      if (mounted) setState(() => _menuVisible = false);
+      return;
     }
+    setState(() {
+      _menuVisible = true;
+      _menuOpen = true;
+    });
+    await _menuAnimation.forward();
   }
 
   @override
@@ -157,10 +163,14 @@ class _PortfolioPageState extends State<PortfolioPage>
   Future<void> _open(String value) =>
       launchUrl(Uri.parse(value), mode: LaunchMode.platformDefault);
 
-  void _menuScroll(GlobalKey key) {
-    setState(() => _menuOpen = false);
-    _menuAnimation.reverse();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollTo(key));
+  Future<void> _closeMenuThen(VoidCallback action) async {
+    if (_menuOpen) {
+      setState(() => _menuOpen = false);
+      await _menuAnimation.reverse();
+    }
+    if (!mounted) return;
+    setState(() => _menuVisible = false);
+    action();
   }
 
   void _openDetail(bool photography) {
@@ -219,16 +229,32 @@ class _PortfolioPageState extends State<PortfolioPage>
               ],
             ),
           ),
-          if (_menuOpen)
+          if (_menuVisible)
             Positioned.fill(
-              child: _MenuPanel(
-                text: t,
-                dark: dark,
-                english: _english,
-                onComputer: () => _menuScroll(_projectsKey),
-                onPhotography: () => _menuScroll(_projectsKey),
-                onContact: () => _menuScroll(_contactKey),
-                onLanguage: () => setState(() => _english = !_english),
+              child: AnimatedBuilder(
+                animation: _menuAnimation,
+                builder: (context, child) {
+                  final progress = Curves.easeOutCubic.transform(
+                    _menuAnimation.value,
+                  );
+                  return Opacity(
+                    opacity: progress,
+                    child: Transform.scale(
+                      alignment: Alignment.topRight,
+                      scale: .88 + .12 * progress,
+                      child: child,
+                    ),
+                  );
+                },
+                child: _MenuPanel(
+                  text: t,
+                  dark: dark,
+                  english: _english,
+                  onComputer: () => _closeMenuThen(() => _openDetail(false)),
+                  onPhotography: () => _closeMenuThen(() => _openDetail(true)),
+                  onContact: () => _closeMenuThen(() => _scrollTo(_contactKey)),
+                  onLanguage: () => setState(() => _english = !_english),
+                ),
               ),
             ),
           Positioned(
@@ -372,13 +398,11 @@ class _MenuButton extends StatelessWidget {
     button: true,
     label: english ? 'Open or close menu' : '打开或关闭菜单',
     child: Material(
-      color: emphasized
-          ? const Color(0xFF0071E3)
-          : (dark ? const Color(0xB3222224) : const Color(0xCCF5F5F7)),
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
+      color: Colors.transparent,
+      child: InkResponse(
         onTap: onTap,
+        radius: size / 2,
+        highlightShape: BoxShape.circle,
         child: SizedBox.square(
           dimension: size,
           child: AnimatedBuilder(
@@ -386,9 +410,7 @@ class _MenuButton extends StatelessWidget {
             builder: (context, _) => CustomPaint(
               painter: _MenuMorphPainter(
                 progress: Curves.easeInOutCubic.transform(animation.value),
-                color: emphasized || dark
-                    ? Colors.white
-                    : const Color(0xFF1D1D1F),
+                color: dark ? Colors.white : const Color(0xFF1D1D1F),
               ),
             ),
           ),
@@ -433,13 +455,6 @@ class _MenuMorphPainter extends CustomPainter {
       paint,
     );
     canvas.restore();
-
-    paint.color = color.withValues(alpha: 1 - progress);
-    canvas.drawLine(
-      Offset(center.dx - half, center.dy),
-      Offset(center.dx + half, center.dy),
-      paint,
-    );
   }
 
   @override
