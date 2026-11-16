@@ -1,6 +1,5 @@
 // ignore: deprecated_member_use
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,7 +11,6 @@ const _darkLink = Color(0xFF2997FF);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  debugPaintBaselinesEnabled = false;
   await LiquidGlassWidgets.initialize(warmUpMode: GlassWarmUpMode.auto);
   runApp(
     LiquidGlassWidgets.wrap(
@@ -98,13 +96,33 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage> {
-  static const _glassShape = LiquidRoundedSuperellipse(borderRadius: 28);
   final _homeKey = GlobalKey();
   final _projectsKey = GlobalKey();
   final _contactKey = GlobalKey();
+  final _scrollController = ScrollController();
   bool _english = false;
   bool _menuOpen = false;
+  bool _scrolled = false;
   Map<String, String> get t => _english ? _en : _zh;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_handleScroll);
+  }
+
+  void _handleScroll() {
+    final next = _scrollController.offset > 96;
+    if (next != _scrolled && mounted) setState(() => _scrolled = next);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
+    super.dispose();
+  }
 
   Future<void> _scrollTo(GlobalKey key) async {
     final target = key.currentContext;
@@ -147,33 +165,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
       settings: dark
           ? LiquidGlassSettings.ios27Dark
           : LiquidGlassSettings.ios27Light,
-      appBar: GlassAppBar(
-        toolbarHeight: 52,
-        padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 28),
-        centerTitle: false,
-        leading: Semantics(
-          button: true,
-          label: _english ? 'Back to top' : '返回首页',
-          child: GestureDetector(
-            onTap: () => _scrollTo(_homeKey),
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Image.asset(
-                dark
-                    ? 'assets/hye-mark-white.png'
-                    : 'assets/hye-mark-black.png',
-                width: 54,
-                height: 28,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-      ),
       body: Stack(
         children: [
           SingleChildScrollView(
+            controller: _scrollController,
             child: Column(
               children: [
                 _Hero(
@@ -216,32 +211,218 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 onLanguage: () => setState(() => _english = !_english),
               ),
             ),
-          Positioned(
-            top: 4,
-            right: compact ? 14 : 26,
-            child: GlassButton.custom(
-              label: _menuOpen
-                  ? (_english ? 'Close menu' : '关闭菜单')
-                  : (_english ? 'Open menu' : '打开菜单'),
-              onTap: () => setState(() => _menuOpen = !_menuOpen),
-              width: 44,
-              height: 44,
-              stretch: .04,
-              useOwnLayer: true,
-              shape: const LiquidOval(),
-              glowColor: const Color(0x220071E3),
-              pressLightColor: const Color(0xFF0071E3),
-              child: Icon(
-                _menuOpen ? Icons.close_rounded : Icons.menu_rounded,
-                size: 25,
-                color: dark ? Colors.white : const Color(0xFF1D1D1F),
+          if (!_scrolled)
+            Positioned(
+              left: compact ? 16 : 28,
+              right: compact ? 14 : 26,
+              top: 8,
+              child: _TopBar(
+                dark: dark,
+                menuOpen: _menuOpen,
+                english: _english,
+                onHome: () => _scrollTo(_homeKey),
+                onMenu: () => setState(() => _menuOpen = !_menuOpen),
               ),
             ),
-          ),
+          if (_scrolled)
+            Positioned(
+              left: compact ? 12 : 28,
+              right: compact ? 12 : 28,
+              top: compact ? 10 : 18,
+              child: _FloatingNav(
+                dark: dark,
+                compact: compact,
+                english: _english,
+                menuOpen: _menuOpen,
+                onHome: () => _scrollTo(_homeKey),
+                onExplore: () => _scrollTo(_projectsKey),
+                onMenu: () => setState(() => _menuOpen = !_menuOpen),
+              ),
+            ),
         ],
       ),
     );
   }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar({
+    required this.dark,
+    required this.menuOpen,
+    required this.english,
+    required this.onHome,
+    required this.onMenu,
+  });
+  final bool dark;
+  final bool menuOpen;
+  final bool english;
+  final VoidCallback onHome;
+  final VoidCallback onMenu;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Semantics(
+        button: true,
+        label: english ? 'Back to top' : '返回首页',
+        child: InkWell(
+          onTap: onHome,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Image.asset(
+              dark ? 'assets/hye-mark-white.png' : 'assets/hye-mark-black.png',
+              width: 54,
+              height: 28,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ),
+      _MenuButton(
+        dark: dark,
+        menuOpen: menuOpen,
+        english: english,
+        onTap: onMenu,
+      ),
+    ],
+  );
+}
+
+class _FloatingNav extends StatelessWidget {
+  const _FloatingNav({
+    required this.dark,
+    required this.compact,
+    required this.english,
+    required this.menuOpen,
+    required this.onHome,
+    required this.onExplore,
+    required this.onMenu,
+  });
+  final bool dark;
+  final bool compact;
+  final bool english;
+  final bool menuOpen;
+  final VoidCallback onHome;
+  final VoidCallback onExplore;
+  final VoidCallback onMenu;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 1120),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: dark ? const Color(0xF21A1A1A) : const Color(0xF2FFFFFF),
+          borderRadius: BorderRadius.circular(compact ? 28 : 36),
+          border: Border.all(color: dark ? Colors.white12 : Colors.black12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x26000000),
+              blurRadius: 32,
+              offset: Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(compact ? 18 : 28, 10, 10, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: onHome,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'Ye Hongyu',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: dark ? _darkPrimary : const Color(0xFF1D1D1F),
+                        fontSize: compact ? 20 : 27,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -.7,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (!compact)
+                OutlinedButton(
+                  onPressed: onExplore,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: dark
+                        ? _darkPrimary
+                        : const Color(0xFF1D1D1F),
+                    side: BorderSide(
+                      color: dark ? Colors.white38 : Colors.black26,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Text(english ? 'Explore' : '探索'),
+                ),
+              if (!compact) const SizedBox(width: 10),
+              _MenuButton(
+                dark: dark,
+                menuOpen: menuOpen,
+                english: english,
+                onTap: onMenu,
+                filled: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _MenuButton extends StatelessWidget {
+  const _MenuButton({
+    required this.dark,
+    required this.menuOpen,
+    required this.english,
+    required this.onTap,
+    this.filled = false,
+  });
+  final bool dark;
+  final bool menuOpen;
+  final bool english;
+  final bool filled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: menuOpen
+        ? (english ? 'Close menu' : '关闭菜单')
+        : (english ? 'Open menu' : '打开菜单'),
+    child: Material(
+      color: filled
+          ? const Color(0xFF0071E3)
+          : (dark ? const Color(0xB3222224) : const Color(0xCCF5F5F7)),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox.square(
+          dimension: 48,
+          child: Icon(
+            menuOpen ? Icons.close_rounded : Icons.menu_rounded,
+            size: 25,
+            color: filled || dark ? Colors.white : const Color(0xFF1D1D1F),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _MenuPanel extends StatelessWidget {
@@ -265,26 +446,28 @@ class _MenuPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = dark ? _darkPrimary : const Color(0xFF1D1D1F);
-    return ColoredBox(
+    return Material(
       color: dark ? _darkPage : const Color(0xFFF5F5F7),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(34, 36, 34, 70),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _MenuItem(text['computerProjects']!, onComputer, color),
-            _MenuItem(text['photography']!, onPhotography, color),
-            _MenuItem(text['contact']!, onContact, color),
-            const SizedBox(height: 22),
-            Divider(color: dark ? Colors.white12 : Colors.black12),
-            const SizedBox(height: 18),
-            _MenuItem(
-              english ? '切换为中文' : 'Switch to English',
-              onLanguage,
-              color,
-              small: true,
-            ),
-          ],
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(34, 76, 34, 70),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _MenuItem(text['computerProjects']!, onComputer, color),
+              _MenuItem(text['photography']!, onPhotography, color),
+              _MenuItem(text['contact']!, onContact, color),
+              const SizedBox(height: 22),
+              Divider(color: dark ? Colors.white12 : Colors.black12),
+              const SizedBox(height: 18),
+              _MenuItem(
+                english ? '切换为中文' : 'Switch to English',
+                onLanguage,
+                color,
+                small: true,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -476,6 +659,7 @@ class _BlueLink extends StatelessWidget {
                     : const Color(0xFF0071E3),
                 fontSize: 17,
                 fontWeight: FontWeight.w500,
+                decoration: TextDecoration.none,
               ),
             ),
             const SizedBox(width: 3),
@@ -743,54 +927,46 @@ class _Contact extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     color: dark ? _darkPage : const Color(0xFFF5F5F7),
     padding: EdgeInsets.fromLTRB(
-      compact ? 16 : 24,
-      compact ? 72 : 110,
-      compact ? 16 : 24,
-      compact ? 72 : 110,
+      compact ? 24 : 48,
+      compact ? 84 : 124,
+      compact ? 24 : 48,
+      compact ? 64 : 86,
     ),
     child: Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 980),
-        child: GlassContainer.card(
-          useOwnLayer: true,
-          quality: GlassQuality.standard,
-          padding: EdgeInsets.symmetric(
-            horizontal: compact ? 24 : 64,
-            vertical: compact ? 56 : 78,
-          ),
-          shape: _PortfolioPageState._glassShape,
-          child: Column(
-            children: [
-              Text(
-                text['contactTitle']!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.displayMedium!
-                    .copyWith(fontSize: compact ? 42 : 62),
-              ),
-              const SizedBox(height: 18),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 650),
-                child: Text(
-                  text['contactText']!,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontSize: compact ? 17 : 20,
-                    color: dark ? _darkSecondary : const Color(0xFF6E6E73),
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text['contactTitle']!,
+              textAlign: TextAlign.left,
+              style: Theme.of(context).textTheme.displayMedium!
+                  .copyWith(fontSize: compact ? 42 : 58),
+            ),
+            const SizedBox(height: 16),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Text(
+                text['contactText']!,
+                textAlign: TextAlign.left,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  fontSize: compact ? 17 : 20,
+                  color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+                  decoration: TextDecoration.none,
                 ),
               ),
-              const SizedBox(height: 20),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 22,
-                runSpacing: 4,
-                children: [
-                  _BlueLink(label: 'robin.hye@icloud.com', onTap: onEmail),
-                  _BlueLink(label: 'GitHub', onTap: onGithub),
-                ],
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: compact ? 24 : 30),
+            Wrap(
+              spacing: compact ? 16 : 30,
+              runSpacing: 8,
+              children: [
+                _BlueLink(label: 'robin.hye@icloud.com', onTap: onEmail),
+                _BlueLink(label: 'GitHub', onTap: onGithub),
+              ],
+            ),
+          ],
         ),
       ),
     ),
@@ -809,6 +985,7 @@ class _Footer extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 980),
         child: Container(
+          width: double.infinity,
           padding: const EdgeInsets.only(top: 18),
           decoration: BoxDecoration(
             border: Border(
@@ -820,6 +997,7 @@ class _Footer extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               color: dark ? Colors.white54 : Colors.black54,
+              decoration: TextDecoration.none,
             ),
           ),
         ),

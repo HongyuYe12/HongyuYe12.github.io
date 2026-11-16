@@ -1,22 +1,49 @@
-# Ye Hongyu · robin.hye
+# Ye Hongyu — Personal Website
 
-这是一个可以直接部署到 GitHub Pages 的个人网站。
+[![Website](https://img.shields.io/badge/Website-hongyuye12.github.io-0071E3?style=flat-square)](https://hongyuye12.github.io)
+[![Built with Flutter](https://img.shields.io/badge/Built%20with-Flutter-02569B?style=flat-square&logo=flutter)](https://flutter.dev)
 
-## 修改内容
+Ye Hongyu 的双语个人网站，用于展示计算机项目、摄影作品与联系方式。整体设计参考 Apple 的简洁排版与系统级深浅色体验，并使用 Flutter Web 构建。
 
-- 在 `index.html` 中替换姓名、个人介绍、项目和联系方式。
-- 在 `style.css` 顶部修改主题颜色。
-- 若要使用照片，可把 `portrait-placeholder` 区域替换成 `<img>`。
+## 网站功能
 
-## 发布到 GitHub Pages
+- 中文 / English 双语切换
+- 跟随系统自动切换浅色与深色模式
+- 计算机项目与摄影作品独立详情页
+- 响应式桌面、平板与手机布局
+- Apple 风格悬浮导航与克制的 Liquid Glass 视觉效果
+- GitHub Pages 公开访问
 
-1. 创建名为 `你的用户名.github.io` 的公开仓库。
-2. 将本目录中的全部文件上传到仓库根目录。
-3. 在仓库 Settings → Pages 中选择从 `main` 分支的根目录发布。
-4. 访问 `https://你的用户名.github.io`。
+## 技术栈
 
-## 关于 robin.hye
+- Flutter Web
+- Dart
+- `liquid_glass_widgets`
+- GitHub Pages
 
-网站品牌名已经设置为 `robin.hye`。不过 `.hye` 不是可注册的 ASCII 顶级域名，因此 `robin.hye` 不能直接作为公开网址。GitHub 用户名也不能包含句点。
+## 本地运行
 
-建议注册 GitHub 用户名 `robin-hye`（如果尚未被占用），网站地址将是 `https://robin-hye.github.io`，仓库名称则是 `robin-hye.github.io`。
+```bash
+cd flutter_app
+flutter pub get
+flutter run -d chrome
+```
+
+## 构建与发布
+
+```bash
+cd flutter_app
+flutter build web --release
+```
+
+构建结果位于 `flutter_app/build/web`。本仓库根目录保存 GitHub Pages 使用的发布文件。
+
+## 联系方式
+
+- Website: [hongyuye12.github.io](https://hongyuye12.github.io)
+- GitHub: [HongyuYe12](https://github.com/HongyuYe12)
+- Email: [robin.hye@icloud.com](mailto:robin.hye@icloud.com)
+
+## License
+
+网站内容与个人视觉资产 © Ye Hongyu。第三方依赖与 Liquid Glass 相关资源遵循各自许可证。
