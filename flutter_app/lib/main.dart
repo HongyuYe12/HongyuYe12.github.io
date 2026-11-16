@@ -95,25 +95,43 @@ class PortfolioPage extends StatefulWidget {
   State<PortfolioPage> createState() => _PortfolioPageState();
 }
 
-class _PortfolioPageState extends State<PortfolioPage> {
+class _PortfolioPageState extends State<PortfolioPage>
+    with SingleTickerProviderStateMixin {
   final _homeKey = GlobalKey();
   final _projectsKey = GlobalKey();
   final _contactKey = GlobalKey();
   final _scrollController = ScrollController();
+  late final AnimationController _menuAnimation;
   bool _english = false;
   bool _menuOpen = false;
-  bool _scrolled = false;
+  double _navProgress = 0;
   Map<String, String> get t => _english ? _en : _zh;
 
   @override
   void initState() {
     super.initState();
+    _menuAnimation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 360),
+      reverseDuration: const Duration(milliseconds: 300),
+    );
     _scrollController.addListener(_handleScroll);
   }
 
   void _handleScroll() {
-    final next = _scrollController.offset > 96;
-    if (next != _scrolled && mounted) setState(() => _scrolled = next);
+    final next = (_scrollController.offset / 150).clamp(0.0, 1.0);
+    if ((next - _navProgress).abs() > .006 && mounted) {
+      setState(() => _navProgress = next);
+    }
+  }
+
+  void _toggleMenu() {
+    setState(() => _menuOpen = !_menuOpen);
+    if (_menuOpen) {
+      _menuAnimation.forward();
+    } else {
+      _menuAnimation.reverse();
+    }
   }
 
   @override
@@ -121,6 +139,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
     _scrollController
       ..removeListener(_handleScroll)
       ..dispose();
+    _menuAnimation.dispose();
     super.dispose();
   }
 
@@ -140,6 +159,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   void _menuScroll(GlobalKey key) {
     setState(() => _menuOpen = false);
+    _menuAnimation.reverse();
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollTo(key));
   }
 
@@ -211,201 +231,148 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 onLanguage: () => setState(() => _english = !_english),
               ),
             ),
-          if (!_scrolled)
-            Positioned(
-              left: compact ? 16 : 28,
-              right: compact ? 14 : 26,
-              top: 8,
-              child: _TopBar(
-                dark: dark,
-                menuOpen: _menuOpen,
-                english: _english,
-                onHome: () => _scrollTo(_homeKey),
-                onMenu: () => setState(() => _menuOpen = !_menuOpen),
-              ),
+          Positioned(
+            left: compact ? 12 : 28,
+            right: compact ? 12 : 28,
+            top: 8 + (compact ? 2 : 10) * _navProgress,
+            child: _AdaptiveNav(
+              dark: dark,
+              compact: compact,
+              english: _english,
+              progress: _navProgress,
+              menuAnimation: _menuAnimation,
+              onHome: () => _scrollTo(_homeKey),
+              onMenu: _toggleMenu,
             ),
-          if (_scrolled)
-            Positioned(
-              left: compact ? 12 : 28,
-              right: compact ? 12 : 28,
-              top: compact ? 10 : 18,
-              child: _FloatingNav(
-                dark: dark,
-                compact: compact,
-                english: _english,
-                menuOpen: _menuOpen,
-                onHome: () => _scrollTo(_homeKey),
-                onExplore: () => _scrollTo(_projectsKey),
-                onMenu: () => setState(() => _menuOpen = !_menuOpen),
-              ),
-            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _TopBar extends StatelessWidget {
-  const _TopBar({
-    required this.dark,
-    required this.menuOpen,
-    required this.english,
-    required this.onHome,
-    required this.onMenu,
-  });
-  final bool dark;
-  final bool menuOpen;
-  final bool english;
-  final VoidCallback onHome;
-  final VoidCallback onMenu;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Semantics(
-        button: true,
-        label: english ? 'Back to top' : '返回首页',
-        child: InkWell(
-          onTap: onHome,
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: Image.asset(
-              dark ? 'assets/hye-mark-white.png' : 'assets/hye-mark-black.png',
-              width: 54,
-              height: 28,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-      ),
-      _MenuButton(
-        dark: dark,
-        menuOpen: menuOpen,
-        english: english,
-        onTap: onMenu,
-      ),
-    ],
-  );
-}
-
-class _FloatingNav extends StatelessWidget {
-  const _FloatingNav({
+class _AdaptiveNav extends StatelessWidget {
+  const _AdaptiveNav({
     required this.dark,
     required this.compact,
     required this.english,
-    required this.menuOpen,
+    required this.progress,
+    required this.menuAnimation,
     required this.onHome,
-    required this.onExplore,
     required this.onMenu,
   });
   final bool dark;
   final bool compact;
   final bool english;
-  final bool menuOpen;
+  final double progress;
+  final Animation<double> menuAnimation;
   final VoidCallback onHome;
-  final VoidCallback onExplore;
   final VoidCallback onMenu;
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 1120),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: dark ? const Color(0xF21A1A1A) : const Color(0xF2FFFFFF),
-          borderRadius: BorderRadius.circular(compact ? 28 : 36),
-          border: Border.all(color: dark ? Colors.white12 : Colors.black12),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x26000000),
-              blurRadius: 32,
-              offset: Offset(0, 12),
-            ),
-          ],
+  Widget build(BuildContext context) {
+    final eased = Curves.easeOutCubic.transform(progress);
+    final horizontal = 4 + (compact ? 10 : 18) * eased;
+    final vertical = 2 + 7 * eased;
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 1440 - (compact ? 0 : 320) * eased,
         ),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(compact ? 18 : 28, 10, 10, 10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color.lerp(
+              Colors.transparent,
+              dark ? const Color(0xF21A1A1A) : const Color(0xF2FFFFFF),
+              eased,
+            ),
+            borderRadius: BorderRadius.circular(16 + 22 * eased),
+            border: Border.all(
+              color: Color.lerp(
+                Colors.transparent,
+                dark ? Colors.white12 : Colors.black12,
+                eased,
+              )!,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color.lerp(
+                  Colors.transparent,
+                  const Color(0x26000000),
+                  eased,
+                )!,
+                blurRadius: 32 * eased,
+                offset: Offset(0, 12 * eased),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontal,
+            vertical: vertical,
+          ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              Semantics(
+                button: true,
+                label: english ? 'Back to top' : '返回首页',
                 child: InkWell(
                   onTap: onHome,
                   borderRadius: BorderRadius.circular(20),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      'Ye Hongyu',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: dark ? _darkPrimary : const Color(0xFF1D1D1F),
-                        fontSize: compact ? 20 : 27,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -.7,
-                        decoration: TextDecoration.none,
-                      ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
+                    child: Image.asset(
+                      dark
+                          ? 'assets/hye-mark-white.png'
+                          : 'assets/hye-mark-black.png',
+                      width: 54 - 5 * eased,
+                      height: 28 - 2 * eased,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
               ),
-              if (!compact)
-                OutlinedButton(
-                  onPressed: onExplore,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: dark
-                        ? _darkPrimary
-                        : const Color(0xFF1D1D1F),
-                    side: BorderSide(
-                      color: dark ? Colors.white38 : Colors.black26,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 16,
-                    ),
-                    shape: const StadiumBorder(),
-                  ),
-                  child: Text(english ? 'Explore' : '探索'),
-                ),
-              if (!compact) const SizedBox(width: 10),
               _MenuButton(
                 dark: dark,
-                menuOpen: menuOpen,
                 english: english,
+                animation: menuAnimation,
                 onTap: onMenu,
-                filled: true,
+                emphasized: eased > .5,
+                size: 48 - 2 * eased,
               ),
             ],
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _MenuButton extends StatelessWidget {
   const _MenuButton({
     required this.dark,
-    required this.menuOpen,
     required this.english,
+    required this.animation,
     required this.onTap,
-    this.filled = false,
+    required this.emphasized,
+    required this.size,
   });
   final bool dark;
-  final bool menuOpen;
   final bool english;
-  final bool filled;
+  final Animation<double> animation;
+  final bool emphasized;
+  final double size;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: menuOpen
-        ? (english ? 'Close menu' : '关闭菜单')
-        : (english ? 'Open menu' : '打开菜单'),
+    label: english ? 'Open or close menu' : '打开或关闭菜单',
     child: Material(
-      color: filled
+      color: emphasized
           ? const Color(0xFF0071E3)
           : (dark ? const Color(0xB3222224) : const Color(0xCCF5F5F7)),
       shape: const CircleBorder(),
@@ -413,16 +380,71 @@ class _MenuButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: SizedBox.square(
-          dimension: 48,
-          child: Icon(
-            menuOpen ? Icons.close_rounded : Icons.menu_rounded,
-            size: 25,
-            color: filled || dark ? Colors.white : const Color(0xFF1D1D1F),
+          dimension: size,
+          child: AnimatedBuilder(
+            animation: animation,
+            builder: (context, _) => CustomPaint(
+              painter: _MenuMorphPainter(
+                progress: Curves.easeInOutCubic.transform(animation.value),
+                color: emphasized || dark
+                    ? Colors.white
+                    : const Color(0xFF1D1D1F),
+              ),
+            ),
           ),
         ),
       ),
     ),
   );
+}
+
+class _MenuMorphPainter extends CustomPainter {
+  const _MenuMorphPainter({required this.progress, required this.color});
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2.2
+      ..strokeCap = StrokeCap.round;
+    final center = size.center(Offset.zero);
+    final half = 9.0;
+    final spacing = 5.5 * (1 - progress);
+    final shrink = 1 - .16 * progress;
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(.785398 * progress);
+    canvas.drawLine(
+      Offset(-half * shrink, -spacing),
+      Offset(half * shrink, -spacing),
+      paint,
+    );
+    canvas.restore();
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(-.785398 * progress);
+    canvas.drawLine(
+      Offset(-half * shrink, spacing),
+      Offset(half * shrink, spacing),
+      paint,
+    );
+    canvas.restore();
+
+    paint.color = color.withValues(alpha: 1 - progress);
+    canvas.drawLine(
+      Offset(center.dx - half, center.dy),
+      Offset(center.dx + half, center.dy),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _MenuMorphPainter oldDelegate) =>
+      oldDelegate.progress != progress || oldDelegate.color != color;
 }
 
 class _MenuPanel extends StatelessWidget {
@@ -533,16 +555,6 @@ class _Hero extends StatelessWidget {
             letterSpacing: compact ? -1.8 : -2.8,
           ),
         ),
-        const SizedBox(height: 12),
-        Text(
-          text['heroRole']!,
-          style: Theme.of(context).textTheme.displayMedium!.copyWith(
-            fontSize: compact ? 28 : 44,
-            color: secondary,
-            fontWeight: FontWeight.w400,
-            letterSpacing: -1,
-          ),
-        ),
         SizedBox(height: compact ? 28 : 38),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 520),
@@ -570,10 +582,10 @@ class _Hero extends StatelessWidget {
       image: true,
       label: text['portraitLabel'],
       child: Align(
-        alignment: Alignment.bottomCenter,
+        alignment: compact ? Alignment.bottomCenter : Alignment.topCenter,
         child: Image.asset(
           'assets/memoji-portrait-transparent.png',
-          width: compact ? 330 : 480,
+          width: compact ? 270 : 380,
           fit: BoxFit.contain,
           filterQuality: FilterQuality.high,
         ),
@@ -605,7 +617,7 @@ class _Hero extends StatelessWidget {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(height: 390, child: portrait),
+                    SizedBox(height: 325, child: portrait),
                     Container(
                       color: dark ? const Color(0xE6000000) : Colors.white,
                       padding: const EdgeInsets.fromLTRB(28, 54, 28, 72),
@@ -626,7 +638,10 @@ class _Hero extends StatelessWidget {
                     const SizedBox(width: 28),
                     Expanded(
                       flex: 6,
-                      child: SizedBox(height: 560, child: portrait),
+                      child: Transform.translate(
+                        offset: const Offset(0, -24),
+                        child: SizedBox(height: 470, child: portrait),
+                      ),
                     ),
                   ],
                 ),
