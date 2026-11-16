@@ -1,6 +1,6 @@
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 // ignore: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<void> main() async {
@@ -16,36 +16,31 @@ class HyeApp extends StatelessWidget {
   const HyeApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Ye Hongyu | robin.hye',
-      themeMode: ThemeMode.system,
-      theme: _theme(Brightness.light),
-      darkTheme: _theme(Brightness.dark),
-      home: const PortfolioPage(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Ye Hongyu | robin.hye',
+        themeMode: ThemeMode.system,
+        theme: _theme(Brightness.light),
+        darkTheme: _theme(Brightness.dark),
+        home: const PortfolioPage(),
+      );
 
   ThemeData _theme(Brightness brightness) {
     final dark = brightness == Brightness.dark;
+    final foreground = dark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F);
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      scaffoldBackgroundColor: dark ? Colors.black : const Color(0xFFF5F5F7),
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF0071E3),
-        brightness: brightness,
-        surface: dark ? const Color(0xFF1C1C1E) : Colors.white,
-      ),
+      scaffoldBackgroundColor: dark ? Colors.black : Colors.white,
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0071E3), brightness: brightness, surface: dark ? const Color(0xFF1D1D1F) : Colors.white),
       fontFamily: 'NotoSansSC',
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(fontWeight: FontWeight.w700, letterSpacing: -2.2, height: 1.02),
-        displayMedium: TextStyle(fontWeight: FontWeight.w700, letterSpacing: -1.6, height: 1.05),
-        headlineMedium: TextStyle(fontWeight: FontWeight.w600, letterSpacing: -0.7),
-        titleLarge: TextStyle(fontWeight: FontWeight.w600, letterSpacing: -0.3),
-        bodyLarge: TextStyle(height: 1.55),
-        bodyMedium: TextStyle(height: 1.55),
+      textTheme: TextTheme(
+        displayLarge: TextStyle(color: foreground, fontWeight: FontWeight.w700, letterSpacing: -2.6, height: 1.06),
+        displayMedium: TextStyle(color: foreground, fontWeight: FontWeight.w700, letterSpacing: -1.8, height: 1.08),
+        headlineMedium: TextStyle(color: foreground, fontWeight: FontWeight.w600, letterSpacing: -.8, height: 1.14),
+        titleLarge: TextStyle(color: foreground, fontWeight: FontWeight.w600, letterSpacing: -.4),
+        bodyLarge: TextStyle(color: foreground, height: 1.52),
+        bodyMedium: TextStyle(color: foreground, height: 1.52),
       ),
     );
   }
@@ -58,21 +53,19 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage> {
-  static const _compactGlassShape = LiquidOval();
-  static const _actionGlassShape =
-      LiquidRoundedSuperellipse(borderRadius: 16);
+  static const _languageShape = LiquidOval();
+  static const _glassShape = LiquidRoundedSuperellipse(borderRadius: 28);
   final _homeKey = GlobalKey();
   final _projectsKey = GlobalKey();
   final _aboutKey = GlobalKey();
   final _contactKey = GlobalKey();
   bool _english = false;
-
   Map<String, String> get t => _english ? _en : _zh;
 
   Future<void> _scrollTo(GlobalKey key) async {
     final target = key.currentContext;
     if (target == null) return;
-    await Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 620), curve: Curves.easeOutCubic, alignment: .06);
+    await Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 520), curve: Curves.easeOutCubic, alignment: .04);
   }
 
   Future<void> _open(String value) => launchUrl(Uri.parse(value), mode: LaunchMode.platformDefault);
@@ -81,26 +74,26 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 760;
-    final background = dark ? Colors.black : const Color(0xFFF5F5F7);
     return GlassScaffold(
-      background: _AmbientBackground(dark: dark),
-      backgroundColor: background,
+      background: ColoredBox(color: dark ? Colors.black : const Color(0xFFF5F5F7)),
+      backgroundColor: dark ? Colors.black : const Color(0xFFF5F5F7),
       statusBarStyle: GlassStatusBarStyle.auto,
       edgeToEdge: true,
       edgeFade: true,
       settings: dark ? LiquidGlassSettings.ios27Dark : LiquidGlassSettings.ios27Light,
       appBar: GlassAppBar(
-        toolbarHeight: compact ? 64 : 72,
-        padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 28),
+        toolbarHeight: 52,
+        padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 28),
         centerTitle: false,
         leading: Semantics(
           button: true,
           label: _english ? 'Back to top' : '返回首页',
           child: GestureDetector(
             onTap: () => _scrollTo(_homeKey),
+            behavior: HitTestBehavior.opaque,
             child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Image.asset(dark ? 'assets/hye-mark-white.png' : 'assets/hye-mark-black.png', width: 64, height: 36, fit: BoxFit.contain),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Image.asset(dark ? 'assets/hye-mark-white.png' : 'assets/hye-mark-black.png', width: 54, height: 28, fit: BoxFit.contain),
             ),
           ),
         ),
@@ -114,24 +107,19 @@ class _PortfolioPageState extends State<PortfolioPage> {
           GlassButton.custom(
             label: _english ? '切换为中文' : 'Switch to English',
             onTap: () => setState(() => _english = !_english),
-            width: 44, height: 44, stretch: .08, useOwnLayer: true,
-            shape: _compactGlassShape,
-            glowColor: const Color(0x330071E3),
-            pressLightColor: const Color(0xFF0071E3),
-            child: Text(_english ? '中' : 'EN', style: TextStyle(fontSize: 14, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600)),
+            width: 40, height: 40, stretch: .06, useOwnLayer: true, shape: _languageShape,
+            glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3),
+            child: Text(_english ? '中' : 'EN', style: TextStyle(fontSize: 12, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(children: [
           _Hero(key: _homeKey, text: t, dark: dark, compact: compact, onProjects: () => _scrollTo(_projectsKey), onContact: () => _scrollTo(_contactKey)),
-          _Section(key: _projectsKey, eyebrow: 'SELECTED WORK', title: t['projectsTitle']!, child: _ProjectGrid(text: t, compact: compact, dark: dark)),
-          _Section(key: _aboutKey, eyebrow: 'ABOUT ME', title: t['aboutTitle']!, child: _About(text: t, compact: compact, dark: dark)),
-          _Section(
-            key: _contactKey, eyebrow: "LET'S CONNECT", title: t['contactTitle']!,
-            child: _Contact(text: t, onEmail: () => _open('mailto:robin.hye@icloud.com'), onGithub: () => _open('https://github.com/HongyuYe12')),
-          ),
-          Padding(padding: const EdgeInsets.fromLTRB(24, 24, 24, 56), child: Text('© ${DateTime.now().year} Ye Hongyu · robin.hye', style: TextStyle(color: dark ? Colors.white54 : Colors.black54))),
+          _Projects(key: _projectsKey, text: t, dark: dark, compact: compact),
+          _About(key: _aboutKey, text: t, dark: dark, compact: compact),
+          _Contact(key: _contactKey, text: t, dark: dark, compact: compact, onEmail: () => _open('mailto:robin.hye@icloud.com'), onGithub: () => _open('https://github.com/HongyuYe12')),
+          _Footer(dark: dark),
         ]),
       ),
     );
@@ -140,169 +128,326 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
 class _NavText extends StatelessWidget {
   const _NavText({required this.label, required this.onTap});
-  final String label; final VoidCallback onTap;
+  final String label;
+  final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
     child: InkWell(
-      onTap: onTap, borderRadius: BorderRadius.circular(22),
-      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12), child: Text(label, style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w500))),
+      onTap: onTap, borderRadius: BorderRadius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+        child: Text(label, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w400)),
+      ),
     ),
   );
 }
 
 class _Hero extends StatelessWidget {
   const _Hero({super.key, required this.text, required this.dark, required this.compact, required this.onProjects, required this.onContact});
-  final Map<String, String> text; final bool dark; final bool compact; final VoidCallback onProjects; final VoidCallback onContact;
+  final Map<String, String> text;
+  final bool dark;
+  final bool compact;
+  final VoidCallback onProjects;
+  final VoidCallback onContact;
+
   @override
   Widget build(BuildContext context) {
-    final copy = Column(
-      crossAxisAlignment: compact ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      children: [
-        const _Eyebrow("HELLO, I'M YE HONGYU"), const SizedBox(height: 18),
-        Text(text['heroTitle']!, textAlign: compact ? TextAlign.center : TextAlign.left, style: Theme.of(context).textTheme.displayLarge!.copyWith(fontSize: compact ? 48 : 78)),
-        const SizedBox(height: 22),
-        ConstrainedBox(constraints: const BoxConstraints(maxWidth: 620), child: Text(text['heroIntro']!, textAlign: compact ? TextAlign.center : TextAlign.left, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: compact ? 18 : 21, color: dark ? Colors.white70 : Colors.black54))),
-        const SizedBox(height: 30),
-        Wrap(alignment: compact ? WrapAlignment.center : WrapAlignment.start, spacing: 12, runSpacing: 12, children: [
-          GlassButton.custom(label: text['viewProjects']!, onTap: onProjects, useOwnLayer: true, width: 132, height: 50, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), style: GlassButtonStyle.prominent, child: Text(text['viewProjects']!, style: TextStyle(fontSize: 15, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600))),
-          GlassButton.custom(label: text['contactMe']!, onTap: onContact, useOwnLayer: true, width: 112, height: 50, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), style: GlassButtonStyle.filled, child: Text(text['contactMe']!, style: TextStyle(fontSize: 15, color: dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600))),
-        ]),
-      ],
-    );
-    final portrait = Semantics(
-      image: true, label: text['portraitLabel'],
-      child: SizedBox(width: compact ? 270 : 390, height: compact ? 300 : 430, child: Stack(alignment: Alignment.center, children: [
-        Container(width: compact ? 250 : 350, height: compact ? 250 : 350, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: dark ? [const Color(0xFF2D2D30), const Color(0xFF101012)] : [Colors.white, const Color(0xFFDCDCE1)]), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: dark ? .35 : .12), blurRadius: 60, offset: const Offset(0, 24))])),
-        Positioned(bottom: 8, child: Image.asset('assets/memoji-transparent.png', width: compact ? 245 : 345)),
-      ])),
-    );
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 780),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(compact ? 24 : 56, compact ? 110 : 150, compact ? 24 : 56, 100),
-        child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1180), child: compact ? Column(children: [copy, const SizedBox(height: 42), portrait]) : Row(children: [Expanded(flex: 6, child: copy), const SizedBox(width: 42), Expanded(flex: 4, child: portrait)]))),
+    final secondary = dark ? const Color(0xFFB7B7BD) : const Color(0xFF6E6E73);
+    return Container(
+      constraints: BoxConstraints(minHeight: compact ? 760 : 840),
+      color: dark ? Colors.black : Colors.white,
+      padding: EdgeInsets.fromLTRB(24, compact ? 94 : 112, 24, compact ? 30 : 52),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 980),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(text['heroEyebrow']!, textAlign: TextAlign.center, style: TextStyle(color: secondary, fontSize: compact ? 17 : 21, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 10),
+            Text(text['heroTitle']!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayLarge!.copyWith(fontSize: compact ? 46 : 76, letterSpacing: compact ? -1.8 : -3.2)),
+            const SizedBox(height: 20),
+            ConstrainedBox(constraints: const BoxConstraints(maxWidth: 720), child: Text(text['heroIntro']!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: compact ? 18 : 22, color: secondary, height: 1.42))),
+            const SizedBox(height: 18),
+            Wrap(alignment: WrapAlignment.center, spacing: 22, runSpacing: 4, children: [
+              _BlueLink(label: text['viewProjects']!, onTap: onProjects),
+              _BlueLink(label: text['contactMe']!, onTap: onContact),
+            ]),
+            SizedBox(height: compact ? 38 : 46),
+            Semantics(
+              image: true, label: text['portraitLabel'],
+              child: SizedBox(
+                width: compact ? 310 : 430, height: compact ? 300 : 390,
+                child: Stack(alignment: Alignment.center, children: [
+                  Container(
+                    width: compact ? 270 : 360, height: compact ? 270 : 360,
+                    decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: dark ? [const Color(0xFF252528), const Color(0xFF101012)] : [const Color(0xFFF5F5F7), const Color(0xFFD9D9DE)])),
+                  ),
+                  Positioned(bottom: 0, child: Image.asset('assets/memoji-transparent.png', width: compact ? 285 : 390)),
+                ]),
+              ),
+            ),
+          ]),
+        ),
       ),
     );
   }
 }
 
-class _Section extends StatelessWidget {
-  const _Section({super.key, required this.eyebrow, required this.title, required this.child});
-  final String eyebrow; final String title; final Widget child;
+class _BlueLink extends StatelessWidget {
+  const _BlueLink({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    child: InkWell(
+      onTap: onTap, borderRadius: BorderRadius.circular(22),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Text(label, style: const TextStyle(color: Color(0xFF0071E3), fontSize: 17, fontWeight: FontWeight.w500)),
+          const SizedBox(width: 3),
+          const Icon(Icons.chevron_right_rounded, size: 17, color: Color(0xFF0071E3)),
+        ]),
+      ),
+    ),
+  );
+}
+
+class _Projects extends StatelessWidget {
+  const _Projects({super.key, required this.text, required this.dark, required this.compact});
+  final Map<String, String> text;
+  final bool dark;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    color: dark ? const Color(0xFF101010) : const Color(0xFFF5F5F7),
+    padding: EdgeInsets.fromLTRB(compact ? 12 : 20, compact ? 12 : 20, compact ? 12 : 20, compact ? 72 : 112),
+    child: Column(children: [
+      _ShowcaseCard(
+        minHeight: compact ? 560 : 680,
+        eyebrow: text['projectType1']!, title: text['projectTitle1']!, description: text['projectDesc1']!, status: text['comingSoon']!,
+        art: _LearningArt(compact: compact),
+      ),
+      SizedBox(height: compact ? 12 : 20),
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1440),
+        child: compact
+            ? Column(children: [
+                _ProjectTile(light: true, eyebrow: text['projectType2']!, title: text['projectTitle2']!, description: text['projectDesc2']!, status: text['comingSoon']!, number: '02'),
+                const SizedBox(height: 12),
+                _ProjectTile(light: false, eyebrow: text['projectType3']!, title: text['projectTitle3']!, description: text['projectDesc3']!, status: text['comingSoon']!, number: '03'),
+              ])
+            : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(child: _ProjectTile(light: true, eyebrow: text['projectType2']!, title: text['projectTitle2']!, description: text['projectDesc2']!, status: text['comingSoon']!, number: '02')),
+                const SizedBox(width: 20),
+                Expanded(child: _ProjectTile(light: false, eyebrow: text['projectType3']!, title: text['projectTitle3']!, description: text['projectDesc3']!, status: text['comingSoon']!, number: '03')),
+              ]),
+      ),
+    ]),
+  );
+}
+
+class _ShowcaseCard extends StatelessWidget {
+  const _ShowcaseCard({required this.minHeight, required this.eyebrow, required this.title, required this.description, required this.status, required this.art});
+  final double minHeight;
+  final String eyebrow;
+  final String title;
+  final String description;
+  final String status;
+  final Widget art;
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: BoxConstraints(maxWidth: 1440, minHeight: minHeight),
+    child: Container(
+      width: double.infinity, clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF050505), Color(0xFF252329)]), borderRadius: BorderRadius.circular(28)),
+      child: Stack(children: [
+        Positioned.fill(child: art),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 58, 24, 36),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 650),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Text(eyebrow, style: const TextStyle(color: Colors.white70, fontSize: 18, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                Text(title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 48, height: 1.06, letterSpacing: -1.7, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 12),
+                Text(description, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 18, height: 1.45)),
+                const SizedBox(height: 12),
+                Text(status, style: const TextStyle(color: Color(0xFF2997FF), fontSize: 16, fontWeight: FontWeight.w500)),
+              ]),
+            ),
+          ),
+        ),
+      ]),
+    ),
+  );
+}
+
+class _LearningArt extends StatelessWidget {
+  const _LearningArt({required this.compact});
+  final bool compact;
+  @override
+  Widget build(BuildContext context) => Stack(alignment: Alignment.bottomCenter, children: [
+    Positioned(
+      bottom: compact ? -150 : -220,
+      child: Container(
+        width: compact ? 510 : 900, height: compact ? 510 : 900,
+        decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [const Color(0xFF6D5DFB).withValues(alpha: .9), const Color(0xFF1677FF).withValues(alpha: .42), Colors.transparent], stops: const [0, .42, .72])),
+      ),
+    ),
+    Positioned(bottom: compact ? 32 : 36, child: Image.asset('assets/hye-mark-white.png', width: compact ? 210 : 300, fit: BoxFit.contain)),
+  ]);
+}
+
+class _ProjectTile extends StatelessWidget {
+  const _ProjectTile({required this.light, required this.eyebrow, required this.title, required this.description, required this.status, required this.number});
+  final bool light;
+  final String eyebrow;
+  final String title;
+  final String description;
+  final String status;
+  final String number;
   @override
   Widget build(BuildContext context) {
-    final compact = MediaQuery.sizeOf(context).width < 760;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: compact ? 20 : 48, vertical: compact ? 72 : 112),
-      child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1180), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        _Eyebrow(eyebrow), const SizedBox(height: 12),
-        Text(title, style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: compact ? 40 : 58)),
-        const SizedBox(height: 42), child,
-      ]))),
+    final foreground = light ? const Color(0xFF1D1D1F) : Colors.white;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 580),
+      padding: const EdgeInsets.fromLTRB(32, 48, 32, 38),
+      decoration: BoxDecoration(color: light ? Colors.white : Colors.black, borderRadius: BorderRadius.circular(28)),
+      child: Column(children: [
+        Text(eyebrow, style: TextStyle(color: foreground.withValues(alpha: .62), fontSize: 17, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        Text(title, textAlign: TextAlign.center, style: TextStyle(color: foreground, fontSize: 40, height: 1.08, letterSpacing: -1.2, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: Text(description, textAlign: TextAlign.center, style: TextStyle(color: foreground.withValues(alpha: .62), fontSize: 17, height: 1.45))),
+        const SizedBox(height: 12),
+        Text(status, style: const TextStyle(color: Color(0xFF0071E3), fontSize: 16, fontWeight: FontWeight.w500)),
+        const Spacer(),
+        Text(number, style: TextStyle(color: foreground.withValues(alpha: .08), fontSize: 170, height: .86, letterSpacing: -9, fontWeight: FontWeight.w700)),
+      ]),
     );
   }
 }
 
-class _ProjectGrid extends StatelessWidget {
-  const _ProjectGrid({required this.text, required this.compact, required this.dark});
-  final Map<String, String> text; final bool compact; final bool dark;
-  @override
-  Widget build(BuildContext context) {
-    final cards = List.generate(3, (i) => _ProjectCard(index: i + 1, type: text['projectType${i + 1}']!, title: text['projectTitle${i + 1}']!, description: text['projectDesc${i + 1}']!, status: text['comingSoon']!, dark: dark));
-    if (compact) return Column(children: cards.map((card) => Padding(padding: const EdgeInsets.only(bottom: 16), child: card)).toList());
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: cards.map((card) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: card))).toList());
-  }
-}
-
-class _ProjectCard extends StatelessWidget {
-  const _ProjectCard({required this.index, required this.type, required this.title, required this.description, required this.status, required this.dark});
-  final int index; final String type; final String title; final String description; final String status; final bool dark;
-  @override
-  Widget build(BuildContext context) => Container(
-    constraints: const BoxConstraints(minHeight: 390), padding: const EdgeInsets.all(28),
-    decoration: BoxDecoration(color: dark ? const Color(0xFF1C1C1E) : Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all(color: dark ? Colors.white10 : Colors.black.withValues(alpha: .05))),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(index.toString().padLeft(2, '0'), style: TextStyle(fontSize: 54, fontWeight: FontWeight.w700, color: dark ? Colors.white12 : Colors.black12)),
-      const Spacer(), Text(type.toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1.1)), const SizedBox(height: 10),
-      Text(title, style: Theme.of(context).textTheme.headlineMedium), const SizedBox(height: 12),
-      Text(description, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: dark ? Colors.white60 : Colors.black54)), const SizedBox(height: 20),
-      Text(status, style: const TextStyle(color: Color(0xFF0071E3), fontWeight: FontWeight.w600)),
-    ]),
-  );
-}
-
 class _About extends StatelessWidget {
-  const _About({required this.text, required this.compact, required this.dark});
-  final Map<String, String> text; final bool compact; final bool dark;
+  const _About({super.key, required this.text, required this.dark, required this.compact});
+  final Map<String, String> text;
+  final bool dark;
+  final bool compact;
   @override
   Widget build(BuildContext context) {
-    final lead = Text(text['aboutLead']!, style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: compact ? 28 : 38));
-    final details = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(text['aboutDetail']!, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 18, color: dark ? Colors.white70 : Colors.black54)), const SizedBox(height: 28),
-      Wrap(spacing: 10, runSpacing: 10, children: List.generate(4, (i) => _SkillChip(text['skill${i + 1}']!, dark: dark))),
-    ]);
-    return compact ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [lead, const SizedBox(height: 28), details]) : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: lead), const SizedBox(width: 64), Expanded(child: details)]);
+    final secondary = dark ? const Color(0xFFB7B7BD) : const Color(0xFF6E6E73);
+    return Container(
+      color: dark ? Colors.black : Colors.white,
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: compact ? 96 : 150),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 980),
+          child: Column(children: [
+            Text(text['aboutTitle']!, style: TextStyle(color: secondary, fontSize: 19, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 16),
+            Text(text['aboutLead']!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: compact ? 40 : 62)),
+            const SizedBox(height: 28),
+            ConstrainedBox(constraints: const BoxConstraints(maxWidth: 760), child: Text(text['aboutDetail']!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: compact ? 18 : 21, color: secondary))),
+            const SizedBox(height: 40),
+            Wrap(alignment: WrapAlignment.center, spacing: 12, runSpacing: 12, children: List.generate(4, (i) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+              decoration: BoxDecoration(color: dark ? const Color(0xFF1D1D1F) : const Color(0xFFF5F5F7), borderRadius: BorderRadius.circular(14)),
+              child: Text(
+                text['skill${i + 1}']!,
+                style: TextStyle(
+                  color: dark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ))),
+          ]),
+        ),
+      ),
+    );
   }
-}
-
-class _SkillChip extends StatelessWidget {
-  const _SkillChip(this.label, {required this.dark});
-  final String label; final bool dark;
-  @override
-  Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), decoration: BoxDecoration(color: dark ? Colors.white10 : Colors.black.withValues(alpha: .055), borderRadius: BorderRadius.circular(12)), child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)));
 }
 
 class _Contact extends StatelessWidget {
-  const _Contact({required this.text, required this.onEmail, required this.onGithub});
-  final Map<String, String> text; final VoidCallback onEmail; final VoidCallback onGithub;
+  const _Contact({super.key, required this.text, required this.dark, required this.compact, required this.onEmail, required this.onGithub});
+  final Map<String, String> text;
+  final bool dark;
+  final bool compact;
+  final VoidCallback onEmail;
+  final VoidCallback onGithub;
   @override
-  Widget build(BuildContext context) => GlassContainer.card(
-    useOwnLayer: true, quality: GlassQuality.standard, padding: const EdgeInsets.all(32), shape: const LiquidRoundedSuperellipse(borderRadius: 32),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(text['contactText']!, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 18)), const SizedBox(height: 26),
-      Wrap(spacing: 12, runSpacing: 12, children: [
-        GlassButton.custom(label: 'Email robin.hye@icloud.com', onTap: onEmail, useOwnLayer: true, width: 238, height: 52, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), child: Text('robin.hye@icloud.com ↗', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-        GlassButton.custom(label: 'GitHub HongyuYe12', onTap: onGithub, useOwnLayer: true, width: 120, height: 52, shape: _PortfolioPageState._actionGlassShape, glowColor: const Color(0x330071E3), pressLightColor: const Color(0xFF0071E3), style: GlassButtonStyle.filled, child: Text('GitHub ↗', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-      ]),
-    ]),
+  Widget build(BuildContext context) => Container(
+    color: dark ? const Color(0xFF101010) : const Color(0xFFF5F5F7),
+    padding: EdgeInsets.fromLTRB(compact ? 16 : 24, compact ? 72 : 110, compact ? 16 : 24, compact ? 72 : 110),
+    child: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 980),
+        child: GlassContainer.card(
+          useOwnLayer: true, quality: GlassQuality.standard, padding: EdgeInsets.symmetric(horizontal: compact ? 24 : 64, vertical: compact ? 56 : 78), shape: _PortfolioPageState._glassShape,
+          child: Column(children: [
+            Text(text['contactTitle']!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: compact ? 42 : 62)),
+            const SizedBox(height: 18),
+            ConstrainedBox(constraints: const BoxConstraints(maxWidth: 650), child: Text(text['contactText']!, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: compact ? 17 : 20, color: dark ? const Color(0xFFB7B7BD) : const Color(0xFF6E6E73)))),
+            const SizedBox(height: 20),
+            Wrap(alignment: WrapAlignment.center, spacing: 22, runSpacing: 4, children: [
+              _BlueLink(label: 'robin.hye@icloud.com', onTap: onEmail),
+              _BlueLink(label: 'GitHub', onTap: onGithub),
+            ]),
+          ]),
+        ),
+      ),
+    ),
   );
 }
 
-class _Eyebrow extends StatelessWidget {
-  const _Eyebrow(this.text); final String text;
+class _Footer extends StatelessWidget {
+  const _Footer({required this.dark});
+  final bool dark;
   @override
-  Widget build(BuildContext context) => Text(text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: Color(0xFF0071E3)));
-}
-
-class _AmbientBackground extends StatelessWidget {
-  const _AmbientBackground({required this.dark}); final bool dark;
-  @override
-  Widget build(BuildContext context) => DecoratedBox(decoration: BoxDecoration(color: dark ? Colors.black : const Color(0xFFF5F5F7), gradient: RadialGradient(center: const Alignment(.62, -.72), radius: 1.05, colors: dark ? [const Color(0xFF22242A), Colors.black] : [Colors.white, const Color(0xFFF5F5F7)], stops: const [0, .78])));
+  Widget build(BuildContext context) => Container(
+    width: double.infinity, color: dark ? const Color(0xFF101010) : const Color(0xFFF5F5F7), padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
+    child: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 980),
+        child: Container(
+          padding: const EdgeInsets.only(top: 18),
+          decoration: BoxDecoration(border: Border(top: BorderSide(color: dark ? Colors.white12 : Colors.black12))),
+          child: Text('Copyright © ${DateTime.now().year} Ye Hongyu. All rights reserved.', style: TextStyle(fontSize: 12, color: dark ? Colors.white54 : Colors.black54)),
+        ),
+      ),
+    ),
+  );
 }
 
 const _zh = <String, String>{
   'projects': '探索', 'about': '关于', 'contact': '联系',
-  'heroTitle': '在学习中探索。\n在实践中成长。', 'heroIntro': '你好，我是 Ye Hongyu，一名学生。这里记录我的学习、经历与持续探索的事情。',
-  'viewProjects': '查看探索', 'contactMe': '联系我', 'portraitLabel': 'Ye Hongyu 的拟我头像', 'projectsTitle': '学习与探索',
-  'projectType1': '个人成长', 'projectTitle1': '学习记录', 'projectDesc1': '未来将在这里分享课程学习、读书笔记和实践成果。',
-  'projectType2': '项目实践', 'projectTitle2': '未来项目', 'projectDesc2': '完成新的个人或团队项目后，我会在这里记录过程与收获。',
-  'projectType3': '兴趣探索', 'projectTitle3': '想法与发现', 'projectDesc3': '这里将收录我感兴趣的主题、文章以及生活中的新发现。',
-  'comingSoon': '持续更新中', 'aboutTitle': '关于我', 'aboutLead': '我是一名保持好奇、乐于学习和探索新事物的学生。',
-  'aboutDetail': '目前我正在积累知识与实践经验。这个网站会持续记录我的成长、想法和未来完成的项目。',
-  'skill1': '持续学习', 'skill2': '独立思考', 'skill3': '探索实践', 'skill4': '开放合作', 'contactTitle': '欢迎与我联系。',
-  'contactText': '如果你想交流学习、兴趣或合作想法，可以通过邮件或 GitHub 找到我。',
+  'heroEyebrow': 'Ye Hongyu · Student', 'heroTitle': '学习。创造。持续探索。',
+  'heroIntro': '你好，我是 Ye Hongyu。这里记录我的学习、实践，以及每一次从好奇心出发的探索。',
+  'viewProjects': '了解探索', 'contactMe': '联系我', 'portraitLabel': 'Ye Hongyu 的拟我头像',
+  'projectType1': '个人成长', 'projectTitle1': '让每一次学习，都留下作品。', 'projectDesc1': '课程、阅读与实践，不只是完成任务，也是在建立自己的思考方式。',
+  'projectType2': '项目实践', 'projectTitle2': '从想法到实现。', 'projectDesc2': '未来完成的个人与团队项目，会在这里记录过程、选择与收获。',
+  'projectType3': '兴趣探索', 'projectTitle3': '保持好奇。', 'projectDesc3': '收集值得继续研究的主题、文章、灵感，以及生活中的新发现。',
+  'comingSoon': '持续更新中', 'aboutTitle': '关于我', 'aboutLead': '好奇心，是我理解世界的方式。',
+  'aboutDetail': '我是一名学生，正在积累知识与实践经验。这个网站会持续记录我的成长、思考，以及未来完成的项目。',
+  'skill1': '持续学习', 'skill2': '独立思考', 'skill3': '探索实践', 'skill4': '开放合作',
+  'contactTitle': '一起聊聊。', 'contactText': '如果你想交流学习、共同兴趣或合作想法，可以通过邮件或 GitHub 找到我。',
 };
 
 const _en = <String, String>{
-  'projects': 'Work', 'about': 'About', 'contact': 'Contact',
-  'heroTitle': 'Explore through learning.\nGrow through practice.', 'heroIntro': 'Hi, I am Ye Hongyu, a student. This is where I share what I learn, build, and continue to explore.',
-  'viewProjects': 'View work', 'contactMe': 'Contact me', 'portraitLabel': 'Memoji portrait of Ye Hongyu', 'projectsTitle': 'Learning & exploration',
-  'projectType1': 'Personal growth', 'projectTitle1': 'Learning notes', 'projectDesc1': 'Coursework, reading notes, and practical outcomes will be shared here.',
-  'projectType2': 'Projects', 'projectTitle2': 'Future projects', 'projectDesc2': 'I will document the process and lessons from future individual and team projects.',
-  'projectType3': 'Curiosity', 'projectTitle3': 'Ideas & discoveries', 'projectDesc3': 'A collection of topics, writing, and discoveries that catch my attention.',
-  'comingSoon': 'Continuously evolving', 'aboutTitle': 'About me', 'aboutLead': 'I am a curious student who enjoys learning and exploring new ideas.',
-  'aboutDetail': 'I am currently building knowledge and practical experience. This site will continue to document my growth, ideas, and future work.',
-  'skill1': 'Continuous learning', 'skill2': 'Independent thinking', 'skill3': 'Hands-on exploration', 'skill4': 'Open collaboration', 'contactTitle': 'Let’s connect.',
-  'contactText': 'If you would like to talk about learning, shared interests, or collaboration, reach me by email or GitHub.',
+  'projects': 'Explore', 'about': 'About', 'contact': 'Contact',
+  'heroEyebrow': 'Ye Hongyu · Student', 'heroTitle': 'Learn. Create. Keep exploring.',
+  'heroIntro': 'Hi, I am Ye Hongyu. This is where I document what I learn, what I make, and every exploration that begins with curiosity.',
+  'viewProjects': 'Explore my work', 'contactMe': 'Contact me', 'portraitLabel': 'Memoji portrait of Ye Hongyu',
+  'projectType1': 'Personal growth', 'projectTitle1': 'Turn every lesson into something made.', 'projectDesc1': 'Coursework, reading, and practice help me build not only knowledge, but my own way of thinking.',
+  'projectType2': 'Projects', 'projectTitle2': 'From an idea to reality.', 'projectDesc2': 'Future individual and team projects will document the process, decisions, and lessons along the way.',
+  'projectType3': 'Curiosity', 'projectTitle3': 'Stay curious.', 'projectDesc3': 'A growing collection of topics, writing, inspiration, and discoveries worth exploring further.',
+  'comingSoon': 'Continuously evolving', 'aboutTitle': 'About me', 'aboutLead': 'Curiosity is how I understand the world.',
+  'aboutDetail': 'I am a student building knowledge and practical experience. This site will continue to document my growth, ideas, and future work.',
+  'skill1': 'Continuous learning', 'skill2': 'Independent thinking', 'skill3': 'Hands-on exploration', 'skill4': 'Open collaboration',
+  'contactTitle': 'Let’s talk.', 'contactText': 'If you would like to talk about learning, shared interests, or collaboration, reach me by email or GitHub.',
 };
