@@ -694,37 +694,43 @@ class _Projects extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    color: dark ? _darkPage : const Color(0xFFF5F5F7),
+    width: double.infinity,
+    color: dark ? _darkPage : Colors.white,
     padding: EdgeInsets.fromLTRB(
-      compact ? 12 : 20,
-      compact ? 12 : 20,
-      compact ? 12 : 20,
-      compact ? 72 : 112,
+      compact ? 16 : 32,
+      compact ? 32 : 56,
+      compact ? 16 : 32,
+      compact ? 88 : 136,
     ),
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 1440),
-      child: Column(
-        children: [
-          _ThemeCard(
-            photography: false,
-            dark: dark,
-            compact: compact,
-            title: text['computerProjects']!,
-            subtitle: text['computerSubtitle']!,
-            button: text['learnMore']!,
-            onTap: onComputer,
+    child: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1440),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            children: [
+              _ThemeCard(
+                photography: false,
+                dark: dark,
+                compact: compact,
+                title: text['computerProjects']!,
+                subtitle: text['computerSubtitle']!,
+                button: text['learnMore']!,
+                onTap: onComputer,
+              ),
+              SizedBox(height: compact ? 28 : 44),
+              _ThemeCard(
+                photography: true,
+                dark: dark,
+                compact: compact,
+                title: text['photography']!,
+                subtitle: text['photoSubtitle']!,
+                button: text['learnMore']!,
+                onTap: onPhotography,
+              ),
+            ],
           ),
-          SizedBox(height: compact ? 12 : 20),
-          _ThemeCard(
-            photography: true,
-            dark: dark,
-            compact: compact,
-            title: text['photography']!,
-            subtitle: text['photoSubtitle']!,
-            button: text['learnMore']!,
-            onTap: onPhotography,
-          ),
-        ],
+        ),
       ),
     ),
   );
@@ -763,7 +769,24 @@ class _ThemeCard extends StatelessWidget {
             )
           : null,
       borderRadius: BorderRadius.circular(28),
-      border: dark ? Border.all(color: Colors.white10) : null,
+      border: dark
+          ? Border.all(color: Colors.white10)
+          : Border.all(color: const Color(0x12000000)),
+      boxShadow: dark
+          ? const [
+              BoxShadow(
+                color: Color(0x52000000),
+                blurRadius: 36,
+                offset: Offset(0, 18),
+              ),
+            ]
+          : const [
+              BoxShadow(
+                color: Color(0x14000000),
+                blurRadius: 32,
+                offset: Offset(0, 14),
+              ),
+            ],
     ),
     child: Column(
       children: [
