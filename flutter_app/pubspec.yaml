@@ -24,6 +24,7 @@ flutter:
     - assets/hye-mark-black.png
     - assets/hye-mark-white.png
     - assets/memoji-transparent.png
+    - assets/memoji-portrait-transparent.png
   fonts:
     - family: NotoSansSC
       fonts:

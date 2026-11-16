@@ -1,11 +1,11 @@
 {
-    "name": "hye_personal_site",
-    "short_name": "hye_personal_site",
+    "name": "Ye Hongyu | robin.hye",
+    "short_name": "Ye Hongyu",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1c1c1e",
+    "theme_color": "#1c1c1e",
+    "description": "Ye Hongyu 的个人网站",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
