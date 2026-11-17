@@ -10,6 +10,18 @@ const _darkPrimary = Color(0xFFF5F5F7);
 const _darkSecondary = Color(0xFFA1A1A6);
 const _darkLink = Color(0xFF2997FF);
 
+// 苹果官网使用系统字体优先策略：Apple 设备优先 SF Pro / 苹方，
+// Windows 和其他平台再回退到 Segoe UI、Noto Sans SC 等字体。
+const _appleFontFallback = <String>[
+  'SF Pro Display',
+  'SF Pro Text',
+  'PingFang SC',
+  'Helvetica Neue',
+  'Segoe UI',
+  'NotoSansSC',
+  'Arial',
+];
+
 // 应用入口：先初始化 Flutter 和 Liquid Glass，再启动网站。
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,27 +61,28 @@ class HyeApp extends StatelessWidget {
         brightness: brightness,
         surface: dark ? _darkCard : Colors.white,
       ),
-      fontFamily: 'NotoSansSC',
+      // 不强制绑定单一字体，让浏览器优先选择当前系统的苹果风格字体。
+      fontFamilyFallback: _appleFontFallback,
       textTheme: TextTheme(
         displayLarge: TextStyle(
           color: foreground,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -2.6,
-          height: 1.06,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -1.6,
+          height: 1.08,
           decoration: TextDecoration.none,
         ),
         displayMedium: TextStyle(
           color: foreground,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -1.8,
-          height: 1.08,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -1.2,
+          height: 1.1,
           decoration: TextDecoration.none,
         ),
         headlineMedium: TextStyle(
           color: foreground,
           fontWeight: FontWeight.w600,
-          letterSpacing: -.8,
-          height: 1.14,
+          letterSpacing: -.45,
+          height: 1.16,
           decoration: TextDecoration.none,
         ),
         titleLarge: TextStyle(
@@ -80,12 +93,16 @@ class HyeApp extends StatelessWidget {
         ),
         bodyLarge: TextStyle(
           color: foreground,
-          height: 1.52,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -.12,
+          height: 1.47,
           decoration: TextDecoration.none,
         ),
         bodyMedium: TextStyle(
           color: foreground,
-          height: 1.52,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -.08,
+          height: 1.47,
           decoration: TextDecoration.none,
         ),
       ),
@@ -578,10 +595,10 @@ class _MenuItem extends StatelessWidget {
           label,
           style: TextStyle(
             color: color,
-            fontSize: small ? 22 : 38,
-            height: 1.05,
+            fontSize: small ? 17 : 32,
+            height: 1.1,
             fontWeight: FontWeight.w600,
-            letterSpacing: -1.1,
+            letterSpacing: small ? -.2 : -.7,
             decoration: TextDecoration.none,
           ),
         ),
@@ -616,9 +633,9 @@ class _Hero extends StatelessWidget {
         Text(
           text['heroName']!,
           style: Theme.of(context).textTheme.displayLarge!.copyWith(
-            fontSize: compact ? 46 : 68,
-            fontWeight: FontWeight.w500,
-            letterSpacing: compact ? -1.8 : -2.8,
+            fontSize: compact ? 40 : 56,
+            fontWeight: FontWeight.w600,
+            letterSpacing: compact ? -1.1 : -1.8,
           ),
         ),
         SizedBox(height: compact ? 28 : 38),
@@ -627,9 +644,9 @@ class _Hero extends StatelessWidget {
           child: Text(
             text['heroIntro']!,
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              fontSize: compact ? 18 : 21,
+              fontSize: compact ? 17 : 19,
               color: secondary,
-              height: 1.52,
+              height: 1.47,
             ),
           ),
         ),
@@ -740,7 +757,8 @@ class _BlueLink extends StatelessWidget {
                     ? _darkLink
                     : const Color(0xFF0071E3),
                 fontSize: 17,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
+                letterSpacing: -.2,
                 decoration: TextDecoration.none,
               ),
             ),
@@ -886,9 +904,9 @@ class _ThemeCard extends StatelessWidget {
                   color: dark || photography
                       ? _darkPrimary
                       : const Color(0xFF1D1D1F),
-                  fontSize: compact ? 40 : 54,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -1.8,
+                  fontSize: compact ? 36 : 48,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: compact ? -.8 : -1.3,
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -900,7 +918,7 @@ class _ThemeCard extends StatelessWidget {
                   color: dark || photography
                       ? _darkSecondary
                       : const Color(0xFF6E6E73),
-                  fontSize: compact ? 18 : 22,
+                  fontSize: compact ? 17 : 21,
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -980,15 +998,17 @@ class _DetailPage extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displayLarge!
-                      .copyWith(fontSize: 64, decoration: TextDecoration.none),
+                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                    fontSize: compact ? 40 : 56,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   intro,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontSize: 21,
+                    fontSize: compact ? 17 : 19,
                     color: dark ? _darkSecondary : const Color(0xFF6E6E73),
                     decoration: TextDecoration.none,
                   ),
@@ -1141,7 +1161,7 @@ class _ProjectCard extends StatelessWidget {
         Text(
           project.name,
           style: Theme.of(context).textTheme.headlineMedium!
-              .copyWith(fontSize: 27, decoration: TextDecoration.none),
+              .copyWith(fontSize: 24, decoration: TextDecoration.none),
         ),
         const SizedBox(height: 14),
         Text(
@@ -1175,7 +1195,7 @@ class _ComingSoonCard extends StatelessWidget {
     child: Text(
       english ? 'More work is coming soon.' : '更多作品正在整理中。',
       textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 20, decoration: TextDecoration.none),
+      style: const TextStyle(fontSize: 17, decoration: TextDecoration.none),
     ),
   );
 }
@@ -1214,7 +1234,7 @@ class _Contact extends StatelessWidget {
               text['contactTitle']!,
               textAlign: TextAlign.left,
               style: Theme.of(context).textTheme.displayMedium!
-                  .copyWith(fontSize: compact ? 42 : 58),
+                  .copyWith(fontSize: compact ? 36 : 48),
             ),
             const SizedBox(height: 16),
             ConstrainedBox(
@@ -1223,7 +1243,7 @@ class _Contact extends StatelessWidget {
                 text['contactText']!,
                 textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontSize: compact ? 17 : 20,
+                  fontSize: compact ? 17 : 19,
                   color: dark ? _darkSecondary : const Color(0xFF6E6E73),
                   decoration: TextDecoration.none,
                 ),
@@ -1269,6 +1289,7 @@ class _Footer extends StatelessWidget {
             'Copyright © ${DateTime.now().year} Ye Hongyu. All rights reserved.',
             style: TextStyle(
               fontSize: 12,
+              height: 1.33,
               color: dark ? Colors.white54 : Colors.black54,
               decoration: TextDecoration.none,
             ),
