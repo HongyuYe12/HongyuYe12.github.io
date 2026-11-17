@@ -27,6 +27,11 @@ flutter:
     - assets/memoji-portrait-transparent.png
     - assets/spektrastudio/temple-original-aligned.webp
     - assets/spektrastudio/temple-film.webp
+    - assets/photography/aircraft/
+    - assets/photography/architecture/
+    - assets/photography/nature/
+    - assets/photography/juventus/
+    - assets/photography/taiwan/
   fonts:
     - family: NotoSansSC
       fonts:

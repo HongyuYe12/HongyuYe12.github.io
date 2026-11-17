@@ -732,17 +732,18 @@ class _ProjectMenuContent extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       if (photography)
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          child: Text(
-            english
-                ? 'Photography project names are being organized.'
-                : '摄影作品名称正在整理中。',
-            style: TextStyle(
-              color: secondary,
-              fontSize: 17,
-              height: 1.5,
-              decoration: TextDecoration.none,
+        ..._photographyThemes.map(
+          (theme) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 9),
+            child: Text(
+              theme.title(english),
+              style: TextStyle(
+                color: secondary,
+                fontSize: 19,
+                height: 1.35,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.none,
+              ),
             ),
           ),
         )
@@ -1323,7 +1324,7 @@ class _VisualTile extends StatelessWidget {
   );
 }
 
-// 项目分类页。摄影页面保留作品占位，计算机项目页面展示项目列表。
+// 项目分类页。摄影页面展示主题画廊，计算机项目页面展示项目列表。
 class _DetailPage extends StatelessWidget {
   const _DetailPage({required this.photography, required this.english});
   final bool photography;
@@ -1426,7 +1427,21 @@ class _DetailPage extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1180),
                   child: photography
-                      ? _ComingSoonCard(dark: dark, english: english)
+                      ? _PhotographyThemeList(
+                          dark: dark,
+                          english: english,
+                          compact: compact,
+                          onTheme: (theme) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => _PhotographyGalleryPage(
+                                  theme: theme,
+                                  english: english,
+                                ),
+                              ),
+                            );
+                          },
+                        )
                       : _ComputerProjectList(
                           dark: dark,
                           english: english,
@@ -1451,6 +1466,439 @@ class _DetailPage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PhotoAsset {
+  const _PhotoAsset(this.path, this.width, this.height);
+  final String path;
+  final int width;
+  final int height;
+  double get ratio => width / height;
+}
+
+class _PhotographyTheme {
+  const _PhotographyTheme({
+    required this.zhTitle,
+    required this.enTitle,
+    required this.zhSubtitle,
+    required this.enSubtitle,
+    required this.photos,
+  });
+  final String zhTitle;
+  final String enTitle;
+  final String zhSubtitle;
+  final String enSubtitle;
+  final List<_PhotoAsset> photos;
+  String title(bool english) => english ? enTitle : zhTitle;
+  String subtitle(bool english) => english ? enSubtitle : zhSubtitle;
+}
+
+const _photographyThemes = <_PhotographyTheme>[
+  _PhotographyTheme(
+    zhTitle: '飞机',
+    enTitle: 'Aircraft',
+    zhSubtitle: '航站楼、进近航线与天空中的瞬间。',
+    enSubtitle: 'Terminals, final approaches, and moments held in the sky.',
+    photos: [
+      _PhotoAsset('assets/photography/aircraft/01-dsc03486.webp', 2400, 1600),
+      _PhotoAsset('assets/photography/aircraft/02-dsc03548.webp', 2400, 1196),
+      _PhotoAsset('assets/photography/aircraft/03-dsc03552.webp', 2400, 1600),
+      _PhotoAsset('assets/photography/aircraft/04-img_6521.webp', 2400, 1600),
+    ],
+  ),
+  _PhotographyTheme(
+    zhTitle: '建筑',
+    enTitle: 'Architecture',
+    zhSubtitle: '光线、结构与空间之间的秩序。',
+    enSubtitle: 'Light, structure, and the order found between spaces.',
+    photos: [
+      _PhotoAsset(
+        'assets/photography/architecture/01-dsc00120.webp',
+        2400,
+        1600,
+      ),
+      _PhotoAsset(
+        'assets/photography/architecture/02-dsc00485.webp',
+        1600,
+        2400,
+      ),
+      _PhotoAsset(
+        'assets/photography/architecture/03-img_6516.webp',
+        2400,
+        1600,
+      ),
+      _PhotoAsset(
+        'assets/photography/architecture/04-img_6525.webp',
+        2400,
+        1600,
+      ),
+    ],
+  ),
+  _PhotographyTheme(
+    zhTitle: '自然',
+    enTitle: 'Nature',
+    zhSubtitle: '暮色、闪电与短暂变化的天空。',
+    enSubtitle: 'Twilight, lightning, and skies that change in an instant.',
+    photos: [
+      _PhotoAsset('assets/photography/nature/01-dsc02009.webp', 2400, 1600),
+      _PhotoAsset('assets/photography/nature/02-dsc04361.webp', 2157, 2400),
+    ],
+  ),
+  _PhotographyTheme(
+    zhTitle: '足球 · 尤文图斯',
+    enTitle: 'Football · Juventus',
+    zhSubtitle: '比赛节奏、看台视角与球场中的决定性时刻。',
+    enSubtitle: 'Match rhythm, the view from the stands, and decisive moments.',
+    photos: [
+      _PhotoAsset('assets/photography/juventus/01-dsc02391.webp', 2400, 1350),
+      _PhotoAsset('assets/photography/juventus/02-dsc02814.webp', 2400, 1600),
+      _PhotoAsset('assets/photography/juventus/03-dsc02846.webp', 2400, 1599),
+      _PhotoAsset('assets/photography/juventus/04-dsc03025.webp', 2400, 1350),
+      _PhotoAsset('assets/photography/juventus/05-dsc03087.webp', 2400, 2400),
+    ],
+  ),
+  _PhotographyTheme(
+    zhTitle: '台湾',
+    enTitle: 'Taiwan',
+    zhSubtitle: '海岸、街道、列车与夜色中的旅行片段。',
+    enSubtitle:
+        'Coastlines, streets, trains, and fragments of a journey after dark.',
+    photos: [
+      _PhotoAsset('assets/photography/taiwan/01-dsc01446.webp', 2400, 1600),
+      _PhotoAsset('assets/photography/taiwan/02-img_2291.webp', 1600, 2400),
+      _PhotoAsset('assets/photography/taiwan/03-img_2292.webp', 1600, 2400),
+      _PhotoAsset('assets/photography/taiwan/04-img_2293.webp', 1600, 2400),
+      _PhotoAsset('assets/photography/taiwan/05-img_2294.webp', 2400, 1600),
+      _PhotoAsset('assets/photography/taiwan/06-img_2296.webp', 2400, 1350),
+      _PhotoAsset('assets/photography/taiwan/07-img_2297.webp', 2400, 1600),
+      _PhotoAsset('assets/photography/taiwan/08-img_6528.webp', 1600, 2400),
+    ],
+  ),
+];
+
+class _PhotographyThemeList extends StatelessWidget {
+  const _PhotographyThemeList({
+    required this.dark,
+    required this.english,
+    required this.compact,
+    required this.onTheme,
+  });
+  final bool dark;
+  final bool english;
+  final bool compact;
+  final ValueChanged<_PhotographyTheme> onTheme;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        english ? 'Explore by theme.' : '按主题探索。',
+        style: Theme.of(context).textTheme.displayMedium!.copyWith(
+          fontSize: compact ? 36 : 46,
+          height: 1.08,
+          letterSpacing: -1.5,
+          decoration: TextDecoration.none,
+        ),
+      ),
+      SizedBox(height: compact ? 28 : 42),
+      ..._photographyThemes.indexed.map((entry) {
+        final index = entry.$1;
+        final theme = entry.$2;
+        return Padding(
+          padding: EdgeInsets.only(bottom: compact ? 18 : 28),
+          child: _PhotographyThemeCard(
+            theme: theme,
+            english: english,
+            dark: dark,
+            compact: compact,
+            imageOnRight: index.isEven,
+            onTap: () => onTheme(theme),
+          ),
+        );
+      }),
+    ],
+  );
+}
+
+class _PhotographyThemeCard extends StatelessWidget {
+  const _PhotographyThemeCard({
+    required this.theme,
+    required this.english,
+    required this.dark,
+    required this.compact,
+    required this.imageOnRight,
+    required this.onTap,
+  });
+  final _PhotographyTheme theme;
+  final bool english;
+  final bool dark;
+  final bool compact;
+  final bool imageOnRight;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = ClipRRect(
+      borderRadius: BorderRadius.circular(compact ? 24 : 30),
+      child: AspectRatio(
+        aspectRatio: compact ? 4 / 3 : 16 / 10,
+        child: Image.asset(
+          theme.photos.first.path,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.medium,
+        ),
+      ),
+    );
+    final copy = Padding(
+      padding: EdgeInsets.all(compact ? 26 : 46),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            theme.title(english),
+            style: Theme.of(context).textTheme.displayMedium!.copyWith(
+              fontSize: compact ? 32 : 44,
+              height: 1.06,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            theme.subtitle(english),
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              fontSize: compact ? 16 : 18,
+              height: 1.5,
+              color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+              decoration: TextDecoration.none,
+            ),
+          ),
+          const SizedBox(height: 22),
+          Text(
+            english
+                ? '${theme.photos.length} photos  ›'
+                : '${theme.photos.length} 张照片  ›',
+            style: const TextStyle(
+              color: Color(0xFF0071E3),
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ],
+      ),
+    );
+    return Semantics(
+      button: true,
+      label: english
+          ? 'Open ${theme.enTitle} photography'
+          : '打开${theme.zhTitle}摄影主题',
+      child: Material(
+        color: dark ? _darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(compact ? 28 : 36),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: compact
+              ? Column(children: [image, copy])
+              : Row(
+                  children: imageOnRight
+                      ? [Expanded(child: copy), Expanded(flex: 6, child: image)]
+                      : [
+                          Expanded(flex: 6, child: image),
+                          Expanded(child: copy),
+                        ],
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotographyGalleryPage extends StatelessWidget {
+  const _PhotographyGalleryPage({required this.theme, required this.english});
+  final _PhotographyTheme theme;
+  final bool english;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final compact = MediaQuery.sizeOf(context).width < 700;
+    return Scaffold(
+      backgroundColor: dark ? _darkPage : Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          tooltip: english ? 'Back to photography' : '返回摄影作品',
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          compact ? 16 : 32,
+          compact ? 48 : 76,
+          compact ? 16 : 32,
+          compact ? 88 : 128,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1320),
+            child: Column(
+              children: [
+                Text(
+                  english ? 'PHOTOGRAPHY SERIES' : '摄影主题',
+                  style: const TextStyle(
+                    color: Color(0xFF0071E3),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  theme.title(english),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                    fontSize: compact ? 46 : 76,
+                    height: 1.02,
+                    letterSpacing: compact ? -1.8 : -3.2,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: Text(
+                    theme.subtitle(english),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontSize: compact ? 17 : 20,
+                      height: 1.5,
+                      color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+                SizedBox(height: compact ? 54 : 82),
+                _PhotographyGallery(
+                  theme: theme,
+                  compact: compact,
+                  dark: dark,
+                  english: english,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotographyGallery extends StatelessWidget {
+  const _PhotographyGallery({
+    required this.theme,
+    required this.compact,
+    required this.dark,
+    required this.english,
+  });
+  final _PhotographyTheme theme;
+  final bool compact;
+  final bool dark;
+  final bool english;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final gap = compact ? 14.0 : 24.0;
+      final columnWidth = (constraints.maxWidth - gap) / 2;
+      final left = <Widget>[];
+      final right = <Widget>[];
+      double leftHeight = 0;
+      double rightHeight = 0;
+      for (var i = 0; i < theme.photos.length; i++) {
+        final photo = theme.photos[i];
+        final estimated = columnWidth / photo.ratio + gap;
+        final tile = _PhotographyImageTile(
+          photo: photo,
+          dark: dark,
+          label: english
+              ? '${theme.enTitle} photograph ${i + 1}'
+              : '${theme.zhTitle}摄影作品 ${i + 1}',
+        );
+        if (compact) {
+          left.add(
+            Padding(
+              padding: EdgeInsets.only(bottom: gap),
+              child: tile,
+            ),
+          );
+        } else if (leftHeight <= rightHeight) {
+          left.add(
+            Padding(
+              padding: EdgeInsets.only(bottom: gap),
+              child: tile,
+            ),
+          );
+          leftHeight += estimated;
+        } else {
+          right.add(
+            Padding(
+              padding: EdgeInsets.only(bottom: gap),
+              child: tile,
+            ),
+          );
+          rightHeight += estimated;
+        }
+      }
+      if (compact) return Column(children: left);
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: Column(children: left)),
+          SizedBox(width: gap),
+          Expanded(child: Column(children: right)),
+        ],
+      );
+    },
+  );
+}
+
+class _PhotographyImageTile extends StatelessWidget {
+  const _PhotographyImageTile({
+    required this.photo,
+    required this.dark,
+    required this.label,
+  });
+  final _PhotoAsset photo;
+  final bool dark;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    image: true,
+    label: label,
+    child: Container(
+      decoration: BoxDecoration(
+        color: dark ? _darkCard : const Color(0xFFF5F5F7),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: AspectRatio(
+        aspectRatio: photo.ratio,
+        child: Image.asset(
+          photo.path,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.medium,
+          semanticLabel: label,
+        ),
+      ),
+    ),
+  );
 }
 
 // Apple Apps 风格的分区标题，强调“探索所有项目”的产品集合感。
@@ -2742,29 +3190,6 @@ class _HorizontalRevealClipper extends CustomClipper<Rect> {
   @override
   bool shouldReclip(covariant _HorizontalRevealClipper oldClipper) =>
       oldClipper.value != value;
-}
-
-// 摄影作品尚未加入时显示的占位卡片。
-class _ComingSoonCard extends StatelessWidget {
-  const _ComingSoonCard({required this.dark, required this.english});
-  final bool dark;
-  final bool english;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(40),
-    decoration: BoxDecoration(
-      color: dark ? _darkCard : const Color(0xFFF5F5F7),
-      borderRadius: BorderRadius.circular(28),
-      border: dark ? Border.all(color: Colors.white10) : null,
-    ),
-    child: Text(
-      english ? 'More work is coming soon.' : '更多作品正在整理中。',
-      textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 17, decoration: TextDecoration.none),
-    ),
-  );
 }
 
 // 所有普通页面共用的结尾区域。全屏展开菜单是覆盖层，不插入这里。
