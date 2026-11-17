@@ -322,6 +322,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                   dark: dark,
                   compact: compact,
                   english: _english,
+                  menuActive: _menuVisible,
                   progress: progress,
                   menuAnimation: _menuAnimation,
                   onHome: () => _scrollTo(_homeKey),
@@ -342,6 +343,7 @@ class _AdaptiveNav extends StatelessWidget {
     required this.dark,
     required this.compact,
     required this.english,
+    required this.menuActive,
     required this.progress,
     required this.menuAnimation,
     required this.onHome,
@@ -350,6 +352,7 @@ class _AdaptiveNav extends StatelessWidget {
   final bool dark;
   final bool compact;
   final bool english;
+  final bool menuActive;
   final double progress;
   final Animation<double> menuAnimation;
   final VoidCallback onHome;
@@ -359,39 +362,46 @@ class _AdaptiveNav extends StatelessWidget {
   Widget build(BuildContext context) {
     // progress 为 0 时是普通状态，为 1 时是下滑后的悬浮玻璃状态。
     final eased = Curves.easeOutCubic.transform(progress);
-    final horizontal = 4 + (compact ? 10 : 18) * eased;
-    final vertical = 2 + 7 * eased;
+    final horizontal = menuActive ? 0.0 : 4 + (compact ? 10 : 18) * eased;
+    final vertical = menuActive ? 2.0 : 2 + 7 * eased;
+    // 浅色模式始终使用纯白色作为导航背景，避免透明度插值时出现灰色闪变。
+    final backgroundColor = menuActive
+        ? Colors.transparent
+        : dark
+        ? Color.lerp(_darkPage, const Color(0xFF1A1A1A), eased)!
+        : Colors.white;
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 1440 - (compact ? 0 : 320) * eased,
-        ),
+        // 与首屏文字和主题卡片使用相同的最大内容宽度。
+        constraints: const BoxConstraints(maxWidth: 1440),
         child: Container(
           decoration: BoxDecoration(
-            color: Color.lerp(
-              Colors.transparent,
-              dark ? const Color(0xF21A1A1A) : const Color(0xF2FFFFFF),
-              eased,
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(
+              menuActive ? 0 : 16 + 22 * eased,
             ),
-            borderRadius: BorderRadius.circular(16 + 22 * eased),
             border: Border.all(
-              color: Color.lerp(
-                Colors.transparent,
-                dark ? Colors.white12 : Colors.black12,
-                eased,
-              )!,
+              color: menuActive
+                  ? Colors.transparent
+                  : Color.lerp(
+                      Colors.transparent,
+                      dark ? Colors.white12 : Colors.black12,
+                      eased,
+                    )!,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Color.lerp(
-                  Colors.transparent,
-                  const Color(0x26000000),
-                  eased,
-                )!,
-                blurRadius: 32 * eased,
-                offset: Offset(0, 12 * eased),
-              ),
-            ],
+            boxShadow: menuActive
+                ? const []
+                : [
+                    BoxShadow(
+                      color: Color.lerp(
+                        Colors.transparent,
+                        const Color(0x26000000),
+                        eased,
+                      )!,
+                      blurRadius: 32 * eased,
+                      offset: Offset(0, 12 * eased),
+                    ),
+                  ],
           ),
           padding: EdgeInsets.symmetric(
             horizontal: horizontal,
@@ -465,6 +475,9 @@ class _MenuButton extends StatelessWidget {
         onTap: onTap,
         radius: size / 2,
         highlightShape: BoxShape.circle,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
         child: SizedBox.square(
           dimension: size,
           child: AnimatedBuilder(
@@ -552,24 +565,30 @@ class _MenuPanel extends StatelessWidget {
     return Material(
       color: dark ? _darkPage : const Color(0xFFF5F5F7),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(34, 76, 34, 70),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _MenuItem(text['computerProjects']!, onComputer, color),
-              _MenuItem(text['photography']!, onPhotography, color),
-              _MenuItem(text['contact']!, onContact, color),
-              const SizedBox(height: 22),
-              Divider(color: dark ? Colors.white12 : Colors.black12),
-              const SizedBox(height: 18),
-              _MenuItem(
-                english ? '切换为中文' : 'Switch to English',
-                onLanguage,
-                color,
-                small: true,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1440),
+            child: SingleChildScrollView(
+              // 为无边框导航栏预留更充足的顶部距离，避免紧贴第一行。
+              padding: const EdgeInsets.fromLTRB(28, 132, 28, 70),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _MenuItem(text['computerProjects']!, onComputer, color),
+                  _MenuItem(text['photography']!, onPhotography, color),
+                  _MenuItem(text['contact']!, onContact, color),
+                  const SizedBox(height: 28),
+                  Divider(color: dark ? Colors.white12 : Colors.black12),
+                  const SizedBox(height: 24),
+                  _MenuItem(
+                    english ? '切换为中文' : 'Switch to English',
+                    onLanguage,
+                    color,
+                    small: true,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -688,14 +707,15 @@ class _Hero extends StatelessWidget {
             : null,
       ),
       padding: EdgeInsets.fromLTRB(
-        compact ? 0 : 48,
+        compact ? 0 : 28,
         compact ? 70 : 82,
-        compact ? 0 : 48,
+        compact ? 0 : 28,
         0,
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1280),
+          // 与导航栏和主题卡片保持统一的左右边界。
+          constraints: const BoxConstraints(maxWidth: 1440),
           child: compact
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -714,7 +734,7 @@ class _Hero extends StatelessWidget {
                     Expanded(
                       flex: 5,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 18, bottom: 80),
+                        padding: const EdgeInsets.only(bottom: 80),
                         child: copy,
                       ),
                     ),
