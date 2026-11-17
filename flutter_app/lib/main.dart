@@ -1124,7 +1124,7 @@ class _VisualTile extends StatelessWidget {
   );
 }
 
-// 项目详情页。摄影页面保留作品占位，计算机项目页面展示项目列表。
+// 项目分类页。摄影页面保留作品占位，计算机项目页面展示项目列表。
 class _DetailPage extends StatelessWidget {
   const _DetailPage({required this.photography, required this.english});
   final bool photography;
@@ -1195,6 +1195,16 @@ class _DetailPage extends StatelessWidget {
                     dark: dark,
                     english: english,
                     compact: compact,
+                    onProject: (project) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => _ProjectDetailPage(
+                            project: project,
+                            english: english,
+                          ),
+                        ),
+                      );
+                    },
                   ),
               ],
             ),
@@ -1266,11 +1276,13 @@ class _ComputerProjectList extends StatelessWidget {
     required this.dark,
     required this.english,
     required this.compact,
+    required this.onProject,
   });
 
   final bool dark;
   final bool english;
   final bool compact;
+  final ValueChanged<_ProjectInfo> onProject;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -1289,6 +1301,7 @@ class _ComputerProjectList extends StatelessWidget {
                   project: project,
                   dark: dark,
                   english: english,
+                  onTap: () => onProject(project),
                 ),
               ),
             )
@@ -1304,51 +1317,222 @@ class _ProjectCard extends StatelessWidget {
     required this.project,
     required this.dark,
     required this.english,
+    required this.onTap,
   });
 
   final _ProjectInfo project;
   final bool dark;
   final bool english;
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-    constraints: const BoxConstraints(minHeight: 260),
-    padding: const EdgeInsets.all(30),
-    decoration: BoxDecoration(
-      color: dark ? _darkCard : const Color(0xFFF5F5F7),
-      borderRadius: BorderRadius.circular(28),
-      border: Border.all(color: dark ? Colors.white10 : Colors.black12),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: project.accent.withValues(alpha: dark ? .22 : .12),
-            borderRadius: BorderRadius.circular(16),
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(28);
+    return Semantics(
+      button: true,
+      label: english
+          ? 'Open ${project.name} project details'
+          : '打开 ${project.name} 项目详情',
+      child: Material(
+        color: dark ? _darkCard : const Color(0xFFF5F5F7),
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: dark ? Colors.white10 : Colors.black12),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          hoverColor: project.accent.withValues(alpha: dark ? .10 : .06),
+          splashColor: project.accent.withValues(alpha: .10),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 260),
+            child: Padding(
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: project.accent.withValues(
+                            alpha: dark ? .22 : .12,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(
+                          project.icon,
+                          color: project.accent,
+                          size: 28,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 18,
+                        color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    project.name,
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      fontSize: 24,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    english ? project.enDescription : project.zhDescription,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontSize: 16,
+                      color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  Text(
+                    english ? 'View project' : '查看项目',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: project.accent,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          child: Icon(project.icon, color: project.accent, size: 28),
         ),
-        const SizedBox(height: 30),
-        Text(
-          project.name,
-          style: Theme.of(context).textTheme.headlineMedium!
-              .copyWith(fontSize: 24, decoration: TextDecoration.none),
+      ),
+    );
+  }
+}
+
+// 第三级项目详情页。沿用分类页的排版语言，并为后续图片、链接与项目记录预留内容区。
+class _ProjectDetailPage extends StatelessWidget {
+  const _ProjectDetailPage({required this.project, required this.english});
+
+  final _ProjectInfo project;
+  final bool english;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final compact = MediaQuery.sizeOf(context).width < 700;
+    final secondary = dark ? _darkSecondary : const Color(0xFF6E6E73);
+    final radius = BorderRadius.circular(compact ? 28 : 36);
+
+    return Scaffold(
+      backgroundColor: dark ? _darkPage : Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          tooltip: english ? 'Back to projects' : '返回项目列表',
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.pop(context),
         ),
-        const SizedBox(height: 14),
-        Text(
-          english ? project.enDescription : project.zhDescription,
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            fontSize: 16,
-            color: dark ? _darkSecondary : const Color(0xFF6E6E73),
-            decoration: TextDecoration.none,
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          compact ? 24 : 48,
+          compact ? 52 : 72,
+          compact ? 24 : 48,
+          120,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 980),
+            child: Column(
+              children: [
+                Container(
+                  width: compact ? 72 : 88,
+                  height: compact ? 72 : 88,
+                  decoration: BoxDecoration(
+                    color: project.accent.withValues(alpha: dark ? .22 : .12),
+                    borderRadius: BorderRadius.circular(compact ? 22 : 28),
+                  ),
+                  child: Icon(
+                    project.icon,
+                    color: project.accent,
+                    size: compact ? 36 : 44,
+                  ),
+                ),
+                SizedBox(height: compact ? 28 : 36),
+                Text(
+                  project.name,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                    fontSize: compact ? 40 : 58,
+                    height: 1.06,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                SizedBox(height: compact ? 20 : 24),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 760),
+                  child: Text(
+                    english ? project.enDescription : project.zhDescription,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontSize: compact ? 17 : 20,
+                      height: 1.55,
+                      color: secondary,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+                SizedBox(height: compact ? 56 : 76),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(compact ? 28 : 48),
+                  decoration: BoxDecoration(
+                    color: dark ? _darkCard : const Color(0xFFF5F5F7),
+                    borderRadius: radius,
+                    border: Border.all(
+                      color: dark ? Colors.white10 : Colors.black12,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        english ? 'Project overview' : '项目概览',
+                        style: Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(
+                              fontSize: compact ? 28 : 36,
+                              decoration: TextDecoration.none,
+                            ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        english
+                            ? 'Detailed notes, screenshots, progress, and related links are being organized. This page is ready to grow with the project.'
+                            : '项目的详细记录、截图、进展和相关链接正在整理中。这个页面已经预留好内容结构，后续可以继续完善。',
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          fontSize: compact ? 16 : 18,
+                          height: 1.6,
+                          color: secondary,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
 // 摄影作品尚未加入时显示的占位卡片。
