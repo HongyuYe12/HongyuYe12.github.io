@@ -10,6 +10,18 @@ const _darkPrimary = Color(0xFFF5F5F7);
 const _darkSecondary = Color(0xFFA1A1A6);
 const _darkLink = Color(0xFF2997FF);
 
+// 参考 Apple 官网建立统一字号层级，避免不同页面各自使用零散尺寸。
+const _typeBody = 17.0;
+const _typeBodyLarge = 19.0;
+const _typeIntro = 21.0;
+const _typeCardTitle = 32.0;
+const _typeSectionMobile = 40.0;
+const _typeSection = 48.0;
+const _typeHeroMobile = 48.0;
+const _typeHero = 64.0;
+const _typeDisplayMobile = 48.0;
+const _typeDisplay = 80.0;
+
 // 苹果官网使用系统字体优先策略：Apple 设备优先 SF Pro / 苹方，
 // Windows 和其他平台再回退到 Segoe UI、Noto Sans SC 等字体。
 const _appleFontFallback = <String>[
@@ -61,48 +73,58 @@ class HyeApp extends StatelessWidget {
         brightness: brightness,
         surface: dark ? _darkCard : Colors.white,
       ),
-      // 不强制绑定单一字体，让浏览器优先选择当前系统的苹果风格字体。
+      // 标题优先 SF Pro Display，正文优先 SF Pro Text；未安装时自动回退。
+      fontFamily: 'SF Pro Text',
       fontFamilyFallback: _appleFontFallback,
       textTheme: TextTheme(
         displayLarge: TextStyle(
+          fontFamily: 'SF Pro Display',
+          fontSize: _typeDisplay,
           color: foreground,
           fontWeight: FontWeight.w600,
-          letterSpacing: -1.6,
-          height: 1.08,
+          letterSpacing: -2.4,
+          height: 1.05,
           decoration: TextDecoration.none,
         ),
         displayMedium: TextStyle(
+          fontFamily: 'SF Pro Display',
+          fontSize: _typeSection,
           color: foreground,
           fontWeight: FontWeight.w600,
-          letterSpacing: -1.2,
-          height: 1.1,
+          letterSpacing: -1.4,
+          height: 1.08,
           decoration: TextDecoration.none,
         ),
         headlineMedium: TextStyle(
+          fontFamily: 'SF Pro Display',
+          fontSize: _typeCardTitle,
           color: foreground,
           fontWeight: FontWeight.w600,
-          letterSpacing: -.45,
-          height: 1.16,
+          letterSpacing: -.7,
+          height: 1.1,
           decoration: TextDecoration.none,
         ),
         titleLarge: TextStyle(
+          fontSize: 24,
           color: foreground,
           fontWeight: FontWeight.w600,
           letterSpacing: -.4,
           decoration: TextDecoration.none,
         ),
         bodyLarge: TextStyle(
+          fontSize: _typeBodyLarge,
           color: foreground,
           fontWeight: FontWeight.w400,
-          letterSpacing: -.12,
-          height: 1.47,
+          letterSpacing: -.15,
+          height: 1.5,
           decoration: TextDecoration.none,
         ),
         bodyMedium: TextStyle(
+          fontSize: _typeBody,
           color: foreground,
           fontWeight: FontWeight.w400,
-          letterSpacing: -.08,
-          height: 1.47,
+          letterSpacing: -.1,
+          height: 1.5,
           decoration: TextDecoration.none,
         ),
       ),
@@ -725,8 +747,8 @@ class _ProjectMenuContent extends StatelessWidget {
       const SizedBox(height: 20),
       _MenuItem(
         photography
-            ? (english ? 'Explore all photography' : '探索所有摄影作品')
-            : (english ? 'Explore all projects' : '探索所有项目'),
+            ? (english ? 'Explore all photography' : '查看全部摄影作品')
+            : (english ? 'Explore all projects' : '查看全部项目'),
         onExplore,
         color,
       ),
@@ -739,7 +761,7 @@ class _ProjectMenuContent extends StatelessWidget {
               theme.title(english),
               style: TextStyle(
                 color: secondary,
-                fontSize: 19,
+                fontSize: _typeBodyLarge,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
                 decoration: TextDecoration.none,
@@ -784,7 +806,7 @@ class _MenuBackButton extends StatelessWidget {
               label,
               style: TextStyle(
                 color: color,
-                fontSize: 17,
+                fontSize: _typeBody,
                 fontWeight: FontWeight.w500,
                 decoration: TextDecoration.none,
               ),
@@ -814,7 +836,7 @@ class _MenuItem extends StatelessWidget {
           label,
           style: TextStyle(
             color: color,
-            fontSize: small ? 17 : 32,
+            fontSize: small ? _typeBody : _typeCardTitle,
             height: 1.1,
             fontWeight: FontWeight.w600,
             letterSpacing: small ? -.2 : -.7,
@@ -852,9 +874,9 @@ class _Hero extends StatelessWidget {
         Text(
           text['heroName']!,
           style: Theme.of(context).textTheme.displayLarge!.copyWith(
-            fontSize: compact ? 40 : 56,
+            fontSize: compact ? _typeHeroMobile : _typeHero,
             fontWeight: FontWeight.w600,
-            letterSpacing: compact ? -1.1 : -1.8,
+            letterSpacing: compact ? -1.4 : -2.2,
           ),
         ),
         SizedBox(height: compact ? 28 : 38),
@@ -863,7 +885,7 @@ class _Hero extends StatelessWidget {
           child: Text(
             text['heroIntro']!,
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              fontSize: compact ? 17 : 19,
+              fontSize: compact ? _typeBody : _typeIntro,
               color: secondary,
               height: 1.47,
             ),
@@ -976,7 +998,7 @@ class _BlueLink extends StatelessWidget {
                 color: Theme.of(context).brightness == Brightness.dark
                     ? _darkLink
                     : const Color(0xFF0071E3),
-                fontSize: 17,
+                fontSize: _typeBody,
                 fontWeight: FontWeight.w400,
                 letterSpacing: -.2,
                 decoration: TextDecoration.none,
@@ -1106,7 +1128,9 @@ class _ThemeCard extends StatelessWidget {
                   title,
                   style: TextStyle(
                     color: foreground,
-                    fontSize: horizontal ? 48 : (compact ? 36 : 42),
+                    fontSize: horizontal
+                        ? _typeSection
+                        : (compact ? _typeSectionMobile : _typeSection),
                     height: 1.08,
                     fontWeight: FontWeight.w600,
                     letterSpacing: horizontal ? -1.3 : -.8,
@@ -1118,7 +1142,7 @@ class _ThemeCard extends StatelessWidget {
                   subtitle,
                   style: TextStyle(
                     color: secondary,
-                    fontSize: horizontal ? 21 : 17,
+                    fontSize: horizontal ? _typeIntro : _typeBody,
                     height: 1.45,
                     decoration: TextDecoration.none,
                   ),
@@ -1337,15 +1361,15 @@ class _DetailPage extends StatelessWidget {
         ? (english ? 'Photography' : '摄影作品')
         : (english ? 'Computer Projects' : '计算机项目');
     final headline = photography
-        ? (english ? 'Moments, thoughtfully framed.' : '把观察，留在画面里。')
-        : (english ? 'Ideas become useful things.' : '让想法，成为真正可用的作品。');
+        ? (english ? 'A closer look at the world.' : '用影像，重新看见日常。')
+        : (english ? 'Ideas, made useful.' : '把想法，做成真正可用的作品。');
     final intro = photography
         ? (english
-              ? 'A place for photographs, visual stories, and observations from daily life.'
-              : '这里将收录摄影作品、视觉故事，以及日常生活中的观察。')
+              ? 'Photography shaped by light, place, movement, and the moments in between.'
+              : '关于光线、空间、旅途与现场的摄影记录。')
         : (english
-              ? 'A place for software experiments, learning projects, and future products.'
-              : '这里将收录软件实验、学习项目，以及未来完成的产品。');
+              ? 'Software, research, and experiments developed from first question to working result.'
+              : '从问题出发，以代码、研究与设计完成的软件和实验。');
     return Scaffold(
       backgroundColor: dark ? _darkPage : Colors.white,
       appBar: AppBar(
@@ -1386,7 +1410,9 @@ class _DetailPage extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.displayLarge!
                             .copyWith(
-                              fontSize: compact ? 44 : 72,
+                              fontSize: compact
+                                  ? _typeDisplayMobile
+                                  : _typeDisplay,
                               height: 1.04,
                               letterSpacing: compact ? -1.6 : -3,
                               decoration: TextDecoration.none,
@@ -1400,7 +1426,7 @@ class _DetailPage extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyLarge!
                               .copyWith(
-                                fontSize: compact ? 18 : 21,
+                                fontSize: compact ? _typeBodyLarge : _typeIntro,
                                 height: 1.48,
                                 color: dark
                                     ? _darkSecondary
@@ -1497,8 +1523,8 @@ const _photographyThemes = <_PhotographyTheme>[
   _PhotographyTheme(
     zhTitle: '飞机',
     enTitle: 'Aircraft',
-    zhSubtitle: '航站楼、进近航线与天空中的瞬间。',
-    enSubtitle: 'Terminals, final approaches, and moments held in the sky.',
+    zhSubtitle: '候机楼、进近航线，以及掠过天空的片刻。',
+    enSubtitle: 'Terminals, final approaches, and fleeting moments overhead.',
     photos: [
       _PhotoAsset('assets/photography/aircraft/01-dsc03486.webp', 2400, 1600),
       _PhotoAsset('assets/photography/aircraft/02-dsc03548.webp', 2400, 1196),
@@ -1509,8 +1535,8 @@ const _photographyThemes = <_PhotographyTheme>[
   _PhotographyTheme(
     zhTitle: '建筑',
     enTitle: 'Architecture',
-    zhSubtitle: '光线、结构与空间之间的秩序。',
-    enSubtitle: 'Light, structure, and the order found between spaces.',
+    zhSubtitle: '寻找光线、结构与空间之间的秩序。',
+    enSubtitle: 'Finding order between light, structure, and space.',
     photos: [
       _PhotoAsset(
         'assets/photography/architecture/01-dsc00120.webp',
@@ -1537,7 +1563,7 @@ const _photographyThemes = <_PhotographyTheme>[
   _PhotographyTheme(
     zhTitle: '自然',
     enTitle: 'Nature',
-    zhSubtitle: '暮色、闪电与短暂变化的天空。',
+    zhSubtitle: '暮色、闪电，以及转瞬即逝的天空。',
     enSubtitle: 'Twilight, lightning, and skies that change in an instant.',
     photos: [
       _PhotoAsset('assets/photography/nature/01-dsc02009.webp', 2400, 1600),
@@ -1547,8 +1573,8 @@ const _photographyThemes = <_PhotographyTheme>[
   _PhotographyTheme(
     zhTitle: '足球 · 尤文图斯',
     enTitle: 'Football · Juventus',
-    zhSubtitle: '比赛节奏、看台视角与球场中的决定性时刻。',
-    enSubtitle: 'Match rhythm, the view from the stands, and decisive moments.',
+    zhSubtitle: '从看台出发，记录比赛的节奏与决定性瞬间。',
+    enSubtitle: 'The rhythm of the match and its decisive moments, seen from the stands.',
     photos: [
       _PhotoAsset('assets/photography/juventus/01-dsc02391.webp', 2400, 1350),
       _PhotoAsset('assets/photography/juventus/02-dsc02814.webp', 2400, 1600),
@@ -1560,9 +1586,8 @@ const _photographyThemes = <_PhotographyTheme>[
   _PhotographyTheme(
     zhTitle: '台湾',
     enTitle: 'Taiwan',
-    zhSubtitle: '海岸、街道、列车与夜色中的旅行片段。',
-    enSubtitle:
-        'Coastlines, streets, trains, and fragments of a journey after dark.',
+    zhSubtitle: '海岸、街道、列车，以及夜色中的旅行片段。',
+    enSubtitle: 'Coastlines, streets, trains, and fragments of a journey into the night.',
     photos: [
       _PhotoAsset('assets/photography/taiwan/01-dsc01446.webp', 2400, 1600),
       _PhotoAsset('assets/photography/taiwan/02-img_2291.webp', 1600, 2400),
@@ -1593,9 +1618,9 @@ class _PhotographyThemeList extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        english ? 'Explore by theme.' : '按主题探索。',
+        english ? 'Explore the series.' : '探索摄影系列。',
         style: Theme.of(context).textTheme.displayMedium!.copyWith(
-          fontSize: compact ? 36 : 46,
+          fontSize: compact ? _typeSectionMobile : _typeSection,
           height: 1.08,
           letterSpacing: -1.5,
           decoration: TextDecoration.none,
@@ -1659,7 +1684,7 @@ class _PhotographyThemeCard extends StatelessWidget {
           Text(
             theme.title(english),
             style: Theme.of(context).textTheme.displayMedium!.copyWith(
-              fontSize: compact ? 32 : 44,
+              fontSize: compact ? _typeCardTitle : _typeSection,
               height: 1.06,
               decoration: TextDecoration.none,
             ),
@@ -1668,7 +1693,7 @@ class _PhotographyThemeCard extends StatelessWidget {
           Text(
             theme.subtitle(english),
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              fontSize: compact ? 16 : 18,
+              fontSize: compact ? _typeBody : _typeBodyLarge,
               height: 1.5,
               color: dark ? _darkSecondary : const Color(0xFF6E6E73),
               decoration: TextDecoration.none,
@@ -1677,8 +1702,8 @@ class _PhotographyThemeCard extends StatelessWidget {
           const SizedBox(height: 22),
           Text(
             english
-                ? '${theme.photos.length} photos  ›'
-                : '${theme.photos.length} 张照片  ›',
+                ? 'View ${theme.photos.length} photos  ›'
+                : '查看 ${theme.photos.length} 张照片  ›',
             style: const TextStyle(
               color: Color(0xFF0071E3),
               fontSize: 16,
@@ -1749,7 +1774,7 @@ class _PhotographyGalleryPage extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  english ? 'PHOTOGRAPHY SERIES' : '摄影主题',
+                  english ? 'PHOTOGRAPHY' : '摄影系列',
                   style: const TextStyle(
                     color: Color(0xFF0071E3),
                     fontSize: 16,
@@ -1763,7 +1788,7 @@ class _PhotographyGalleryPage extends StatelessWidget {
                   theme.title(english),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                    fontSize: compact ? 46 : 76,
+                    fontSize: compact ? _typeDisplayMobile : _typeDisplay,
                     height: 1.02,
                     letterSpacing: compact ? -1.8 : -3.2,
                     decoration: TextDecoration.none,
@@ -1776,7 +1801,7 @@ class _PhotographyGalleryPage extends StatelessWidget {
                     theme.subtitle(english),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: compact ? 17 : 20,
+                      fontSize: compact ? _typeBody : _typeIntro,
                       height: 1.5,
                       color: dark ? _darkSecondary : const Color(0xFF6E6E73),
                       decoration: TextDecoration.none,
@@ -1915,9 +1940,9 @@ class _ProjectCollectionHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            english ? 'Explore every project.' : '探索所有项目。',
+            english ? 'Explore every project.' : '查看全部项目。',
             style: Theme.of(context).textTheme.displayMedium!.copyWith(
-              fontSize: 38,
+              fontSize: _typeSection,
               height: 1.08,
               letterSpacing: -1.2,
               decoration: TextDecoration.none,
@@ -1938,40 +1963,40 @@ class _ProjectCollectionHeader extends StatelessWidget {
 const _computerProjects = <_ProjectInfo>[
   _ProjectInfo(
     name: 'SpektraStudio',
-    zhDescription: '基于开源 spektrafilm 引擎的双语 Windows 桌面应用，以光谱计算还原胶片、相纸、颗粒与光晕。',
-    enDescription: 'A bilingual Windows desktop app powered by the open-source spektrafilm engine, recreating film, paper, grain, and halation through spectral processing.',
+    zhDescription: '以光谱计算重现胶片、相纸、颗粒与光晕的双语 Windows 影像工具。',
+    enDescription: 'A bilingual Windows imaging tool that recreates film, paper, grain, and halation through spectral processing.',
     icon: Icons.auto_awesome_rounded,
     accent: Color(0xFF8E5CFF),
     githubUrl: 'https://github.com/HongyuYe12/SpektraStudio',
   ),
   _ProjectInfo(
     name: 'Monocular Depth Robustness',
-    zhDescription: '研究单目深度估计在多深度、低照度和复杂场景中的稳定性，并探索深度引导的自动对焦。',
-    enDescription: 'Researching monocular depth stability in multi-depth, low-light, and complex scenes, with depth-guided autofocus experiments.',
+    zhDescription: '评估单目深度估计在暗光、多深度与复杂场景中的稳定性，并探索深度引导自动对焦。',
+    enDescription: 'Evaluating monocular-depth robustness in low-light and complex scenes, with experiments in depth-guided autofocus.',
     icon: Icons.blur_on_rounded,
     accent: Color(0xFF0071E3),
     githubUrl: 'https://github.com/HongyuYe12/monocular-depth-robustness',
   ),
   _ProjectInfo(
     name: 'Cabinet AI Assistant',
-    zhDescription: '结合 DXF 图纸、大模型设计建议与本地视觉分析的橱柜设计平台，从空间理解延伸到施工核验。',
-    enDescription: 'A cabinet design platform combining DXF drawings, AI recommendations, and local vision analysis from spatial understanding to construction verification.',
+    zhDescription: '连接 DXF 图纸、AI 设计建议与本地视觉分析的橱柜设计和施工核验平台。',
+    enDescription: 'A cabinet-planning and build-verification platform connecting DXF drawings, AI guidance, and local vision analysis.',
     icon: Icons.inventory_2_rounded,
     accent: Color(0xFF00A87E),
     githubUrl: 'https://github.com/HongyuYe12/cabinet-ai-assistant',
   ),
   _ProjectInfo(
     name: 'MinerU',
-    zhDescription: '将 PDF 解析为可检索 Markdown，并维护原始 PDF 页码与内容之间的可靠映射。',
-    enDescription: 'A local workflow that converts PDFs into searchable Markdown while preserving reliable source-page mappings.',
+    zhDescription: '把 PDF 转换为可检索 Markdown，同时保留可靠、可追溯的原始页码映射。',
+    enDescription: 'A local workflow that turns PDFs into searchable Markdown while preserving traceable source-page mappings.',
     icon: Icons.document_scanner_rounded,
     accent: Color(0xFFFF9F0A),
     githubUrl: 'https://github.com/HongyuYe12/mineru-book-page-map',
   ),
   _ProjectInfo(
     name: 'The Auctioneer',
-    zhDescription: '一款 JavaFX 拍卖行经营游戏，在 30 天内通过探索、鉴定、库存管理与现场拍卖达成经营目标。',
-    enDescription: 'A JavaFX auction-house management game built around exploration, appraisal, inventory decisions, and live auctions across a 30-day campaign.',
+    zhDescription: '一款 JavaFX 拍卖行经营游戏，在 30 天内通过探索、鉴定、库存与拍卖完成经营目标。',
+    enDescription: 'A JavaFX auction-house management game built around exploration, appraisal, inventory, and live auctions over 30 days.',
     icon: Icons.gavel_rounded,
     accent: Color(0xFFFF375F),
     githubUrl: 'https://github.com/HongyuYe12/the-auctioneer',
@@ -2119,7 +2144,7 @@ class _ProjectCard extends StatelessWidget {
                   Text(
                     project.name,
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      fontSize: featured ? 38 : 26,
+                      fontSize: featured ? _typeSectionMobile : 28,
                       height: 1.08,
                       decoration: TextDecoration.none,
                     ),
@@ -2128,7 +2153,7 @@ class _ProjectCard extends StatelessWidget {
                   Text(
                     english ? project.enDescription : project.zhDescription,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: featured ? 19 : 16,
+                      fontSize: featured ? _typeBodyLarge : _typeBody,
                       height: 1.45,
                       color: dark ? _darkSecondary : const Color(0xFF6E6E73),
                       decoration: TextDecoration.none,
@@ -2277,11 +2302,11 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                 SizedBox(height: compact ? 42 : 62),
                 Text(
                   widget.english
-                      ? 'Give every image\nits own atmosphere.'
-                      : '让每一张影像，\n拥有自己的氛围。',
+                      ? 'Give every image\nits own character.'
+                      : '让每一张影像，\n拥有自己的气质。',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                    fontSize: compact ? 48 : 80,
+                    fontSize: compact ? _typeDisplayMobile : _typeDisplay,
                     height: 1.02,
                     letterSpacing: compact ? -2 : -4,
                     decoration: TextDecoration.none,
@@ -2292,11 +2317,11 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                   constraints: const BoxConstraints(maxWidth: 760),
                   child: Text(
                     widget.english
-                        ? 'A visual workspace for shaping color, texture, and emotion with an intuitive creative workflow.'
-                        : '一个用于塑造色彩、质感与情绪的视觉工作空间，让创作过程更直观、更专注。',
+                        ? 'A focused workspace for shaping color, texture, and atmosphere through an intuitive creative workflow.'
+                        : '一个专注于色彩、质感与氛围的影像工作空间，让调整更直观，创作更专注。',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: compact ? 19 : 23,
+                      fontSize: compact ? _typeBodyLarge : _typeIntro,
                       height: 1.45,
                       color: secondary,
                       decoration: TextDecoration.none,
@@ -2352,11 +2377,11 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
               children: [
                 Text(
                   widget.english
-                      ? 'Creative control, without friction.'
-                      : '专注创作，不被工具打断。',
+                      ? 'Creative control, without distraction.'
+                      : '专注创作，不被复杂工具打断。',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                    fontSize: compact ? 38 : 60,
+                    fontSize: compact ? _typeSectionMobile : _typeHero,
                     height: 1.06,
                     letterSpacing: compact ? -1.4 : -2.5,
                     decoration: TextDecoration.none,
@@ -2370,15 +2395,15 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                         Icons.palette_outlined,
                         widget.english ? 'Color with character' : '有性格的色彩',
                         widget.english
-                            ? 'Explore film-inspired color and atmosphere while keeping the image itself at the center.'
-                            : '探索胶片感的色彩与氛围，同时让画面本身始终处于创作中心。',
+                            ? 'Shape film-inspired color and atmosphere while keeping the photograph itself at the center.'
+                            : '塑造来自胶片的色彩与氛围，同时让照片本身始终处于创作中心。',
                       ),
                       (
                         Icons.tune_rounded,
                         widget.english ? 'Direct comparison' : '直观的前后对比',
                         widget.english
-                            ? 'Scroll or drag to understand every change immediately, without losing visual context.'
-                            : '通过滚动或拖动立即理解每一次变化，同时不丢失画面上下文。',
+                            ? 'Scroll or drag to see every change in context and compare the result instantly.'
+                            : '通过滚动或拖动，在同一画面中理解变化并立即比较结果。',
                       ),
                     ];
                     final width = compact
@@ -2453,7 +2478,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                     project.name,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                      fontSize: compact ? 40 : 58,
+                      fontSize: compact ? _typeSectionMobile : _typeHero,
                       height: 1.06,
                       decoration: TextDecoration.none,
                     ),
@@ -2467,7 +2492,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                           : project.zhDescription,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        fontSize: compact ? 17 : 20,
+                        fontSize: compact ? _typeBody : _typeIntro,
                         height: 1.55,
                         color: secondary,
                         decoration: TextDecoration.none,
@@ -2801,7 +2826,10 @@ class _ProjectGithubLink extends StatelessWidget {
     label: Text(english ? 'View source on GitHub' : '在 GitHub 查看源码'),
     style: TextButton.styleFrom(
       foregroundColor: accent,
-      textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+      textStyle: const TextStyle(
+        fontSize: _typeBody,
+        fontWeight: FontWeight.w600,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
     ),
   );
@@ -2840,7 +2868,7 @@ class _ProjectNarrative extends StatelessWidget {
         content.headline,
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.displayMedium!.copyWith(
-          fontSize: compact ? 38 : 58,
+          fontSize: compact ? _typeSectionMobile : _typeHero,
           height: 1.06,
           letterSpacing: compact ? -1.4 : -2.4,
           decoration: TextDecoration.none,
@@ -2853,7 +2881,7 @@ class _ProjectNarrative extends StatelessWidget {
           content.intro,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            fontSize: compact ? 17 : 20,
+            fontSize: compact ? _typeBody : _typeIntro,
             height: 1.55,
             color: dark ? _darkSecondary : const Color(0xFF6E6E73),
             decoration: TextDecoration.none,
@@ -2933,7 +2961,9 @@ class _ProjectNarrativeCard extends StatelessWidget {
           Text(
             section.title,
             style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-              fontSize: section.wide ? (compact ? 32 : 44) : 29,
+              fontSize: section.wide
+                  ? (compact ? _typeCardTitle : _typeSection)
+                  : 28,
               height: 1.1,
               color: foreground,
               decoration: TextDecoration.none,
@@ -2943,7 +2973,7 @@ class _ProjectNarrativeCard extends StatelessWidget {
           Text(
             section.body,
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              fontSize: compact ? 16 : 17,
+              fontSize: _typeBody,
               height: 1.55,
               color: secondary,
               decoration: TextDecoration.none,
@@ -3018,7 +3048,7 @@ class _SpektraFeatureCard extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            fontSize: 28,
+            fontSize: _typeCardTitle,
             height: 1.12,
             decoration: TextDecoration.none,
           ),
@@ -3027,7 +3057,7 @@ class _SpektraFeatureCard extends StatelessWidget {
         Text(
           text,
           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            fontSize: 17,
+            fontSize: _typeBody,
             height: 1.55,
             color: dark ? _darkSecondary : const Color(0xFF6E6E73),
             decoration: TextDecoration.none,
@@ -3059,21 +3089,21 @@ class _SpektraFilmComparison extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     children: [
       Text(
-        english ? 'From digital to film' : '从原图到胶片',
+        english ? 'From digital to film.' : '从原图，到胶片。',
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.displayMedium!.copyWith(
-          fontSize: compact ? 34 : 48,
+          fontSize: compact ? _typeSectionMobile : _typeSection,
           decoration: TextDecoration.none,
         ),
       ),
       const SizedBox(height: 14),
       Text(
         english
-            ? 'Scroll down to reveal the film scan, or drag the divider to compare.'
-            : '向下滚动逐渐显示胶片扫描，也可以拖动中间竖线进行对比。',
+            ? 'Scroll to reveal the film rendering, or drag the divider for a direct comparison.'
+            : '向下滚动逐渐呈现胶片效果，也可以拖动分隔条直接比较。',
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-          fontSize: compact ? 16 : 18,
+          fontSize: compact ? _typeBody : _typeBodyLarge,
           color: Theme.of(context).brightness == Brightness.dark
               ? _darkSecondary
               : const Color(0xFF6E6E73),
@@ -3218,7 +3248,7 @@ class _PageEnd extends StatelessWidget {
         onEmail: () => _open('mailto:robin.hye@icloud.com'),
         onGithub: () => _open('https://github.com/HongyuYe12'),
       ),
-      _Footer(dark: dark),
+      _Footer(dark: dark, text: text),
     ],
   );
 }
@@ -3255,8 +3285,9 @@ class _Contact extends StatelessWidget {
             Text(
               text['contactTitle']!,
               textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.displayMedium!
-                  .copyWith(fontSize: compact ? 36 : 48),
+              style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                fontSize: compact ? _typeSectionMobile : _typeSection,
+              ),
             ),
             const SizedBox(height: 16),
             ConstrainedBox(
@@ -3265,7 +3296,7 @@ class _Contact extends StatelessWidget {
                 text['contactText']!,
                 textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontSize: compact ? 17 : 19,
+                  fontSize: compact ? _typeBody : _typeBodyLarge,
                   color: dark ? _darkSecondary : const Color(0xFF6E6E73),
                   decoration: TextDecoration.none,
                 ),
@@ -3289,8 +3320,9 @@ class _Contact extends StatelessWidget {
 
 // 网站页脚：显示分隔线和自动更新年份的版权信息。
 class _Footer extends StatelessWidget {
-  const _Footer({required this.dark});
+  const _Footer({required this.dark, required this.text});
   final bool dark;
+  final Map<String, String> text;
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
@@ -3308,9 +3340,9 @@ class _Footer extends StatelessWidget {
             ),
           ),
           child: Text(
-            'Copyright © ${DateTime.now().year} Ye Hongyu. All rights reserved.',
+            '${text['copyright']} © ${DateTime.now().year} Ye Hongyu.',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.5,
               height: 1.33,
               color: dark ? Colors.white54 : Colors.black54,
               decoration: TextDecoration.none,
@@ -3324,58 +3356,40 @@ class _Footer extends StatelessWidget {
 
 // 中文文案表。修改网站中文内容时，优先在这里调整对应字段。
 const _zh = <String, String>{
-  'projects': '探索',
+  'projects': '作品',
   'contact': '联系',
   'heroName': 'Ye Hongyu',
-  'heroRole': '学生',
-  'heroIntro': '我是一名保持好奇、乐于学习和探索新事物的学生。这里记录我的成长、思考，以及未来完成的项目。',
-  'viewProjects': '了解探索',
-  'contactMe': '联系我',
+  'heroRole': '',
+  'heroIntro': '我关注影像、计算机视觉与实用软件。这里收录我的项目、实验与摄影作品，也记录每一次从想法到实现的过程。',
+  'viewProjects': '查看作品',
+  'contactMe': '与我联系',
   'portraitLabel': 'Ye Hongyu 的拟我头像',
-  'projectType1': '个人成长',
-  'projectTitle1': '让每一次学习，都留下作品。',
-  'projectDesc1': '课程、阅读与实践，不只是完成任务，也是在建立自己的思考方式。',
-  'projectType2': '项目实践',
-  'projectTitle2': '从想法到实现。',
-  'projectDesc2': '未来完成的个人与团队项目，会在这里记录过程、选择与收获。',
-  'projectType3': '兴趣探索',
-  'projectTitle3': '保持好奇。',
-  'projectDesc3': '收集值得继续研究的主题、文章、灵感，以及生活中的新发现。',
-  'comingSoon': '持续更新中',
-  'contactTitle': '一起聊聊。',
-  'contactText': '如果你想交流学习、共同兴趣或合作想法，可以通过邮件或 GitHub 找到我。',
+  'contactTitle': '保持联系。',
+  'contactText': '如果你想讨论项目、摄影或合作想法，欢迎通过邮件或 GitHub 与我联系。',
   'computerProjects': '计算机项目',
   'photography': '摄影作品',
-  'computerSubtitle': '代码、实验与产品想法。',
-  'photoSubtitle': '用影像记录观察与故事。',
+  'computerSubtitle': '用代码、研究与设计，把想法做成可用的工具。',
+  'photoSubtitle': '关于光线、空间、旅途与现场的影像记录。',
   'learnMore': '进一步了解',
+  'copyright': '版权所有',
 };
 
 // 英文文案表。字段名称需与中文文案表保持一致。
 const _en = <String, String>{
-  'projects': 'Explore',
+  'projects': 'Work',
   'contact': 'Contact',
   'heroName': 'Ye Hongyu',
-  'heroRole': 'Student',
-  'heroIntro': 'I am a curious student who enjoys learning and exploring new ideas. This site documents my growth, thinking, and future work.',
-  'viewProjects': 'Explore my work',
-  'contactMe': 'Contact me',
+  'heroRole': '',
+  'heroIntro': 'I work across imaging, computer vision, and practical software. This site brings together my projects, experiments, and photography—from first idea to finished result.',
+  'viewProjects': 'Explore the work',
+  'contactMe': 'Get in touch',
   'portraitLabel': 'Memoji portrait of Ye Hongyu',
-  'projectType1': 'Personal growth',
-  'projectTitle1': 'Turn every lesson into something made.',
-  'projectDesc1': 'Coursework, reading, and practice help me build not only knowledge, but my own way of thinking.',
-  'projectType2': 'Projects',
-  'projectTitle2': 'From an idea to reality.',
-  'projectDesc2': 'Future individual and team projects will document the process, decisions, and lessons along the way.',
-  'projectType3': 'Curiosity',
-  'projectTitle3': 'Stay curious.',
-  'projectDesc3': 'A growing collection of topics, writing, inspiration, and discoveries worth exploring further.',
-  'comingSoon': 'Continuously evolving',
   'computerProjects': 'Computer Projects',
   'photography': 'Photography',
-  'computerSubtitle': 'Code, experiments, and product ideas.',
-  'photoSubtitle': 'Observations and stories through images.',
+  'computerSubtitle': 'Code, research, and design shaped into useful tools.',
+  'photoSubtitle': 'Photographs of light, place, travel, and the moment.',
   'learnMore': 'Learn more',
-  'contactTitle': 'Let’s talk.',
-  'contactText': 'If you would like to talk about learning, shared interests, or collaboration, reach me by email or GitHub.',
+  'contactTitle': 'Stay in touch.',
+  'contactText': 'For conversations about projects, photography, or collaboration, reach me by email or GitHub.',
+  'copyright': 'Copyright',
 };
