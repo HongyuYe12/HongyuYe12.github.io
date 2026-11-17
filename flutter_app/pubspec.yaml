@@ -25,6 +25,8 @@ flutter:
     - assets/hye-mark-white.png
     - assets/memoji-transparent.png
     - assets/memoji-portrait-transparent.png
+    - assets/spektrastudio/temple-original-aligned.webp
+    - assets/spektrastudio/temple-film.webp
   fonts:
     - family: NotoSansSC
       fonts:

@@ -1623,12 +1623,45 @@ class _ProjectCard extends StatelessWidget {
   }
 }
 
-// 第三级项目详情页。沿用分类页的排版语言，并为后续图片、链接与项目记录预留内容区。
-class _ProjectDetailPage extends StatelessWidget {
+// 第三级项目详情页。SpektraStudio 使用滚动与拖动联动的前后效果对比。
+class _ProjectDetailPage extends StatefulWidget {
   const _ProjectDetailPage({required this.project, required this.english});
 
   final _ProjectInfo project;
   final bool english;
+
+  @override
+  State<_ProjectDetailPage> createState() => _ProjectDetailPageState();
+}
+
+class _ProjectDetailPageState extends State<_ProjectDetailPage> {
+  final _scrollController = ScrollController();
+  double _comparison = 0;
+  bool _draggingComparison = false;
+
+  bool get _isSpektra => widget.project.name == 'SpektraStudio';
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isSpektra) _scrollController.addListener(_syncComparisonToScroll);
+  }
+
+  void _syncComparisonToScroll() {
+    if (_draggingComparison || !_scrollController.hasClients) return;
+    final next = ((_scrollController.offset - 220) / 720).clamp(0.0, 1.0);
+    if ((next - _comparison).abs() > .002) {
+      setState(() => _comparison = next);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_syncComparisonToScroll)
+      ..dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1636,6 +1669,8 @@ class _ProjectDetailPage extends StatelessWidget {
     final compact = MediaQuery.sizeOf(context).width < 700;
     final secondary = dark ? _darkSecondary : const Color(0xFF6E6E73);
     final radius = BorderRadius.circular(compact ? 28 : 36);
+    final project = widget.project;
+    final english = widget.english;
 
     return Scaffold(
       backgroundColor: dark ? _darkPage : Colors.white,
@@ -1649,6 +1684,7 @@ class _ProjectDetailPage extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         padding: EdgeInsets.fromLTRB(
           compact ? 24 : 48,
           compact ? 52 : 72,
@@ -1698,6 +1734,20 @@ class _ProjectDetailPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: compact ? 56 : 76),
+                if (_isSpektra) ...[
+                  _SpektraFilmComparison(
+                    value: _comparison,
+                    compact: compact,
+                    english: english,
+                    onDragStart: () =>
+                        setState(() => _draggingComparison = true),
+                    onChanged: (value) =>
+                        setState(() => _comparison = value.clamp(0.0, 1.0)),
+                    onDragEnd: () =>
+                        setState(() => _draggingComparison = false),
+                  ),
+                  SizedBox(height: compact ? 56 : 76),
+                ],
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(compact ? 28 : 48),
@@ -1741,6 +1791,149 @@ class _ProjectDetailPage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SpektraFilmComparison extends StatelessWidget {
+  const _SpektraFilmComparison({
+    required this.value,
+    required this.compact,
+    required this.english,
+    required this.onDragStart,
+    required this.onChanged,
+    required this.onDragEnd,
+  });
+
+  final double value;
+  final bool compact;
+  final bool english;
+  final VoidCallback onDragStart;
+  final ValueChanged<double> onChanged;
+  final VoidCallback onDragEnd;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Text(
+        english ? 'From digital to film' : '从原图到胶片',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.displayMedium!.copyWith(
+          fontSize: compact ? 34 : 48,
+          decoration: TextDecoration.none,
+        ),
+      ),
+      const SizedBox(height: 14),
+      Text(
+        english
+            ? 'Scroll down to reveal the film scan, or drag the divider to compare.'
+            : '向下滚动逐渐显示胶片扫描，也可以拖动中间竖线进行对比。',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+          fontSize: compact ? 16 : 18,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? _darkSecondary
+              : const Color(0xFF6E6E73),
+          decoration: TextDecoration.none,
+        ),
+      ),
+      SizedBox(height: compact ? 28 : 38),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final height = constraints.maxWidth * 2208 / 2400;
+          final dividerX = constraints.maxWidth * value;
+          void update(double localX) =>
+              onChanged((localX / constraints.maxWidth).clamp(0.0, 1.0));
+
+          return Semantics(
+            slider: true,
+            label: english ? 'Original and film comparison' : '原图与胶片效果对比',
+            value: '${(value * 100).round()}%',
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragStart: (details) {
+                onDragStart();
+                update(details.localPosition.dx);
+              },
+              onHorizontalDragUpdate: (details) =>
+                  update(details.localPosition.dx),
+              onHorizontalDragEnd: (_) => onDragEnd(),
+              onTapDown: (details) => update(details.localPosition.dx),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(compact ? 20 : 28),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: height,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        'assets/spektrastudio/temple-original-aligned.webp',
+                        fit: BoxFit.fill,
+                        filterQuality: FilterQuality.high,
+                      ),
+                      ClipRect(
+                        clipper: _HorizontalRevealClipper(value),
+                        child: Image.asset(
+                          'assets/spektrastudio/temple-film.webp',
+                          fit: BoxFit.fill,
+                          filterQuality: FilterQuality.high,
+                        ),
+                      ),
+                      Positioned(
+                        left: dividerX - 1,
+                        top: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 2,
+                          color: Colors.white.withValues(alpha: .96),
+                        ),
+                      ),
+                      Positioned(
+                        left: dividerX - 24,
+                        top: height / 2 - 24,
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .94),
+                            shape: BoxShape.circle,
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x33000000),
+                                blurRadius: 18,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.compare_arrows_rounded,
+                            color: Color(0xFF1D1D1F),
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ],
+  );
+}
+
+class _HorizontalRevealClipper extends CustomClipper<Rect> {
+  const _HorizontalRevealClipper(this.value);
+  final double value;
+
+  @override
+  Rect getClip(Size size) =>
+      Rect.fromLTWH(0, 0, size.width * value, size.height);
+
+  @override
+  bool shouldReclip(covariant _HorizontalRevealClipper oldClipper) =>
+      oldClipper.value != value;
 }
 
 // 摄影作品尚未加入时显示的占位卡片。
