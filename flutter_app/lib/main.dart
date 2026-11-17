@@ -345,7 +345,8 @@ class _PortfolioPageState extends State<PortfolioPage>
               return Positioned(
                 left: compact ? 12 : 28,
                 right: compact ? 12 : 28,
-                top: 8 + (compact ? 2 : 10) * progress,
+                // 三种状态使用完全相同的外部几何位置，避免切换时发生轻微跳动。
+                top: compact ? 10 : 18,
                 child: _AdaptiveNav(
                   dark: dark,
                   compact: compact,
@@ -390,8 +391,6 @@ class _AdaptiveNav extends StatelessWidget {
   Widget build(BuildContext context) {
     // progress 为 0 时是普通状态，为 1 时是下滑后的悬浮玻璃状态。
     final eased = Curves.easeOutCubic.transform(progress);
-    final horizontal = menuActive ? 0.0 : 4 + (compact ? 10 : 18) * eased;
-    final vertical = menuActive ? 2.0 : 2 + 7 * eased;
     // 浅色模式始终使用纯白色作为导航背景，避免透明度插值时出现灰色闪变。
     final backgroundColor = menuActive
         ? Colors.transparent
@@ -403,10 +402,11 @@ class _AdaptiveNav extends StatelessWidget {
         // 与首屏文字和主题卡片使用相同的最大内容宽度。
         constraints: const BoxConstraints(maxWidth: 1440),
         child: Container(
+          height: 64,
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(
-              menuActive ? 0 : 16 + 22 * eased,
+              menuActive ? 0 : 18 + 18 * eased,
             ),
             border: Border.all(
               color: menuActive
@@ -431,10 +431,8 @@ class _AdaptiveNav extends StatelessWidget {
                     ),
                   ],
           ),
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontal,
-            vertical: vertical,
-          ),
+          // 固定内部留白、Logo 和按钮尺寸，仅动画视觉材质，不动画布局尺寸。
+          padding: EdgeInsets.symmetric(horizontal: compact ? 14 : 22),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -453,8 +451,8 @@ class _AdaptiveNav extends StatelessWidget {
                       dark
                           ? 'assets/hye-mark-white.png'
                           : 'assets/hye-mark-black.png',
-                      width: 54 - 5 * eased,
-                      height: 28 - 2 * eased,
+                      width: 50,
+                      height: 26,
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -466,7 +464,7 @@ class _AdaptiveNav extends StatelessWidget {
                 animation: menuAnimation,
                 onTap: onMenu,
                 emphasized: eased > .5,
-                size: 48 - 2 * eased,
+                size: 48,
               ),
             ],
           ),
@@ -1341,10 +1339,12 @@ class _DetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 700;
-    // 根据入口类型和当前语言生成详情页标题与简介。
     final title = photography
         ? (english ? 'Photography' : '摄影作品')
         : (english ? 'Computer Projects' : '计算机项目');
+    final headline = photography
+        ? (english ? 'Moments, thoughtfully framed.' : '把观察，留在画面里。')
+        : (english ? 'Ideas become useful things.' : '让想法，成为真正可用的作品。');
     final intro = photography
         ? (english
               ? 'A place for photographs, visual stories, and observations from daily life.'
@@ -1363,64 +1363,133 @@ class _DetailPage extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 70, 24, 120),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 980),
-            child: Column(
-              children: [
-                Icon(
-                  photography
-                      ? Icons.camera_alt_rounded
-                      : Icons.laptop_mac_rounded,
-                  size: 88,
-                  color: const Color(0xFF0071E3),
-                ),
-                const SizedBox(height: 28),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                    fontSize: compact ? 40 : 56,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  intro,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontSize: compact ? 17 : 19,
-                    color: dark ? _darkSecondary : const Color(0xFF6E6E73),
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-                const SizedBox(height: 64),
-                if (photography)
-                  _ComingSoonCard(dark: dark, english: english)
-                else
-                  _ComputerProjectList(
-                    dark: dark,
-                    english: english,
-                    compact: compact,
-                    onProject: (project) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => _ProjectDetailPage(
-                            project: project,
-                            english: english,
-                          ),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                compact ? 24 : 48,
+                compact ? 64 : 94,
+                compact ? 24 : 48,
+                compact ? 74 : 112,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1080),
+                  child: Column(
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: compact ? 17 : 21,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF0071E3),
+                          decoration: TextDecoration.none,
                         ),
-                      );
-                    },
+                      ),
+                      SizedBox(height: compact ? 18 : 24),
+                      Text(
+                        headline,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.displayLarge!
+                            .copyWith(
+                              fontSize: compact ? 44 : 72,
+                              height: 1.04,
+                              letterSpacing: compact ? -1.6 : -3,
+                              decoration: TextDecoration.none,
+                            ),
+                      ),
+                      SizedBox(height: compact ? 22 : 30),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 720),
+                        child: Text(
+                          intro,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                fontSize: compact ? 18 : 21,
+                                height: 1.48,
+                                color: dark
+                                    ? _darkSecondary
+                                    : const Color(0xFF6E6E73),
+                                decoration: TextDecoration.none,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
-              ],
+                ),
+              ),
             ),
-          ),
+            Container(
+              width: double.infinity,
+              color: dark ? const Color(0xFF111111) : const Color(0xFFF5F5F7),
+              padding: EdgeInsets.fromLTRB(
+                compact ? 18 : 40,
+                compact ? 56 : 88,
+                compact ? 18 : 40,
+                compact ? 84 : 128,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1180),
+                  child: photography
+                      ? _ComingSoonCard(dark: dark, english: english)
+                      : _ComputerProjectList(
+                          dark: dark,
+                          english: english,
+                          compact: compact,
+                          onProject: (project) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => _ProjectDetailPage(
+                                  project: project,
+                                  english: english,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+// Apple Apps 风格的分区标题，强调“探索所有项目”的产品集合感。
+class _ProjectCollectionHeader extends StatelessWidget {
+  const _ProjectCollectionHeader({required this.dark, required this.english});
+  final bool dark;
+  final bool english;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 36),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Text(
+            english ? 'Explore every project.' : '探索所有项目。',
+            style: Theme.of(context).textTheme.displayMedium!.copyWith(
+              fontSize: 38,
+              height: 1.08,
+              letterSpacing: -1.2,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ),
+        Icon(
+          Icons.arrow_downward_rounded,
+          size: 26,
+          color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+        ),
+      ],
+    ),
+  );
 }
 
 // 计算机项目数据。需要修改项目名称或简介时，可直接编辑此列表。
@@ -1478,7 +1547,7 @@ class _ProjectInfo {
   final Color accent;
 }
 
-// 将五个项目排成自适应卡片：宽屏两列，窄屏单列。
+// 将项目排成宽幅编辑式卡片：第一项更突出，其余项目自适应排列。
 class _ComputerProjectList extends StatelessWidget {
   const _ComputerProjectList({
     required this.dark,
@@ -1493,29 +1562,38 @@ class _ComputerProjectList extends StatelessWidget {
   final ValueChanged<_ProjectInfo> onProject;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final columns = compact ? 1 : 2;
-      final gap = compact ? 18.0 : 24.0;
-      final cardWidth = (constraints.maxWidth - gap * (columns - 1)) / columns;
-      return Wrap(
-        spacing: gap,
-        runSpacing: gap,
-        children: _computerProjects
-            .map(
-              (project) => SizedBox(
-                width: cardWidth,
+  Widget build(BuildContext context) => Column(
+    children: [
+      _ProjectCollectionHeader(dark: dark, english: english),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final gap = compact ? 18.0 : 24.0;
+          final cardWidth = compact
+              ? constraints.maxWidth
+              : (constraints.maxWidth - gap) / 2;
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: _computerProjects.indexed.map((entry) {
+              final index = entry.$1;
+              final project = entry.$2;
+              return SizedBox(
+                width: !compact && index == 0
+                    ? constraints.maxWidth
+                    : cardWidth,
                 child: _ProjectCard(
                   project: project,
                   dark: dark,
                   english: english,
+                  featured: index == 0,
                   onTap: () => onProject(project),
                 ),
-              ),
-            )
-            .toList(),
-      );
-    },
+              );
+            }).toList(),
+          );
+        },
+      ),
+    ],
   );
 }
 
@@ -1525,12 +1603,14 @@ class _ProjectCard extends StatelessWidget {
     required this.project,
     required this.dark,
     required this.english,
+    required this.featured,
     required this.onTap,
   });
 
   final _ProjectInfo project;
   final bool dark;
   final bool english;
+  final bool featured;
   final VoidCallback onTap;
 
   @override
@@ -1542,7 +1622,7 @@ class _ProjectCard extends StatelessWidget {
           ? 'Open ${project.name} project details'
           : '打开 ${project.name} 项目详情',
       child: Material(
-        color: dark ? _darkCard : const Color(0xFFF5F5F7),
+        color: dark ? _darkCard : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
           side: BorderSide(color: dark ? Colors.white10 : Colors.black12),
@@ -1554,9 +1634,9 @@ class _ProjectCard extends StatelessWidget {
           hoverColor: project.accent.withValues(alpha: dark ? .10 : .06),
           splashColor: project.accent.withValues(alpha: .10),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 260),
+            constraints: BoxConstraints(minHeight: featured ? 360 : 310),
             child: Padding(
-              padding: const EdgeInsets.all(30),
+              padding: EdgeInsets.all(featured ? 42 : 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1586,11 +1666,12 @@ class _ProjectCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 30),
+                  SizedBox(height: featured ? 76 : 42),
                   Text(
                     project.name,
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      fontSize: 24,
+                      fontSize: featured ? 38 : 26,
+                      height: 1.08,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -1598,14 +1679,15 @@ class _ProjectCard extends StatelessWidget {
                   Text(
                     english ? project.enDescription : project.zhDescription,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: 16,
+                      fontSize: featured ? 19 : 16,
+                      height: 1.45,
                       color: dark ? _darkSecondary : const Color(0xFF6E6E73),
                       decoration: TextDecoration.none,
                     ),
                   ),
                   const SizedBox(height: 22),
                   Text(
-                    english ? 'View project' : '查看项目',
+                    english ? 'Learn more  ›' : '进一步了解  ›',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -1669,7 +1751,6 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
     final compact = MediaQuery.sizeOf(context).width < 700;
     final secondary = dark ? _darkSecondary : const Color(0xFF6E6E73);
     final radius = BorderRadius.circular(compact ? 28 : 36);
-    final project = widget.project;
     final english = widget.english;
 
     return Scaffold(
@@ -1685,103 +1766,92 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
+        child: _isSpektra
+            ? _buildSpektraPage(context, dark, compact, secondary)
+            : _buildStandardPage(context, dark, compact, secondary, radius),
+      ),
+    );
+  }
+
+  Widget _buildSpektraPage(
+    BuildContext context,
+    bool dark,
+    bool compact,
+    Color secondary,
+  ) => Column(
+    children: [
+      Padding(
         padding: EdgeInsets.fromLTRB(
           compact ? 24 : 48,
-          compact ? 52 : 72,
+          compact ? 48 : 82,
           compact ? 24 : 48,
-          120,
+          compact ? 62 : 92,
         ),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 980),
+            constraints: const BoxConstraints(maxWidth: 1120),
             child: Column(
               children: [
-                Container(
-                  width: compact ? 72 : 88,
-                  height: compact ? 72 : 88,
-                  decoration: BoxDecoration(
-                    color: project.accent.withValues(alpha: dark ? .22 : .12),
-                    borderRadius: BorderRadius.circular(compact ? 22 : 28),
-                  ),
-                  child: Icon(
-                    project.icon,
-                    color: project.accent,
-                    size: compact ? 36 : 44,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: compact ? 42 : 48,
+                      height: compact ? 42 : 48,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFB06CFF), Color(0xFF5B35FF)],
+                        ),
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Colors.white,
+                        size: 25,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Text(
+                      'SpektraStudio',
+                      style: TextStyle(
+                        fontSize: compact ? 20 : 24,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -.5,
+                        color: dark ? _darkPrimary : const Color(0xFF1D1D1F),
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: compact ? 28 : 36),
+                SizedBox(height: compact ? 42 : 62),
                 Text(
-                  project.name,
+                  widget.english
+                      ? 'Give every image\nits own atmosphere.'
+                      : '让每一张影像，\n拥有自己的氛围。',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                    fontSize: compact ? 40 : 58,
-                    height: 1.06,
+                    fontSize: compact ? 48 : 80,
+                    height: 1.02,
+                    letterSpacing: compact ? -2 : -4,
                     decoration: TextDecoration.none,
                   ),
                 ),
-                SizedBox(height: compact ? 20 : 24),
+                SizedBox(height: compact ? 24 : 32),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 760),
                   child: Text(
-                    english ? project.enDescription : project.zhDescription,
+                    widget.english
+                        ? 'A visual workspace for shaping color, texture, and emotion with an intuitive creative workflow.'
+                        : '一个用于塑造色彩、质感与情绪的视觉工作空间，让创作过程更直观、更专注。',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: compact ? 17 : 20,
-                      height: 1.55,
+                      fontSize: compact ? 19 : 23,
+                      height: 1.45,
                       color: secondary,
                       decoration: TextDecoration.none,
                     ),
-                  ),
-                ),
-                SizedBox(height: compact ? 56 : 76),
-                if (_isSpektra) ...[
-                  _SpektraFilmComparison(
-                    value: _comparison,
-                    compact: compact,
-                    english: english,
-                    onDragStart: () =>
-                        setState(() => _draggingComparison = true),
-                    onChanged: (value) =>
-                        setState(() => _comparison = value.clamp(0.0, 1.0)),
-                    onDragEnd: () =>
-                        setState(() => _draggingComparison = false),
-                  ),
-                  SizedBox(height: compact ? 56 : 76),
-                ],
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(compact ? 28 : 48),
-                  decoration: BoxDecoration(
-                    color: dark ? _darkCard : const Color(0xFFF5F5F7),
-                    borderRadius: radius,
-                    border: Border.all(
-                      color: dark ? Colors.white10 : Colors.black12,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        english ? 'Project overview' : '项目概览',
-                        style: Theme.of(context).textTheme.headlineMedium!
-                            .copyWith(
-                              fontSize: compact ? 28 : 36,
-                              decoration: TextDecoration.none,
-                            ),
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        english
-                            ? 'Detailed notes, screenshots, progress, and related links are being organized. This page is ready to grow with the project.'
-                            : '项目的详细记录、截图、进展和相关链接正在整理中。这个页面已经预留好内容结构，后续可以继续完善。',
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontSize: compact ? 16 : 18,
-                          height: 1.6,
-                          color: secondary,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ],
@@ -1789,8 +1859,253 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
           ),
         ),
       ),
+      Container(
+        width: double.infinity,
+        color: dark ? const Color(0xFF090909) : const Color(0xFFF5F5F7),
+        padding: EdgeInsets.fromLTRB(
+          compact ? 12 : 32,
+          compact ? 62 : 100,
+          compact ? 12 : 32,
+          compact ? 78 : 120,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1320),
+            child: _SpektraFilmComparison(
+              value: _comparison,
+              compact: compact,
+              english: widget.english,
+              onDragStart: () => setState(() => _draggingComparison = true),
+              onChanged: (value) =>
+                  setState(() => _comparison = value.clamp(0.0, 1.0)),
+              onDragEnd: () => setState(() => _draggingComparison = false),
+            ),
+          ),
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.fromLTRB(
+          compact ? 24 : 48,
+          compact ? 78 : 128,
+          compact ? 24 : 48,
+          compact ? 100 : 150,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1080),
+            child: Column(
+              children: [
+                Text(
+                  widget.english
+                      ? 'Creative control, without friction.'
+                      : '专注创作，不被工具打断。',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                    fontSize: compact ? 38 : 60,
+                    height: 1.06,
+                    letterSpacing: compact ? -1.4 : -2.5,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                SizedBox(height: compact ? 48 : 72),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final cards = [
+                      (
+                        Icons.palette_outlined,
+                        widget.english ? 'Color with character' : '有性格的色彩',
+                        widget.english
+                            ? 'Explore film-inspired color and atmosphere while keeping the image itself at the center.'
+                            : '探索胶片感的色彩与氛围，同时让画面本身始终处于创作中心。',
+                      ),
+                      (
+                        Icons.tune_rounded,
+                        widget.english ? 'Direct comparison' : '直观的前后对比',
+                        widget.english
+                            ? 'Scroll or drag to understand every change immediately, without losing visual context.'
+                            : '通过滚动或拖动立即理解每一次变化，同时不丢失画面上下文。',
+                      ),
+                    ];
+                    final width = compact
+                        ? constraints.maxWidth
+                        : (constraints.maxWidth - 24) / 2;
+                    return Wrap(
+                      spacing: 24,
+                      runSpacing: 24,
+                      children: cards
+                          .map(
+                            (card) => SizedBox(
+                              width: width,
+                              child: _SpektraFeatureCard(
+                                icon: card.$1,
+                                title: card.$2,
+                                text: card.$3,
+                                dark: dark,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Widget _buildStandardPage(
+    BuildContext context,
+    bool dark,
+    bool compact,
+    Color secondary,
+    BorderRadius radius,
+  ) {
+    final project = widget.project;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        compact ? 24 : 48,
+        compact ? 52 : 72,
+        compact ? 24 : 48,
+        120,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 980),
+          child: Column(
+            children: [
+              Container(
+                width: compact ? 72 : 88,
+                height: compact ? 72 : 88,
+                decoration: BoxDecoration(
+                  color: project.accent.withValues(alpha: dark ? .22 : .12),
+                  borderRadius: BorderRadius.circular(compact ? 22 : 28),
+                ),
+                child: Icon(
+                  project.icon,
+                  color: project.accent,
+                  size: compact ? 36 : 44,
+                ),
+              ),
+              SizedBox(height: compact ? 28 : 36),
+              Text(
+                project.name,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                  fontSize: compact ? 40 : 58,
+                  height: 1.06,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              SizedBox(height: compact ? 20 : 24),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: Text(
+                  widget.english
+                      ? project.enDescription
+                      : project.zhDescription,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontSize: compact ? 17 : 20,
+                    height: 1.55,
+                    color: secondary,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+              SizedBox(height: compact ? 56 : 76),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(compact ? 28 : 48),
+                decoration: BoxDecoration(
+                  color: dark ? _darkCard : const Color(0xFFF5F5F7),
+                  borderRadius: radius,
+                  border: Border.all(
+                    color: dark ? Colors.white10 : Colors.black12,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.english ? 'Project overview' : '项目概览',
+                      style: Theme.of(context).textTheme.headlineMedium!
+                          .copyWith(
+                            fontSize: compact ? 28 : 36,
+                            decoration: TextDecoration.none,
+                          ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      widget.english
+                          ? 'Detailed notes, screenshots, progress, and related links are being organized. This page is ready to grow with the project.'
+                          : '项目的详细记录、截图、进展和相关链接正在整理中。这个页面已经预留好内容结构，后续可以继续完善。',
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: compact ? 16 : 18,
+                        height: 1.6,
+                        color: secondary,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
+}
+
+class _SpektraFeatureCard extends StatelessWidget {
+  const _SpektraFeatureCard({
+    required this.icon,
+    required this.title,
+    required this.text,
+    required this.dark,
+  });
+  final IconData icon;
+  final String title;
+  final String text;
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: const BoxConstraints(minHeight: 300),
+    padding: const EdgeInsets.all(36),
+    decoration: BoxDecoration(
+      color: dark ? _darkCard : const Color(0xFFF5F5F7),
+      borderRadius: BorderRadius.circular(32),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 38, color: const Color(0xFF8E5CFF)),
+        const SizedBox(height: 96),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+            fontSize: 28,
+            height: 1.12,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          text,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: 17,
+            height: 1.55,
+            color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _SpektraFilmComparison extends StatelessWidget {
@@ -1889,25 +2204,36 @@ class _SpektraFilmComparison extends StatelessWidget {
                       ),
                       Positioned(
                         left: dividerX - 24,
-                        top: height / 2 - 24,
-                        child: Container(
+                        top: height / 2 - 30,
+                        child: SizedBox(
                           width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: .94),
-                            shape: BoxShape.circle,
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x33000000),
-                                blurRadius: 18,
-                                offset: Offset(0, 6),
+                          height: 60,
+                          child: Center(
+                            child: Container(
+                              width: 24,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: .94),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x33000000),
+                                    blurRadius: 14,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.compare_arrows_rounded,
-                            color: Color(0xFF1D1D1F),
-                            size: 24,
+                              child: Center(
+                                child: Container(
+                                  width: 3,
+                                  height: 18,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF6E6E73),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
