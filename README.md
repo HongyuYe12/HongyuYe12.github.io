@@ -14,6 +14,14 @@ Ye Hongyu 的双语个人网站，用于展示计算机项目、摄影作品与�
 - Apple 风格悬浮导航与克制的 Liquid Glass 视觉效果
 - GitHub Pages 公开访问
 
+## 计算机项目
+
+- **SpektraStudio** — 探索视觉与创意数字内容创作体验的实验性工作室项目
+- **Monocular Depth Robustness** — 单目深度估计鲁棒性与深度引导自动对焦研究
+- **Cabinet AI Assistant** — 面向资料整理、信息检索与日常工作流的个人 AI 助手
+- **MinerU** — 将 PDF 转换为可检索 Markdown，并维护可靠的原始页码映射
+- **The Auctioneer** — 围绕拍卖流程、出价互动与信息展示构建的应用项目
+
 ## 技术栈
 
 - Flutter Web

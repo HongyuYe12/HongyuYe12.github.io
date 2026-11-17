@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// 深色模式使用的基础颜色。集中放在这里，方便统一调整暗色主题。
 const _darkPage = Color(0xFF000000);
 const _darkCard = Color(0xFF1C1C1E);
 const _darkPrimary = Color(0xFFF5F5F7);
 const _darkSecondary = Color(0xFFA1A1A6);
 const _darkLink = Color(0xFF2997FF);
 
+// 应用入口：先初始化 Flutter 和 Liquid Glass，再启动网站。
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LiquidGlassWidgets.initialize(warmUpMode: GlassWarmUpMode.auto);
@@ -20,6 +22,7 @@ Future<void> main() async {
   );
 }
 
+// 网站根组件：设置网站标题、自动深浅色模式和全局主题。
 class HyeApp extends StatelessWidget {
   const HyeApp({super.key});
 
@@ -33,6 +36,7 @@ class HyeApp extends StatelessWidget {
     home: const PortfolioPage(),
   );
 
+  // 根据系统亮度生成对应主题。字体、颜色和文字样式都可在这里统一修改。
   ThemeData _theme(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final foreground = dark ? _darkPrimary : const Color(0xFF1D1D1F);
@@ -89,6 +93,7 @@ class HyeApp extends StatelessWidget {
   }
 }
 
+// 网站主页。使用 StatefulWidget 是因为菜单、语言和导航栏动画会动态变化。
 class PortfolioPage extends StatefulWidget {
   const PortfolioPage({super.key});
   @override
@@ -97,26 +102,35 @@ class PortfolioPage extends StatefulWidget {
 
 class _PortfolioPageState extends State<PortfolioPage>
     with TickerProviderStateMixin {
+  // 各页面区域的定位锚点，用于点击按钮后平滑滚动到对应位置。
   final _homeKey = GlobalKey();
   final _projectsKey = GlobalKey();
   final _contactKey = GlobalKey();
   final _scrollController = ScrollController();
+
+  // 菜单展开动画与顶部导航栏悬浮动画。
   late final AnimationController _menuAnimation;
   late final AnimationController _navAnimation;
+
+  // 页面当前状态：语言、菜单显示状态、导航栏是否进入悬浮状态。
   bool _english = false;
   bool _menuOpen = false;
   bool _menuVisible = false;
   bool _navFloating = false;
+
+  // 根据当前语言，从文件末尾的 _zh 或 _en 文案表中读取文字。
   Map<String, String> get t => _english ? _en : _zh;
 
   @override
   void initState() {
     super.initState();
+    // 控制全屏展开菜单的出现、缩放与关闭动画。
     _menuAnimation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 360),
       reverseDuration: const Duration(milliseconds: 300),
     );
+    // 控制导航栏从普通状态切换为悬浮玻璃状态。
     _navAnimation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 460),
@@ -125,6 +139,7 @@ class _PortfolioPageState extends State<PortfolioPage>
     _scrollController.addListener(_handleScroll);
   }
 
+  // 用户稍微向下滚动后自动播放悬浮栏动画；回到顶部时恢复普通导航栏。
   void _handleScroll() {
     final offset = _scrollController.offset;
     if (!_navFloating && offset > 28) {
@@ -136,6 +151,7 @@ class _PortfolioPageState extends State<PortfolioPage>
     }
   }
 
+  // 打开或关闭全屏菜单，并等待动画结束后再隐藏组件。
   Future<void> _toggleMenu() async {
     if (_menuOpen) {
       setState(() => _menuOpen = false);
@@ -171,9 +187,11 @@ class _PortfolioPageState extends State<PortfolioPage>
     );
   }
 
+  // 用系统默认应用打开网页或邮件链接。
   Future<void> _open(String value) =>
       launchUrl(Uri.parse(value), mode: LaunchMode.platformDefault);
 
+  // 点击菜单项目时，先播放菜单关闭动画，再执行跳转操作。
   Future<void> _closeMenuThen(VoidCallback action) async {
     if (_menuOpen) {
       setState(() => _menuOpen = false);
@@ -184,6 +202,7 @@ class _PortfolioPageState extends State<PortfolioPage>
     action();
   }
 
+  // 打开计算机项目或摄影作品的详情页。
   void _openDetail(bool photography) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -195,6 +214,7 @@ class _PortfolioPageState extends State<PortfolioPage>
 
   @override
   Widget build(BuildContext context) {
+    // dark 跟随系统深浅色模式；compact 用于判断是否采用窄屏布局。
     final dark = Theme.of(context).brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 760;
     return GlassScaffold(
@@ -208,6 +228,7 @@ class _PortfolioPageState extends State<PortfolioPage>
           : LiquidGlassSettings.ios27Light,
       body: Stack(
         children: [
+          // 主页面内容，从上到下依次为首屏、项目、联系方式和页脚。
           SingleChildScrollView(
             controller: _scrollController,
             child: Column(
@@ -240,6 +261,7 @@ class _PortfolioPageState extends State<PortfolioPage>
               ],
             ),
           ),
+          // 展开的全屏菜单。通过透明度和缩放组合出更自然的出现效果。
           if (_menuVisible)
             Positioned.fill(
               child: AnimatedBuilder(
@@ -268,6 +290,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                 ),
               ),
             ),
+          // 顶部导航栏始终覆盖在页面内容上方，并根据滚动状态改变形态。
           AnimatedBuilder(
             animation: _navAnimation,
             builder: (context, _) {
@@ -296,6 +319,7 @@ class _PortfolioPageState extends State<PortfolioPage>
   }
 }
 
+// 自适应顶部导航栏：左侧为 HYe 标志，右侧为菜单按钮。
 class _AdaptiveNav extends StatelessWidget {
   const _AdaptiveNav({
     required this.dark,
@@ -316,6 +340,7 @@ class _AdaptiveNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // progress 为 0 时是普通状态，为 1 时是下滑后的悬浮玻璃状态。
     final eased = Curves.easeOutCubic.transform(progress);
     final horizontal = 4 + (compact ? 10 : 18) * eased;
     final vertical = 2 + 7 * eased;
@@ -396,6 +421,7 @@ class _AdaptiveNav extends StatelessWidget {
   }
 }
 
+// 圆形菜单按钮。按钮本身没有额外边框，点击区域仍保持足够大。
 class _MenuButton extends StatelessWidget {
   const _MenuButton({
     required this.dark,
@@ -439,6 +465,7 @@ class _MenuButton extends StatelessWidget {
   );
 }
 
+// 自定义绘制两条横线，并在菜单打开时将它们旋转为关闭图标。
 class _MenuMorphPainter extends CustomPainter {
   const _MenuMorphPainter({required this.progress, required this.color});
   final double progress;
@@ -455,6 +482,7 @@ class _MenuMorphPainter extends CustomPainter {
     final spacing = 5.5 * (1 - progress);
     final shrink = 1 - .16 * progress;
 
+    // 绘制第一条横线，并随动画顺时针旋转。
     canvas.save();
     canvas.translate(center.dx, center.dy);
     canvas.rotate(.785398 * progress);
@@ -465,6 +493,7 @@ class _MenuMorphPainter extends CustomPainter {
     );
     canvas.restore();
 
+    // 绘制第二条横线，并随动画逆时针旋转。
     canvas.save();
     canvas.translate(center.dx, center.dy);
     canvas.rotate(-.785398 * progress);
@@ -481,6 +510,7 @@ class _MenuMorphPainter extends CustomPainter {
       oldDelegate.progress != progress || oldDelegate.color != color;
 }
 
+// 全屏菜单面板：包含两个主题入口、联系方式和中英文切换。
 class _MenuPanel extends StatelessWidget {
   const _MenuPanel({
     required this.text,
@@ -530,6 +560,7 @@ class _MenuPanel extends StatelessWidget {
   }
 }
 
+// 菜单中的单行文字按钮。small 用于语言切换项的小字号样式。
 class _MenuItem extends StatelessWidget {
   const _MenuItem(this.label, this.onTap, this.color, {this.small = false});
   final String label;
@@ -559,6 +590,7 @@ class _MenuItem extends StatelessWidget {
   );
 }
 
+// 首页首屏区域：展示姓名、个人介绍、操作链接和透明背景头像。
 class _Hero extends StatelessWidget {
   const _Hero({
     super.key,
@@ -685,6 +717,7 @@ class _Hero extends StatelessWidget {
   }
 }
 
+// 苹果官网风格的蓝色文字链接，右侧带箭头图标。
 class _BlueLink extends StatelessWidget {
   const _BlueLink({required this.label, required this.onTap});
   final String label;
@@ -726,6 +759,7 @@ class _BlueLink extends StatelessWidget {
   );
 }
 
+// 主题展示区域：依次放置计算机项目和摄影作品两个独立窗口。
 class _Projects extends StatelessWidget {
   const _Projects({
     super.key,
@@ -785,6 +819,7 @@ class _Projects extends StatelessWidget {
   );
 }
 
+// 单个主题卡片。photography 决定显示摄影还是计算机项目的视觉样式。
 class _ThemeCard extends StatelessWidget {
   const _ThemeCard({
     required this.photography,
@@ -897,6 +932,7 @@ class _ThemeCard extends StatelessWidget {
   );
 }
 
+// 项目详情页。摄影页面保留作品占位，计算机项目页面展示项目列表。
 class _DetailPage extends StatelessWidget {
   const _DetailPage({required this.photography, required this.english});
   final bool photography;
@@ -904,6 +940,8 @@ class _DetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final compact = MediaQuery.sizeOf(context).width < 700;
+    // 根据入口类型和当前语言生成详情页标题与简介。
     final title = photography
         ? (english ? 'Photography' : '摄影作品')
         : (english ? 'Computer Projects' : '计算机项目');
@@ -956,23 +994,14 @@ class _DetailPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 64),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(40),
-                  decoration: BoxDecoration(
-                    color: dark ? _darkCard : const Color(0xFFF5F5F7),
-                    borderRadius: BorderRadius.circular(28),
-                    border: dark ? Border.all(color: Colors.white10) : null,
+                if (photography)
+                  _ComingSoonCard(dark: dark, english: english)
+                else
+                  _ComputerProjectList(
+                    dark: dark,
+                    english: english,
+                    compact: compact,
                   ),
-                  child: Text(
-                    english ? 'More work is coming soon.' : '更多作品正在整理中。',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -982,6 +1011,176 @@ class _DetailPage extends StatelessWidget {
   }
 }
 
+// 计算机项目数据。需要修改项目名称或简介时，可直接编辑此列表。
+const _computerProjects = <_ProjectInfo>[
+  _ProjectInfo(
+    name: 'SpektraStudio',
+    zhDescription: '面向视觉与创意工作的实验性工作室项目，探索更直观的数字内容创作体验。',
+    enDescription: 'An experimental studio project exploring a more intuitive experience for visual and creative digital work.',
+    icon: Icons.auto_awesome_rounded,
+    accent: Color(0xFF8E5CFF),
+  ),
+  _ProjectInfo(
+    name: 'Monocular Depth Robustness',
+    zhDescription: '研究单目深度估计在多深度、低照度和复杂场景中的稳定性，并探索深度引导的自动对焦。',
+    enDescription: 'Researching monocular depth stability in multi-depth, low-light, and complex scenes, with depth-guided autofocus experiments.',
+    icon: Icons.blur_on_rounded,
+    accent: Color(0xFF0071E3),
+  ),
+  _ProjectInfo(
+    name: 'Cabinet AI Assistant',
+    zhDescription: '围绕资料整理、信息检索与日常工作流设计的个人 AI 助手项目。',
+    enDescription: 'A personal AI assistant project designed around document organization, information retrieval, and everyday workflows.',
+    icon: Icons.inventory_2_rounded,
+    accent: Color(0xFF00A87E),
+  ),
+  _ProjectInfo(
+    name: 'MinerU',
+    zhDescription: '将 PDF 解析为可检索 Markdown，并维护原始 PDF 页码与内容之间的可靠映射。',
+    enDescription: 'A local workflow that converts PDFs into searchable Markdown while preserving reliable source-page mappings.',
+    icon: Icons.document_scanner_rounded,
+    accent: Color(0xFFFF9F0A),
+  ),
+  _ProjectInfo(
+    name: 'The Auctioneer',
+    zhDescription: '围绕拍卖流程、出价互动与信息展示构建的应用项目。',
+    enDescription: 'An application project built around auction workflows, bidding interactions, and clear information presentation.',
+    icon: Icons.gavel_rounded,
+    accent: Color(0xFFFF375F),
+  ),
+];
+
+class _ProjectInfo {
+  const _ProjectInfo({
+    required this.name,
+    required this.zhDescription,
+    required this.enDescription,
+    required this.icon,
+    required this.accent,
+  });
+
+  final String name;
+  final String zhDescription;
+  final String enDescription;
+  final IconData icon;
+  final Color accent;
+}
+
+// 将五个项目排成自适应卡片：宽屏两列，窄屏单列。
+class _ComputerProjectList extends StatelessWidget {
+  const _ComputerProjectList({
+    required this.dark,
+    required this.english,
+    required this.compact,
+  });
+
+  final bool dark;
+  final bool english;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final columns = compact ? 1 : 2;
+      final gap = compact ? 18.0 : 24.0;
+      final cardWidth = (constraints.maxWidth - gap * (columns - 1)) / columns;
+      return Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: _computerProjects
+            .map(
+              (project) => SizedBox(
+                width: cardWidth,
+                child: _ProjectCard(
+                  project: project,
+                  dark: dark,
+                  english: english,
+                ),
+              ),
+            )
+            .toList(),
+      );
+    },
+  );
+}
+
+// 单个项目卡片，保持与网站现有圆角、留白和深浅色风格一致。
+class _ProjectCard extends StatelessWidget {
+  const _ProjectCard({
+    required this.project,
+    required this.dark,
+    required this.english,
+  });
+
+  final _ProjectInfo project;
+  final bool dark;
+  final bool english;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: const BoxConstraints(minHeight: 260),
+    padding: const EdgeInsets.all(30),
+    decoration: BoxDecoration(
+      color: dark ? _darkCard : const Color(0xFFF5F5F7),
+      borderRadius: BorderRadius.circular(28),
+      border: Border.all(color: dark ? Colors.white10 : Colors.black12),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: project.accent.withValues(alpha: dark ? .22 : .12),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(project.icon, color: project.accent, size: 28),
+        ),
+        const SizedBox(height: 30),
+        Text(
+          project.name,
+          style: Theme.of(context).textTheme.headlineMedium!
+              .copyWith(fontSize: 27, decoration: TextDecoration.none),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          english ? project.enDescription : project.zhDescription,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: 16,
+            color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// 摄影作品尚未加入时显示的占位卡片。
+class _ComingSoonCard extends StatelessWidget {
+  const _ComingSoonCard({required this.dark, required this.english});
+  final bool dark;
+  final bool english;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(40),
+    decoration: BoxDecoration(
+      color: dark ? _darkCard : const Color(0xFFF5F5F7),
+      borderRadius: BorderRadius.circular(28),
+      border: dark ? Border.all(color: Colors.white10) : null,
+    ),
+    child: Text(
+      english ? 'More work is coming soon.' : '更多作品正在整理中。',
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 20, decoration: TextDecoration.none),
+    ),
+  );
+}
+
+// 联系方式区域：提供公开邮箱和 GitHub 主页链接。
 class _Contact extends StatelessWidget {
   const _Contact({
     super.key,
@@ -1046,6 +1245,7 @@ class _Contact extends StatelessWidget {
   );
 }
 
+// 网站页脚：显示分隔线和自动更新年份的版权信息。
 class _Footer extends StatelessWidget {
   const _Footer({required this.dark});
   final bool dark;
@@ -1079,6 +1279,7 @@ class _Footer extends StatelessWidget {
   );
 }
 
+// 中文文案表。修改网站中文内容时，优先在这里调整对应字段。
 const _zh = <String, String>{
   'projects': '探索',
   'contact': '联系',
@@ -1107,6 +1308,7 @@ const _zh = <String, String>{
   'learnMore': '进一步了解',
 };
 
+// 英文文案表。字段名称需与中文文案表保持一致。
 const _en = <String, String>{
   'projects': 'Explore',
   'contact': 'Contact',
