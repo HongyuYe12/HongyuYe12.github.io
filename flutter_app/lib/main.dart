@@ -1496,10 +1496,11 @@ class _ProjectCollectionHeader extends StatelessWidget {
 const _computerProjects = <_ProjectInfo>[
   _ProjectInfo(
     name: 'SpektraStudio',
-    zhDescription: '面向视觉与创意工作的实验性工作室项目，探索更直观的数字内容创作体验。',
-    enDescription: 'An experimental studio project exploring a more intuitive experience for visual and creative digital work.',
+    zhDescription: '基于开源 spektrafilm 引擎的双语 Windows 桌面应用，以光谱计算还原胶片、相纸、颗粒与光晕。',
+    enDescription: 'A bilingual Windows desktop app powered by the open-source spektrafilm engine, recreating film, paper, grain, and halation through spectral processing.',
     icon: Icons.auto_awesome_rounded,
     accent: Color(0xFF8E5CFF),
+    githubUrl: 'https://github.com/HongyuYe12/SpektraStudio',
   ),
   _ProjectInfo(
     name: 'Monocular Depth Robustness',
@@ -1507,13 +1508,15 @@ const _computerProjects = <_ProjectInfo>[
     enDescription: 'Researching monocular depth stability in multi-depth, low-light, and complex scenes, with depth-guided autofocus experiments.',
     icon: Icons.blur_on_rounded,
     accent: Color(0xFF0071E3),
+    githubUrl: 'https://github.com/HongyuYe12/monocular-depth-robustness',
   ),
   _ProjectInfo(
     name: 'Cabinet AI Assistant',
-    zhDescription: '围绕资料整理、信息检索与日常工作流设计的个人 AI 助手项目。',
-    enDescription: 'A personal AI assistant project designed around document organization, information retrieval, and everyday workflows.',
+    zhDescription: '结合 DXF 图纸、大模型设计建议与本地视觉分析的橱柜设计平台，从空间理解延伸到施工核验。',
+    enDescription: 'A cabinet design platform combining DXF drawings, AI recommendations, and local vision analysis from spatial understanding to construction verification.',
     icon: Icons.inventory_2_rounded,
     accent: Color(0xFF00A87E),
+    githubUrl: 'https://github.com/HongyuYe12/cabinet-ai-assistant',
   ),
   _ProjectInfo(
     name: 'MinerU',
@@ -1521,13 +1524,15 @@ const _computerProjects = <_ProjectInfo>[
     enDescription: 'A local workflow that converts PDFs into searchable Markdown while preserving reliable source-page mappings.',
     icon: Icons.document_scanner_rounded,
     accent: Color(0xFFFF9F0A),
+    githubUrl: 'https://github.com/HongyuYe12/mineru-book-page-map',
   ),
   _ProjectInfo(
     name: 'The Auctioneer',
-    zhDescription: '围绕拍卖流程、出价互动与信息展示构建的应用项目。',
-    enDescription: 'An application project built around auction workflows, bidding interactions, and clear information presentation.',
+    zhDescription: '一款 JavaFX 拍卖行经营游戏，在 30 天内通过探索、鉴定、库存管理与现场拍卖达成经营目标。',
+    enDescription: 'A JavaFX auction-house management game built around exploration, appraisal, inventory decisions, and live auctions across a 30-day campaign.',
     icon: Icons.gavel_rounded,
     accent: Color(0xFFFF375F),
+    githubUrl: 'https://github.com/HongyuYe12/the-auctioneer',
   ),
 ];
 
@@ -1538,6 +1543,7 @@ class _ProjectInfo {
     required this.enDescription,
     required this.icon,
     required this.accent,
+    required this.githubUrl,
   });
 
   final String name;
@@ -1545,6 +1551,7 @@ class _ProjectInfo {
   final String enDescription;
   final IconData icon;
   final Color accent;
+  final String githubUrl;
 }
 
 // 将项目排成宽幅编辑式卡片：第一项更突出，其余项目自适应排列。
@@ -1854,6 +1861,12 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 28),
+                _ProjectGithubLink(
+                  url: widget.project.githubUrl,
+                  english: widget.english,
+                  accent: widget.project.accent,
+                ),
               ],
             ),
           ),
@@ -1964,6 +1977,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
     BorderRadius radius,
   ) {
     final project = widget.project;
+    final content = _projectDetailContent(project.name, widget.english);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         compact ? 24 : 48,
@@ -2015,46 +2029,510 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                   ),
                 ),
               ),
-              SizedBox(height: compact ? 56 : 76),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(compact ? 28 : 48),
-                decoration: BoxDecoration(
-                  color: dark ? _darkCard : const Color(0xFFF5F5F7),
-                  borderRadius: radius,
-                  border: Border.all(
-                    color: dark ? Colors.white10 : Colors.black12,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.english ? 'Project overview' : '项目概览',
-                      style: Theme.of(context).textTheme.headlineMedium!
-                          .copyWith(
-                            fontSize: compact ? 28 : 36,
-                            decoration: TextDecoration.none,
-                          ),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      widget.english
-                          ? 'Detailed notes, screenshots, progress, and related links are being organized. This page is ready to grow with the project.'
-                          : '项目的详细记录、截图、进展和相关链接正在整理中。这个页面已经预留好内容结构，后续可以继续完善。',
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        fontSize: compact ? 16 : 18,
-                        height: 1.6,
-                        color: secondary,
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ],
-                ),
+              SizedBox(height: compact ? 34 : 44),
+              _ProjectGithubLink(
+                url: project.githubUrl,
+                english: widget.english,
+                accent: project.accent,
+              ),
+              SizedBox(height: compact ? 70 : 96),
+              _ProjectNarrative(
+                content: content,
+                dark: dark,
+                compact: compact,
+                accent: project.accent,
+                radius: radius,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ProjectDetailContent {
+  const _ProjectDetailContent({
+    required this.eyebrow,
+    required this.headline,
+    required this.intro,
+    required this.sections,
+  });
+  final String eyebrow;
+  final String headline;
+  final String intro;
+  final List<_ProjectDetailSection> sections;
+}
+
+class _ProjectDetailSection {
+  const _ProjectDetailSection({
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.points,
+    this.dark = false,
+    this.wide = false,
+  });
+  final IconData icon;
+  final String title;
+  final String body;
+  final List<String> points;
+  final bool dark;
+  final bool wide;
+}
+
+_ProjectDetailContent _projectDetailContent(String name, bool english) {
+  if (name == 'Monocular Depth Robustness') {
+    return _ProjectDetailContent(
+      eyebrow: english ? 'COMPUTATIONAL PHOTOGRAPHY' : '计算摄影研究',
+      headline: english ? 'Help autofocus understand depth.' : '让自动对焦，理解画面的深度。',
+      intro: english
+          ? 'A reproducible research pipeline evaluates monocular-depth stability, then turns relative depth into subject ranking, ambiguity detection, and a near/mid/far focus-search suggestion.'
+          : '先以可复现实验评估单目深度在复杂环境中的稳定性，再把相对深度用于主体排序、歧义检测和近／中／远初始对焦范围预测。',
+      sections: [
+        _ProjectDetailSection(
+          icon: Icons.center_focus_strong_rounded,
+          title: english
+              ? 'From a frame to a focus decision.'
+              : '从一帧画面，到一次对焦决策。',
+          body: english
+              ? 'The prototype detects candidate subjects, estimates relative depth, compares each subject with its surroundings, and recommends a conservative focus region.'
+              : '原型自动检测候选主体，估计相对深度，分析主体内部一致性和背景分离度，再给出保守的对焦区域建议。',
+          points: english
+              ? [
+                  'AI subject candidates',
+                  'Depth distribution analysis',
+                  'Near / mid / far search range',
+                  'Validation-frame sharpness refinement',
+                ]
+              : ['AI 候选主体检测', '主体深度分布与背景分离', '近／中／远搜索区域', '验证帧清晰度微调'],
+          wide: true,
+          dark: true,
+        ),
+        _ProjectDetailSection(
+          icon: Icons.science_outlined,
+          title: english
+              ? 'Test robustness, not just appearance.'
+              : '评估稳定性，而不只看深度图。',
+          body: english
+              ? 'Brightness, blur, noise, and resolution perturbations are deterministic, making comparisons repeatable across Depth Anything V2 and MiDaS/DPT.'
+              : '通过确定性的亮度、模糊、噪声和分辨率扰动，在相同输入清单下公平比较 Depth Anything V2 与 MiDaS/DPT。',
+          points: english
+              ? [
+                  'Spearman ranking',
+                  'Order consistency',
+                  'Affine NRMSE',
+                  'Depth-edge F1',
+                ]
+              : ['Spearman 排序相关性', '像素对顺序一致率', '仿射对齐结构误差', '深度边缘 F1'],
+        ),
+        _ProjectDetailSection(
+          icon: Icons.photo_camera_outlined,
+          title: english
+              ? 'Designed for real camera constraints.'
+              : '面向真实相机约束。',
+          body: english
+              ? 'RAW previews are supported for low-light experiments, while uncertain or multi-depth subjects trigger a local focus sweep instead of an overconfident answer.'
+              : '支持 RAW 临时帧用于暗光实验；当主体存在多深度歧义或置信度不足时，系统会触发局部焦点扫描，而不是给出过度自信的答案。',
+          points: english
+              ? [
+                  'ARW / DNG / CR2 / NEF',
+                  'Focus-sweep fallback',
+                  'Ablation with and without depth',
+                ]
+              : ['支持 ARW／DNG／CR2／NEF', '焦点扫描回退机制', '有无深度特征的消融实验'],
+        ),
+      ],
+    );
+  }
+  if (name == 'Cabinet AI Assistant') {
+    return _ProjectDetailContent(
+      eyebrow: english ? 'DESIGN + VISION WORKSPACE' : '设计与视觉工作空间',
+      headline: english
+          ? 'From floor plan to build verification.'
+          : '从图纸理解，到施工核验。',
+      intro: english
+          ? 'A Java 21 and Spring Boot platform joins AI-assisted cabinet planning with practical CAD generation and three local visual-analysis modules.'
+          : '一个由 Java 21 与 Spring Boot 构建的平台，将大模型橱柜规划、可下载的 CAD 生成和三个本地视觉分析模块连接起来。',
+      sections: [
+        _ProjectDetailSection(
+          icon: Icons.architecture_rounded,
+          title: english ? 'DXF in. A usable plan out.' : '上传 DXF，得到可执行的方案。',
+          body: english
+              ? 'The design workspace combines wall geometry, budget, style, and appliance dimensions. After confirmation, it writes cabinet placements back into a downloadable DXF.'
+              : '设计工作区综合墙体几何、预算、风格与电器尺寸；确认 AI 建议后，将柜体和电器布置写回可下载的 DXF 文件。',
+          points: english
+              ? [
+                  'Budget and style constraints',
+                  'Appliance dimension planning',
+                  'AI recommendations',
+                  'Generated designed-kitchen.dxf',
+                ]
+              : ['预算与风格约束', '电器尺寸规划', 'AI 设计建议', '生成 designed-kitchen.dxf'],
+          wide: true,
+          dark: true,
+        ),
+        _ProjectDetailSection(
+          icon: Icons.grid_view_rounded,
+          title: english ? 'Three vision modules.' : '三个可运行的视觉模块。',
+          body: english
+              ? 'The visual lab analyzes floor-plan regions, parses ASCII DXF structure, and compares design renders with construction photos after translation alignment.'
+              : '视觉实验室可分析户型图区域、解析 ASCII DXF 的图层和图元，并在平移对齐后比较效果图与施工结果。',
+          points: english
+              ? [
+                  'Wall and room candidates',
+                  'Layer and entity statistics',
+                  'Similarity and changed-area metrics',
+                  'Difference heatmap',
+                ]
+              : ['墙体与房间候选区域', '图层与图元统计', '相似度与变化面积', '差异热力图'],
+        ),
+        _ProjectDetailSection(
+          icon: Icons.cloud_done_outlined,
+          title: english ? 'A complete deployable prototype.' : '可部署的完整原型。',
+          body: english
+              ? 'The static interface publishes through GitHub Pages, while a Dockerized Spring Boot backend runs on Render. API keys remain server-side.'
+              : '静态界面通过 GitHub Pages 发布，Docker 化的 Spring Boot 后端部署在 Render；API Key 只保存在服务端环境变量中。',
+          points: english
+              ? [
+                  'GitHub Pages frontend',
+                  'Render backend',
+                  'Docker deployment',
+                  'Server-side secrets',
+                ]
+              : ['GitHub Pages 前端', 'Render 后端', 'Docker 部署', '服务端密钥管理'],
+        ),
+      ],
+    );
+  }
+  if (name == 'MinerU') {
+    return _ProjectDetailContent(
+      eyebrow: english ? 'TRACEABLE DOCUMENT PIPELINE' : '可追溯文档管线',
+      headline: english
+          ? 'Search Markdown. Return to the exact PDF page.'
+          : '在 Markdown 中检索，回到准确的 PDF 页。',
+      intro: english
+          ? 'A local MinerU workflow converts long PDFs into searchable Markdown while preserving auditable physical-page mappings for later retrieval and document Q&A.'
+          : '调用本地 MinerU 将长 PDF 转换为可检索 Markdown，同时保留可审计的物理页码映射，为检索和文档问答提供可靠引用。',
+      sections: [
+        _ProjectDetailSection(
+          icon: Icons.account_tree_outlined,
+          title: english
+              ? 'One source. Five traceable outputs.'
+              : '一份 PDF，生成五类可追溯产物。',
+          body: english
+              ? 'The pipeline keeps the cleaned Markdown, human-readable map, machine-readable JSON index, referenced images, and original MinerU output together.'
+              : '流程同时保留最终 Markdown、人类可读页码表、程序可读 JSON 索引、引用图片和 MinerU 原始输出。',
+          points: english
+              ? [
+                  'book.md page anchors',
+                  'book.page-map.md',
+                  'book.page-map.json',
+                  'images and mineru_raw',
+                ]
+              : [
+                  'book.md 隐形页码锚点',
+                  'book.page-map.md 对照表',
+                  'book.page-map.json 索引',
+                  'images 与 mineru_raw',
+                ],
+          wide: true,
+          dark: true,
+        ),
+        _ProjectDetailSection(
+          icon: Icons.verified_outlined,
+          title: english ? 'Verification before trust.' : '先验证，再使用。',
+          body: english
+              ? 'After conversion, the tool checks page-anchor order and local image references. Uncertain matches remain unknown instead of receiving fabricated page numbers.'
+              : '转换完成后自动检查页码标记的完整性、顺序和本地图片引用；无法确认的页码保持 unknown，不伪造映射。',
+          points: english
+              ? [
+                  'Ordered page anchors',
+                  'Broken-image detection',
+                  'Unknown-page fallback',
+                  'Rebuild without rerunning MinerU',
+                ]
+              : ['页码锚点顺序检查', '损坏图片检测', '未知页码回退', '无需重跑 MinerU 的 rebuild'],
+        ),
+        _ProjectDetailSection(
+          icon: Icons.search_rounded,
+          title: english ? 'Ready for retrieval systems.' : '为检索系统而设计。',
+          body: english
+              ? 'Search results report both Markdown line and physical PDF page, creating a practical foundation for cited book or paper question answering.'
+              : '搜索结果同时返回 Markdown 行号和 PDF 物理页码，可直接作为带页码引用的书籍、论文问答基础。',
+          points: english
+              ? [
+                  'Keyword search',
+                  'Page lookup',
+                  'Physical-page citations',
+                  'NLP / multimodal extension path',
+                ]
+              : ['关键词搜索', '按页查询', '物理页码引用', 'NLP／多模态扩展路径'],
+        ),
+      ],
+    );
+  }
+  return _ProjectDetailContent(
+    eyebrow: english ? 'JAVA DESKTOP GAME' : 'Java 桌面经营游戏',
+    headline: english
+        ? 'Build an auction house in 30 days.'
+        : '用 30 天，经营一家拍卖行。',
+    intro: english
+        ? 'A JavaFX management game with a complete loop of exploration, appraisal, inventory, shopping, and live auctions.'
+        : '一款拥有完整经营循环的 JavaFX 拍卖行游戏：探索、鉴定、库存、商店和现场拍卖相互连接。',
+    sections: [
+      _ProjectDetailSection(
+        icon: Icons.explore_outlined,
+        title: english ? 'Explore. Appraise. Decide.' : '探索、鉴定，再做决定。',
+        body: english
+            ? 'Players spend energy exploring increasingly rare locations, then determine whether artifacts are genuine before committing inventory space and resources.'
+            : '玩家消耗精力探索旧地窖、黑市货船与亚特兰蒂斯遗迹，鉴定文物真伪，再决定库存和资源如何分配。',
+        points: english
+            ? [
+                'Multiple exploration areas',
+                'Rarity and authenticity',
+                'Energy economy',
+                'Unlockable advanced region',
+              ]
+            : ['多个探索区域', '稀有度与真伪系统', '精力经济', '高级区域解锁'],
+        wide: true,
+        dark: true,
+      ),
+      _ProjectDetailSection(
+        icon: Icons.gavel_rounded,
+        title: english
+            ? 'A weekly auction changes the strategy.'
+            : '每七天一次拍卖，改变经营节奏。',
+        body: english
+            ? 'Every seven days, selected artifacts enter the auction. Timing, inventory choices, and appraisal risk determine whether the house reaches ten million coins.'
+            : '每七天选择藏品参加拍卖；出售时机、库存选择和鉴定风险共同决定能否在期限内赚到一千万金币。',
+        points: english
+            ? [
+                '30-day deadline',
+                'Weekly auction events',
+                'Ten-million target',
+                'Win and loss settlement',
+              ]
+            : ['30 天期限', '每周拍卖事件', '一千万经营目标', '完整胜负结算'],
+      ),
+      _ProjectDetailSection(
+        icon: Icons.layers_outlined,
+        title: english
+            ? 'A structured JavaFX application.'
+            : '结构完整的 JavaFX 应用。',
+        body: english
+            ? 'FXML views, CSS styling, controller-driven flows, and model utilities are packaged with Maven and classpath-safe resources.'
+            : 'FXML 页面、CSS 样式、控制器流程和数据模型通过 Maven 管理，并完成 classpath 资源加载适配。',
+        points: english
+            ? ['Java 21', 'JavaFX 21', 'FXML + CSS', 'Maven build']
+            : ['Java 21', 'JavaFX 21', 'FXML + CSS', 'Maven 构建'],
+      ),
+    ],
+  );
+}
+
+class _ProjectGithubLink extends StatelessWidget {
+  const _ProjectGithubLink({
+    required this.url,
+    required this.english,
+    required this.accent,
+  });
+  final String url;
+  final bool english;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) => TextButton.icon(
+    onPressed: () =>
+        launchUrl(Uri.parse(url), mode: LaunchMode.platformDefault),
+    icon: const Icon(Icons.code_rounded, size: 20),
+    label: Text(english ? 'View source on GitHub' : '在 GitHub 查看源码'),
+    style: TextButton.styleFrom(
+      foregroundColor: accent,
+      textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+    ),
+  );
+}
+
+class _ProjectNarrative extends StatelessWidget {
+  const _ProjectNarrative({
+    required this.content,
+    required this.dark,
+    required this.compact,
+    required this.accent,
+    required this.radius,
+  });
+  final _ProjectDetailContent content;
+  final bool dark;
+  final bool compact;
+  final Color accent;
+  final BorderRadius radius;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Text(
+        content.eyebrow,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: compact ? 14 : 16,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.1,
+          color: accent,
+          decoration: TextDecoration.none,
+        ),
+      ),
+      const SizedBox(height: 20),
+      Text(
+        content.headline,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.displayMedium!.copyWith(
+          fontSize: compact ? 38 : 58,
+          height: 1.06,
+          letterSpacing: compact ? -1.4 : -2.4,
+          decoration: TextDecoration.none,
+        ),
+      ),
+      const SizedBox(height: 24),
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
+        child: Text(
+          content.intro,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: compact ? 17 : 20,
+            height: 1.55,
+            color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ),
+      SizedBox(height: compact ? 54 : 76),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final gap = compact ? 18.0 : 24.0;
+          final half = compact
+              ? constraints.maxWidth
+              : (constraints.maxWidth - gap) / 2;
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: content.sections
+                .map(
+                  (section) => SizedBox(
+                    width: compact || section.wide
+                        ? constraints.maxWidth
+                        : half,
+                    child: _ProjectNarrativeCard(
+                      section: section,
+                      darkMode: dark,
+                      compact: compact,
+                      accent: accent,
+                      radius: radius,
+                    ),
+                  ),
+                )
+                .toList(),
+          );
+        },
+      ),
+    ],
+  );
+}
+
+class _ProjectNarrativeCard extends StatelessWidget {
+  const _ProjectNarrativeCard({
+    required this.section,
+    required this.darkMode,
+    required this.compact,
+    required this.accent,
+    required this.radius,
+  });
+  final _ProjectDetailSection section;
+  final bool darkMode;
+  final bool compact;
+  final Color accent;
+  final BorderRadius radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final useDark = section.dark;
+    final foreground = useDark
+        ? Colors.white
+        : (darkMode ? _darkPrimary : const Color(0xFF1D1D1F));
+    final secondary = useDark
+        ? Colors.white70
+        : (darkMode ? _darkSecondary : const Color(0xFF6E6E73));
+    return Container(
+      constraints: BoxConstraints(minHeight: section.wide ? 380 : 390),
+      padding: EdgeInsets.all(compact ? 30 : 42),
+      decoration: BoxDecoration(
+        color: useDark
+            ? const Color(0xFF101010)
+            : (darkMode ? _darkCard : const Color(0xFFF5F5F7)),
+        borderRadius: radius,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(section.icon, size: 40, color: accent),
+          SizedBox(height: section.wide ? 88 : 60),
+          Text(
+            section.title,
+            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+              fontSize: section.wide ? (compact ? 32 : 44) : 29,
+              height: 1.1,
+              color: foreground,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            section.body,
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              fontSize: compact ? 16 : 17,
+              height: 1.55,
+              color: secondary,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ...section.points.map(
+            (point) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: accent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      point,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.35,
+                        fontWeight: FontWeight.w600,
+                        color: useDark ? Colors.white : foreground,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
