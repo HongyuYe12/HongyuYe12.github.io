@@ -117,6 +117,8 @@ class PortfolioPage extends StatefulWidget {
   State<PortfolioPage> createState() => _PortfolioPageState();
 }
 
+enum _MenuSection { main, computer, photography }
+
 class _PortfolioPageState extends State<PortfolioPage>
     with TickerProviderStateMixin {
   // 各页面区域的定位锚点，用于点击按钮后平滑滚动到对应位置。
@@ -134,6 +136,7 @@ class _PortfolioPageState extends State<PortfolioPage>
   bool _menuOpen = false;
   bool _menuVisible = false;
   bool _navFloating = false;
+  _MenuSection _menuSection = _MenuSection.main;
 
   // 根据当前语言，从文件末尾的 _zh 或 _en 文案表中读取文字。
   Map<String, String> get t => _english ? _en : _zh;
@@ -173,12 +176,18 @@ class _PortfolioPageState extends State<PortfolioPage>
     if (_menuOpen) {
       setState(() => _menuOpen = false);
       await _menuAnimation.reverse();
-      if (mounted) setState(() => _menuVisible = false);
+      if (mounted) {
+        setState(() {
+          _menuVisible = false;
+          _menuSection = _MenuSection.main;
+        });
+      }
       return;
     }
     setState(() {
       _menuVisible = true;
       _menuOpen = true;
+      _menuSection = _MenuSection.main;
     });
     await _menuAnimation.forward();
   }
@@ -215,7 +224,10 @@ class _PortfolioPageState extends State<PortfolioPage>
       await _menuAnimation.reverse();
     }
     if (!mounted) return;
-    setState(() => _menuVisible = false);
+    setState(() {
+      _menuVisible = false;
+      _menuSection = _MenuSection.main;
+    });
     action();
   }
 
@@ -225,6 +237,14 @@ class _PortfolioPageState extends State<PortfolioPage>
       MaterialPageRoute(
         builder: (_) =>
             _DetailPage(photography: photography, english: _english),
+      ),
+    );
+  }
+
+  void _openProjectDetail(_ProjectInfo project) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _ProjectDetailPage(project: project, english: _english),
       ),
     );
   }
@@ -300,8 +320,16 @@ class _PortfolioPageState extends State<PortfolioPage>
                   text: t,
                   dark: dark,
                   english: _english,
-                  onComputer: () => _closeMenuThen(() => _openDetail(false)),
-                  onPhotography: () => _closeMenuThen(() => _openDetail(true)),
+                  section: _menuSection,
+                  onComputer: () =>
+                      setState(() => _menuSection = _MenuSection.computer),
+                  onPhotography: () =>
+                      setState(() => _menuSection = _MenuSection.photography),
+                  onBack: () =>
+                      setState(() => _menuSection = _MenuSection.main),
+                  onExploreComputer: () => _openDetail(false),
+                  onExplorePhotography: () => _openDetail(true),
+                  onProject: _openProjectDetail,
                   onContact: () => _closeMenuThen(() => _scrollTo(_contactKey)),
                   onLanguage: () => setState(() => _english = !_english),
                 ),
@@ -413,9 +441,9 @@ class _AdaptiveNav extends StatelessWidget {
               Semantics(
                 button: true,
                 label: english ? 'Back to top' : '返回首页',
-                child: InkWell(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: onHome,
-                  borderRadius: BorderRadius.circular(20),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 4,
@@ -546,22 +574,33 @@ class _MenuPanel extends StatelessWidget {
     required this.text,
     required this.dark,
     required this.english,
+    required this.section,
     required this.onComputer,
     required this.onPhotography,
+    required this.onBack,
+    required this.onExploreComputer,
+    required this.onExplorePhotography,
+    required this.onProject,
     required this.onContact,
     required this.onLanguage,
   });
   final Map<String, String> text;
   final bool dark;
   final bool english;
+  final _MenuSection section;
   final VoidCallback onComputer;
   final VoidCallback onPhotography;
+  final VoidCallback onBack;
+  final VoidCallback onExploreComputer;
+  final VoidCallback onExplorePhotography;
+  final ValueChanged<_ProjectInfo> onProject;
   final VoidCallback onContact;
   final VoidCallback onLanguage;
 
   @override
   Widget build(BuildContext context) {
     final color = dark ? _darkPrimary : const Color(0xFF1D1D1F);
+    final secondary = dark ? _darkSecondary : const Color(0xFF6E6E73);
     return Material(
       color: dark ? _darkPage : const Color(0xFFF5F5F7),
       child: SafeArea(
@@ -571,22 +610,45 @@ class _MenuPanel extends StatelessWidget {
             child: SingleChildScrollView(
               // 为无边框导航栏预留更充足的顶部距离，避免紧贴第一行。
               padding: const EdgeInsets.fromLTRB(28, 132, 28, 70),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _MenuItem(text['computerProjects']!, onComputer, color),
-                  _MenuItem(text['photography']!, onPhotography, color),
-                  _MenuItem(text['contact']!, onContact, color),
-                  const SizedBox(height: 28),
-                  Divider(color: dark ? Colors.white12 : Colors.black12),
-                  const SizedBox(height: 24),
-                  _MenuItem(
-                    english ? '切换为中文' : 'Switch to English',
-                    onLanguage,
-                    color,
-                    small: true,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(.025, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
                   ),
-                ],
+                ),
+                child: section == _MenuSection.main
+                    ? _MainMenuContent(
+                        key: const ValueKey('main-menu'),
+                        text: text,
+                        english: english,
+                        dark: dark,
+                        color: color,
+                        onComputer: onComputer,
+                        onPhotography: onPhotography,
+                        onContact: onContact,
+                        onLanguage: onLanguage,
+                      )
+                    : _ProjectMenuContent(
+                        key: ValueKey(section),
+                        photography: section == _MenuSection.photography,
+                        english: english,
+                        dark: dark,
+                        color: color,
+                        secondary: secondary,
+                        onBack: onBack,
+                        onExplore: section == _MenuSection.photography
+                            ? onExplorePhotography
+                            : onExploreComputer,
+                        onProject: onProject,
+                      ),
               ),
             ),
           ),
@@ -594,6 +656,152 @@ class _MenuPanel extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MainMenuContent extends StatelessWidget {
+  const _MainMenuContent({
+    super.key,
+    required this.text,
+    required this.english,
+    required this.dark,
+    required this.color,
+    required this.onComputer,
+    required this.onPhotography,
+    required this.onContact,
+    required this.onLanguage,
+  });
+
+  final Map<String, String> text;
+  final bool english;
+  final bool dark;
+  final Color color;
+  final VoidCallback onComputer;
+  final VoidCallback onPhotography;
+  final VoidCallback onContact;
+  final VoidCallback onLanguage;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _MenuItem(text['computerProjects']!, onComputer, color),
+      _MenuItem(text['photography']!, onPhotography, color),
+      _MenuItem(text['contact']!, onContact, color),
+      const SizedBox(height: 28),
+      Divider(color: dark ? Colors.white12 : Colors.black12),
+      const SizedBox(height: 24),
+      _MenuItem(
+        english ? '切换为中文' : 'Switch to English',
+        onLanguage,
+        color,
+        small: true,
+      ),
+    ],
+  );
+}
+
+class _ProjectMenuContent extends StatelessWidget {
+  const _ProjectMenuContent({
+    super.key,
+    required this.photography,
+    required this.english,
+    required this.dark,
+    required this.color,
+    required this.secondary,
+    required this.onBack,
+    required this.onExplore,
+    required this.onProject,
+  });
+
+  final bool photography;
+  final bool english;
+  final bool dark;
+  final Color color;
+  final Color secondary;
+  final VoidCallback onBack;
+  final VoidCallback onExplore;
+  final ValueChanged<_ProjectInfo> onProject;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _MenuBackButton(
+        label: english ? 'Back' : '返回',
+        color: secondary,
+        onTap: onBack,
+      ),
+      const SizedBox(height: 20),
+      _MenuItem(
+        photography
+            ? (english ? 'Explore all photography' : '探索所有摄影作品')
+            : (english ? 'Explore all projects' : '探索所有项目'),
+        onExplore,
+        color,
+      ),
+      const SizedBox(height: 12),
+      if (photography)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          child: Text(
+            english
+                ? 'Photography project names are being organized.'
+                : '摄影作品名称正在整理中。',
+            style: TextStyle(
+              color: secondary,
+              fontSize: 17,
+              height: 1.5,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        )
+      else
+        ..._computerProjects.map(
+          (project) => _MenuItem(project.name, () => onProject(project), color),
+        ),
+    ],
+  );
+}
+
+class _MenuBackButton extends StatelessWidget {
+  const _MenuBackButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: color),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 // 菜单中的单行文字按钮。small 用于语言切换项的小字号样式。
@@ -762,9 +970,9 @@ class _BlueLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    child: InkWell(
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(22),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
         child: Row(
