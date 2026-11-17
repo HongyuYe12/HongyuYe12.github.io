@@ -798,14 +798,15 @@ class _Projects extends StatelessWidget {
     width: double.infinity,
     color: dark ? _darkPage : Colors.white,
     padding: EdgeInsets.fromLTRB(
-      compact ? 8 : 14,
-      compact ? 22 : 36,
-      compact ? 8 : 14,
-      compact ? 88 : 136,
+      compact ? 16 : 28,
+      compact ? 24 : 48,
+      compact ? 16 : 28,
+      compact ? 88 : 128,
     ),
     child: Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1600),
+        // 达到 1440px 后不再继续拉宽，超宽屏只增加两侧留白。
+        constraints: const BoxConstraints(maxWidth: 1440),
         child: SizedBox(
           width: double.infinity,
           child: Column(
@@ -819,7 +820,7 @@ class _Projects extends StatelessWidget {
                 button: text['learnMore']!,
                 onTap: onComputer,
               ),
-              SizedBox(height: compact ? 28 : 44),
+              SizedBox(height: compact ? 24 : 32),
               _ThemeCard(
                 photography: true,
                 dark: dark,
@@ -837,7 +838,7 @@ class _Projects extends StatelessWidget {
   );
 }
 
-// 单个主题卡片。photography 决定显示摄影还是计算机项目的视觉样式。
+// 单个主题卡片。宽屏左右排列，窄屏自动切换为文字在上、视觉在下。
 class _ThemeCard extends StatelessWidget {
   const _ThemeCard({
     required this.photography,
@@ -855,98 +856,251 @@ class _ThemeCard extends StatelessWidget {
   final String subtitle;
   final String button;
   final VoidCallback onTap;
+
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    constraints: BoxConstraints(minHeight: compact ? 570 : 680),
-    clipBehavior: Clip.antiAlias,
-    decoration: BoxDecoration(
-      color: dark
-          ? (photography ? const Color(0xFF050505) : const Color(0xFF111113))
-          : (photography ? const Color(0xFF050505) : const Color(0xFFF5F5F7)),
-      gradient: dark && !photography
-          ? const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF20182E), Color(0xFF111318), Color(0xFF090909)],
-            )
-          : null,
-      borderRadius: BorderRadius.circular(28),
-      border: dark
-          ? Border.all(color: Colors.white10)
-          : Border.all(color: const Color(0x12000000)),
-      boxShadow: dark
-          ? const [
-              BoxShadow(
-                color: Color(0x52000000),
-                blurRadius: 36,
-                offset: Offset(0, 18),
-              ),
-            ]
-          : const [
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      // 参考 Apple 支持页面：约 980px 起切换为横向大卡片。
+      final horizontal = constraints.maxWidth >= 980;
+      final foreground = dark || photography
+          ? _darkPrimary
+          : const Color(0xFF1D1D1F);
+      final secondary = dark || photography
+          ? _darkSecondary
+          : const Color(0xFF6E6E73);
+
+      final copy = Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontal ? 64 : 40,
+          vertical: horizontal ? 72 : 52,
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 470),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: foreground,
+                    fontSize: horizontal ? 48 : (compact ? 36 : 42),
+                    height: 1.08,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: horizontal ? -1.3 : -.8,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: secondary,
+                    fontSize: horizontal ? 21 : 17,
+                    height: 1.45,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                _BlueLink(label: button, onTap: onTap),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final visual = _ThemeVisual(
+        photography: photography,
+        dark: dark,
+        horizontal: horizontal,
+      );
+
+      return SizedBox(
+        height: horizontal ? 600 : (compact ? 680 : 720),
+        child: Container(
+          width: double.infinity,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: dark
+                ? (photography
+                      ? const Color(0xFF050505)
+                      : const Color(0xFF111113))
+                : (photography
+                      ? const Color(0xFF050505)
+                      : const Color(0xFFF5F5F7)),
+            gradient: dark && !photography
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF20182E),
+                      Color(0xFF111318),
+                      Color(0xFF090909),
+                    ],
+                  )
+                : null,
+            borderRadius: BorderRadius.circular(32),
+            border: dark
+                ? Border.all(color: Colors.white10)
+                : Border.all(color: const Color(0x12000000)),
+            boxShadow: const [
               BoxShadow(
                 color: Color(0x14000000),
                 blurRadius: 32,
                 offset: Offset(0, 14),
               ),
             ],
-    ),
-    child: Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(24, compact ? 50 : 68, 24, 0),
-          child: Column(
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: dark || photography
-                      ? _darkPrimary
-                      : const Color(0xFF1D1D1F),
-                  fontSize: compact ? 36 : 48,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: compact ? -.8 : -1.3,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: dark || photography
-                      ? _darkSecondary
-                      : const Color(0xFF6E6E73),
-                  fontSize: compact ? 17 : 21,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              const SizedBox(height: 18),
-              FilledButton(
-                onPressed: onTap,
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF0071E3),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 14,
-                  ),
-                ),
-                child: Text(button),
-              ),
-            ],
           ),
+          child: horizontal
+              ? Row(
+                  children: [
+                    Expanded(flex: 6, child: visual),
+                    Expanded(flex: 5, child: copy),
+                  ],
+                )
+              : Column(
+                  children: [
+                    copy,
+                    Expanded(child: visual),
+                  ],
+                ),
         ),
-        const Spacer(),
-        Icon(
-          photography ? Icons.camera_alt_rounded : Icons.laptop_mac_rounded,
-          color: dark || photography ? _darkPrimary : const Color(0xFF1D1D1F),
-          size: compact ? 210 : 310,
+      );
+    },
+  );
+}
+
+// 主题卡片的视觉区域。使用抽象设备构图替代单一大图标，使横竖排版都更接近参考图。
+class _ThemeVisual extends StatelessWidget {
+  const _ThemeVisual({
+    required this.photography,
+    required this.dark,
+    required this.horizontal,
+  });
+
+  final bool photography;
+  final bool dark;
+  final bool horizontal;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = dark || photography
+        ? Colors.white
+        : const Color(0xFF1D1D1F);
+    final accent = photography
+        ? const Color(0xFF7B61FF)
+        : const Color(0xFF2997FF);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: photography
+              ? const [Color(0xFF17151D), Color(0xFF050505)]
+              : dark
+              ? const [Color(0xFF2A2040), Color(0xFF0A0A0C)]
+              : const [Color(0xFFE9F3FF), Color(0xFFF5F5F7)],
         ),
-        SizedBox(height: compact ? 38 : 48),
-      ],
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: horizontal ? -70 : -30,
+            top: horizontal ? -50 : 20,
+            child: _VisualTile(
+              size: horizontal ? 250 : 160,
+              icon: photography
+                  ? Icons.photo_camera_back_rounded
+                  : Icons.terminal_rounded,
+              foreground: foreground,
+              accent: accent,
+            ),
+          ),
+          Positioned(
+            right: horizontal ? 54 : 24,
+            top: horizontal ? 58 : 34,
+            child: _VisualTile(
+              size: horizontal ? 150 : 112,
+              icon: photography ? Icons.camera_rounded : Icons.memory_rounded,
+              foreground: foreground,
+              accent: accent,
+            ),
+          ),
+          Positioned(
+            left: horizontal ? 72 : 34,
+            bottom: horizontal ? -64 : -42,
+            child: _VisualTile(
+              size: horizontal ? 210 : 142,
+              icon: photography
+                  ? Icons.filter_hdr_rounded
+                  : Icons.data_object_rounded,
+              foreground: foreground,
+              accent: accent,
+            ),
+          ),
+          Align(
+            alignment: const Alignment(.35, .18),
+            child: Container(
+              width: horizontal ? 245 : 174,
+              height: horizontal ? 330 : 220,
+              decoration: BoxDecoration(
+                color: dark || photography
+                    ? const Color(0xFF202024)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(horizontal ? 38 : 28),
+                border: Border.all(
+                  color: dark || photography ? Colors.white12 : Colors.black12,
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x24000000),
+                    blurRadius: 30,
+                    offset: Offset(0, 18),
+                  ),
+                ],
+              ),
+              child: Icon(
+                photography
+                    ? Icons.camera_alt_rounded
+                    : Icons.laptop_mac_rounded,
+                size: horizontal ? 108 : 78,
+                color: accent,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VisualTile extends StatelessWidget {
+  const _VisualTile({
+    required this.size,
+    required this.icon,
+    required this.foreground,
+    required this.accent,
+  });
+
+  final double size;
+  final IconData icon;
+  final Color foreground;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: foreground.withValues(alpha: .07),
+      shape: BoxShape.circle,
+      border: Border.all(color: foreground.withValues(alpha: .1)),
     ),
+    child: Icon(icon, color: accent, size: size * .38),
   );
 }
 
