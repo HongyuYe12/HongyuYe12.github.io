@@ -213,10 +213,6 @@ class _PortfolioPageState extends State<PortfolioPage>
     );
   }
 
-  // 用系统默认应用打开网页或邮件链接。
-  Future<void> _open(String value) =>
-      launchUrl(Uri.parse(value), mode: LaunchMode.platformDefault);
-
   // 点击菜单项目时，先播放菜单关闭动画，再执行跳转操作。
   Future<void> _closeMenuThen(VoidCallback action) async {
     if (_menuOpen) {
@@ -286,15 +282,12 @@ class _PortfolioPageState extends State<PortfolioPage>
                   onComputer: () => _openDetail(false),
                   onPhotography: () => _openDetail(true),
                 ),
-                _Contact(
+                _PageEnd(
                   key: _contactKey,
                   text: t,
                   dark: dark,
                   compact: compact,
-                  onEmail: () => _open('mailto:robin.hye@icloud.com'),
-                  onGithub: () => _open('https://github.com/HongyuYe12'),
                 ),
-                _Footer(dark: dark),
               ],
             ),
           ),
@@ -1452,6 +1445,7 @@ class _DetailPage extends StatelessWidget {
                 ),
               ),
             ),
+            _PageEnd(text: english ? _en : _zh, dark: dark, compact: compact),
           ],
         ),
       ),
@@ -1966,6 +1960,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
           ),
         ),
       ),
+      _PageEnd(text: widget.english ? _en : _zh, dark: dark, compact: compact),
     ],
   );
 
@@ -1978,75 +1973,84 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
   ) {
     final project = widget.project;
     final content = _projectDetailContent(project.name, widget.english);
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        compact ? 24 : 48,
-        compact ? 52 : 72,
-        compact ? 24 : 48,
-        120,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 980),
-          child: Column(
-            children: [
-              Container(
-                width: compact ? 72 : 88,
-                height: compact ? 72 : 88,
-                decoration: BoxDecoration(
-                  color: project.accent.withValues(alpha: dark ? .22 : .12),
-                  borderRadius: BorderRadius.circular(compact ? 22 : 28),
-                ),
-                child: Icon(
-                  project.icon,
-                  color: project.accent,
-                  size: compact ? 36 : 44,
-                ),
-              ),
-              SizedBox(height: compact ? 28 : 36),
-              Text(
-                project.name,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                  fontSize: compact ? 40 : 58,
-                  height: 1.06,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              SizedBox(height: compact ? 20 : 24),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 760),
-                child: Text(
-                  widget.english
-                      ? project.enDescription
-                      : project.zhDescription,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontSize: compact ? 17 : 20,
-                    height: 1.55,
-                    color: secondary,
-                    decoration: TextDecoration.none,
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            compact ? 24 : 48,
+            compact ? 52 : 72,
+            compact ? 24 : 48,
+            120,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 980),
+              child: Column(
+                children: [
+                  Container(
+                    width: compact ? 72 : 88,
+                    height: compact ? 72 : 88,
+                    decoration: BoxDecoration(
+                      color: project.accent.withValues(alpha: dark ? .22 : .12),
+                      borderRadius: BorderRadius.circular(compact ? 22 : 28),
+                    ),
+                    child: Icon(
+                      project.icon,
+                      color: project.accent,
+                      size: compact ? 36 : 44,
+                    ),
                   ),
-                ),
+                  SizedBox(height: compact ? 28 : 36),
+                  Text(
+                    project.name,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                      fontSize: compact ? 40 : 58,
+                      height: 1.06,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  SizedBox(height: compact ? 20 : 24),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 760),
+                    child: Text(
+                      widget.english
+                          ? project.enDescription
+                          : project.zhDescription,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: compact ? 17 : 20,
+                        height: 1.55,
+                        color: secondary,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: compact ? 34 : 44),
+                  _ProjectGithubLink(
+                    url: project.githubUrl,
+                    english: widget.english,
+                    accent: project.accent,
+                  ),
+                  SizedBox(height: compact ? 70 : 96),
+                  _ProjectNarrative(
+                    content: content,
+                    dark: dark,
+                    compact: compact,
+                    accent: project.accent,
+                    radius: radius,
+                  ),
+                ],
               ),
-              SizedBox(height: compact ? 34 : 44),
-              _ProjectGithubLink(
-                url: project.githubUrl,
-                english: widget.english,
-                accent: project.accent,
-              ),
-              SizedBox(height: compact ? 70 : 96),
-              _ProjectNarrative(
-                content: content,
-                dark: dark,
-                compact: compact,
-                accent: project.accent,
-                radius: radius,
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        _PageEnd(
+          text: widget.english ? _en : _zh,
+          dark: dark,
+          compact: compact,
+        ),
+      ],
     );
   }
 }
@@ -2763,10 +2767,40 @@ class _ComingSoonCard extends StatelessWidget {
   );
 }
 
+// 所有普通页面共用的结尾区域。全屏展开菜单是覆盖层，不插入这里。
+class _PageEnd extends StatelessWidget {
+  const _PageEnd({
+    super.key,
+    required this.text,
+    required this.dark,
+    required this.compact,
+  });
+
+  final Map<String, String> text;
+  final bool dark;
+  final bool compact;
+
+  Future<void> _open(String value) =>
+      launchUrl(Uri.parse(value), mode: LaunchMode.platformDefault);
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      _Contact(
+        text: text,
+        dark: dark,
+        compact: compact,
+        onEmail: () => _open('mailto:robin.hye@icloud.com'),
+        onGithub: () => _open('https://github.com/HongyuYe12'),
+      ),
+      _Footer(dark: dark),
+    ],
+  );
+}
+
 // 联系方式区域：提供公开邮箱和 GitHub 主页链接。
 class _Contact extends StatelessWidget {
   const _Contact({
-    super.key,
     required this.text,
     required this.dark,
     required this.compact,
