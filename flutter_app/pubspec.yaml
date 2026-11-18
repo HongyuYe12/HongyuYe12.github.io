@@ -27,8 +27,9 @@ flutter:
     - assets/hye-mark-white.png
     - assets/memoji-transparent.png
     - assets/memoji-portrait-transparent.png
-    - assets/spektrastudio/temple-original-aligned.webp
-    - assets/spektrastudio/temple-film.webp
+    - assets/spektralab/temple-original-aligned.webp
+    - assets/spektralab/temple-film.webp
+    - assets/spektralab/lanterns-portra-800.webp
     - assets/photography/aircraft/
     - assets/photography/architecture/
     - assets/photography/nature/

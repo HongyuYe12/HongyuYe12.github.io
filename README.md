@@ -16,7 +16,7 @@ Ye Hongyu 的双语个人网站，用于展示计算机项目、摄影作品与�
 
 ## 计算机项目
 
-- **SpektraStudio** — 探索视觉与创意数字内容创作体验的实验性工作室项目
+- **SpektraLab** — 从 RAW、光谱胶片模拟到相纸印放的开源 Windows 数字暗房
 - **Monocular Depth Robustness** — 单目深度估计鲁棒性与深度引导自动对焦研究
 - **Cabinet AI Assistant** — 面向资料整理、信息检索与日常工作流的个人 AI 助手
 - **MinerU** — 将 PDF 转换为可检索 Markdown，并维护可靠的原始页码映射

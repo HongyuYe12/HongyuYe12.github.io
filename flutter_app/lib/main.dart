@@ -153,7 +153,10 @@ String _normalizePath(String rawPath) {
 }
 
 Route<dynamic> _siteRoute(String rawPath) {
-  final path = _normalizePath(rawPath);
+  var path = _normalizePath(rawPath);
+  if (path == '/projects/spektrastudio/') {
+    path = '/projects/spektralab/';
+  }
   Widget page;
   if (path == '/') {
     page = const PortfolioPage();
@@ -2250,10 +2253,10 @@ class _ProjectCollectionHeader extends StatelessWidget {
 // 计算机项目数据。需要修改项目名称或简介时，可直接编辑此列表。
 const _computerProjects = <_ProjectInfo>[
   _ProjectInfo(
-    slug: 'spektrastudio',
-    name: 'SpektraStudio',
-    zhDescription: '以光谱计算重现胶片、相纸、颗粒与光晕的双语 Windows 影像工具。',
-    enDescription: 'A bilingual Windows imaging tool that recreates film, paper, grain, and halation through spectral processing.',
+    slug: 'spektralab',
+    name: 'SpektraLab',
+    zhDescription: '从 RAW 到胶片负片与相纸成像，以光谱计算重现色彩、颗粒、光晕和暗房印放的 Windows 工具。',
+    enDescription: 'A Windows darkroom that carries RAW photographs through spectral film, paper, grain, halation, and print rendering.',
     icon: Icons.auto_awesome_rounded,
     accent: Color(0xFF8E5CFF),
     githubUrl: 'https://github.com/HongyuYe12/SpektraStudio',
@@ -2474,7 +2477,7 @@ class _ProjectCard extends StatelessWidget {
   }
 }
 
-// 第三级项目详情页。SpektraStudio 使用滚动与拖动联动的前后效果对比。
+// 第三级项目详情页。SpektraLab 使用滚动与拖动联动的前后效果对比。
 class _ProjectDetailPage extends StatefulWidget {
   const _ProjectDetailPage({required this.project, required this.english});
 
@@ -2488,9 +2491,10 @@ class _ProjectDetailPage extends StatefulWidget {
 class _ProjectDetailPageState extends State<_ProjectDetailPage> {
   final _scrollController = ScrollController();
   double _comparison = 0;
+  double _grainZoom = 0;
   bool _draggingComparison = false;
 
-  bool get _isSpektra => widget.project.name == 'SpektraStudio';
+  bool get _isSpektra => widget.project.name == 'SpektraLab';
 
   @override
   void initState() {
@@ -2501,8 +2505,13 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
   void _syncComparisonToScroll() {
     if (_draggingComparison || !_scrollController.hasClients) return;
     final next = ((_scrollController.offset - 220) / 720).clamp(0.0, 1.0);
-    if ((next - _comparison).abs() > .002) {
-      setState(() => _comparison = next);
+    final grain = ((_scrollController.offset - 2600) / 1100).clamp(0.0, 1.0);
+    if ((next - _comparison).abs() > .002 ||
+        (grain - _grainZoom).abs() > .002) {
+      setState(() {
+        _comparison = next;
+        _grainZoom = grain;
+      });
     }
   }
 
@@ -2547,190 +2556,247 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
     bool dark,
     bool compact,
     Color secondary,
-  ) => Column(
-    children: [
-      Padding(
-        padding: EdgeInsets.fromLTRB(
-          compact ? 24 : 48,
-          compact ? 48 : 82,
-          compact ? 24 : 48,
-          compact ? 62 : 92,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1120),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: compact ? 42 : 48,
-                      height: compact ? 42 : 48,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFFB06CFF), Color(0xFF5B35FF)],
+  ) {
+    final english = widget.english;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            compact ? 24 : 48,
+            compact ? 48 : 82,
+            compact ? 24 : 48,
+            compact ? 62 : 92,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1120),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: compact ? 42 : 48,
+                        height: compact ? 42 : 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFFB06CFF), Color(0xFF5B35FF)],
+                          ),
+                          borderRadius: BorderRadius.circular(13),
                         ),
-                        borderRadius: BorderRadius.circular(13),
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.white,
+                          size: 25,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.auto_awesome_rounded,
-                        color: Colors.white,
-                        size: 25,
+                      const SizedBox(width: 14),
+                      Text(
+                        'SpektraLab',
+                        style: TextStyle(
+                          fontSize: compact ? 20 : 24,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -.5,
+                          color: dark ? _darkPrimary : const Color(0xFF1D1D1F),
+                          decoration: TextDecoration.none,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Text(
-                      'SpektraStudio',
-                      style: TextStyle(
-                        fontSize: compact ? 20 : 24,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -.5,
-                        color: dark ? _darkPrimary : const Color(0xFF1D1D1F),
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: compact ? 42 : 62),
-                Text(
-                  widget.english
-                      ? 'Give every image\nits own character.'
-                      : '让每一张影像，\n拥有自己的气质。',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                    fontSize: compact ? _typeDisplayMobile : _typeDisplay,
-                    height: 1.02,
-                    letterSpacing: compact ? -2 : -4,
-                    decoration: TextDecoration.none,
+                    ],
                   ),
-                ),
-                SizedBox(height: compact ? 24 : 32),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
-                  child: Text(
-                    widget.english
-                        ? 'A focused workspace for shaping color, texture, and atmosphere through an intuitive creative workflow.'
-                        : '一个专注于色彩、质感与氛围的影像工作空间，让调整更直观，创作更专注。',
+                  SizedBox(height: compact ? 42 : 62),
+                  Text(
+                    english
+                        ? 'Let light pass through film,\nthen reach your photograph.'
+                        : '让光穿过胶片，\n再抵达你的照片。',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: compact ? _typeBodyLarge : _typeIntro,
-                      height: 1.45,
-                      color: secondary,
+                    style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                      fontSize: compact ? _typeDisplayMobile : _typeDisplay,
+                      height: 1.02,
+                      letterSpacing: compact ? -2 : -4,
                       decoration: TextDecoration.none,
                     ),
                   ),
-                ),
-                const SizedBox(height: 28),
-                _ProjectGithubLink(
-                  url: widget.project.githubUrl,
-                  english: widget.english,
-                  accent: widget.project.accent,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      Container(
-        width: double.infinity,
-        color: dark ? const Color(0xFF090909) : const Color(0xFFF5F5F7),
-        padding: EdgeInsets.fromLTRB(
-          compact ? 12 : 32,
-          compact ? 62 : 100,
-          compact ? 12 : 32,
-          compact ? 78 : 120,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1320),
-            child: _SpektraFilmComparison(
-              value: _comparison,
-              compact: compact,
-              english: widget.english,
-              onDragStart: () => setState(() => _draggingComparison = true),
-              onChanged: (value) =>
-                  setState(() => _comparison = value.clamp(0.0, 1.0)),
-              onDragEnd: () => setState(() => _draggingComparison = false),
-            ),
-          ),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.fromLTRB(
-          compact ? 24 : 48,
-          compact ? 78 : 128,
-          compact ? 24 : 48,
-          compact ? 100 : 150,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1080),
-            child: Column(
-              children: [
-                Text(
-                  widget.english
-                      ? 'Creative control, without distraction.'
-                      : '专注创作，不被复杂工具打断。',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                    fontSize: compact ? _typeSectionMobile : _typeHero,
-                    height: 1.06,
-                    letterSpacing: compact ? -1.4 : -2.5,
-                    decoration: TextDecoration.none,
+                  SizedBox(height: compact ? 24 : 32),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 760),
+                    child: Text(
+                      english
+                          ? 'A Windows darkroom for RAW photographs. Choose film, format, and paper, then let color, grain, halation, and tonal depth form through one complete material model.'
+                          : '一款为 Windows 打造的胶片与相纸模拟工具。打开一张 RAW，选择胶片、画幅与相纸，让色彩、颗粒、光晕和层次在完整的摄影材料模型中自然形成。',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: compact ? _typeBodyLarge : _typeIntro,
+                        height: 1.45,
+                        color: secondary,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(height: compact ? 48 : 72),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final cards = [
-                      (
-                        Icons.palette_outlined,
-                        widget.english ? 'Color with character' : '有性格的色彩',
-                        widget.english
-                            ? 'Shape film-inspired color and atmosphere while keeping the photograph itself at the center.'
-                            : '塑造来自胶片的色彩与氛围，同时让照片本身始终处于创作中心。',
+                  const SizedBox(height: 28),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 14,
+                    runSpacing: 12,
+                    children: [
+                      _SpektraAction(
+                        label: english
+                            ? 'Download for Windows'
+                            : '下载 Windows 版',
+                        filled: true,
+                        onTap: () => launchUrl(
+                          Uri.parse('${widget.project.githubUrl}/releases'),
+                          mode: LaunchMode.externalApplication,
+                        ),
                       ),
-                      (
-                        Icons.tune_rounded,
-                        widget.english ? 'Direct comparison' : '直观的前后对比',
-                        widget.english
-                            ? 'Scroll or drag to see every change in context and compare the result instantly.'
-                            : '通过滚动或拖动，在同一画面中理解变化并立即比较结果。',
+                      _SpektraAction(
+                        label: english ? 'View source' : '查看源代码',
+                        onTap: () => launchUrl(
+                          Uri.parse(widget.project.githubUrl),
+                          mode: LaunchMode.externalApplication,
+                        ),
                       ),
-                    ];
-                    final width = compact
-                        ? constraints.maxWidth
-                        : (constraints.maxWidth - 24) / 2;
-                    return Wrap(
-                      spacing: 24,
-                      runSpacing: 24,
-                      children: cards
-                          .map(
-                            (card) => SizedBox(
-                              width: width,
-                              child: _SpektraFeatureCard(
-                                icon: card.$1,
-                                title: card.$2,
-                                text: card.$3,
-                                dark: dark,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    );
-                  },
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      _PageEnd(text: widget.english ? _en : _zh, dark: dark, compact: compact),
-    ],
-  );
+        _SpektraIntro(english: english, compact: compact),
+        Container(
+          width: double.infinity,
+          color: dark ? const Color(0xFF090909) : const Color(0xFFF5F5F7),
+          padding: EdgeInsets.fromLTRB(
+            compact ? 12 : 32,
+            compact ? 62 : 100,
+            compact ? 12 : 32,
+            compact ? 78 : 120,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1320),
+              child: _SpektraFilmComparison(
+                value: _comparison,
+                compact: compact,
+                english: english,
+                onDragStart: () => setState(() => _draggingComparison = true),
+                onChanged: (value) =>
+                    setState(() => _comparison = value.clamp(0.0, 1.0)),
+                onDragEnd: () => setState(() => _draggingComparison = false),
+              ),
+            ),
+          ),
+        ),
+        _SpektraEditorialSection(
+          eyebrow: english ? 'SPECTRAL FILM SIMULATION' : '光谱胶片模拟',
+          headline: english
+              ? 'Color should be shaped by materials.'
+              : '颜色，应该由材料塑造。',
+          body: english
+              ? 'Instead of placing a prepared LUT over the image, SpektraLab describes light across 81 wavelengths and carries it through film and photographic paper responses. Film stock, paper, exposure placement, and physical format all change the result.'
+              : 'SpektraLab 不依赖预先制作的 LUT。光线以 81 个波长经过胶片与相纸的感光和染料响应；胶片、相纸、曝光位置与物理画幅都会真正改变最终色彩与层次。',
+          items: english
+              ? const [
+                  (
+                    'Spectral, not cosmetic',
+                    'Color emerges through the response of film and paper.',
+                  ),
+                  (
+                    'Film and paper profiles',
+                    'Build a material combination for each photograph.',
+                  ),
+                  (
+                    'Physical scale matters',
+                    'Format changes grain, halation, and diffusion size.',
+                  ),
+                ]
+              : const [
+                  ('光谱计算，而非简单调色', '色彩经过胶片与相纸的实际响应形成。'),
+                  ('多款胶片与相纸配置', '为每张照片建立独立的材料组合。'),
+                  ('物理尺度参与成像', '画幅影响颗粒、光晕与扩散的真实尺寸。'),
+                ],
+          compact: compact,
+        ),
+        _SpektraEditorialSection(
+          eyebrow: english ? 'SCENE PLACEMENT' : '场景置位',
+          headline: english
+              ? 'First decide where light falls. Then decide what color becomes.'
+              : '先决定光落在哪里，\n再决定它呈现什么颜色。',
+          body: english
+              ? 'Place the scene on the film curve before printing it. Shadows enter the toe, highlights approach the shoulder, and enlarger exposure independently determines how the negative reaches paper.'
+              : '先控制影像落在胶片特性曲线上的位置，再用放大机曝光决定相纸的最终明暗。阴影如何进入趾部、高光如何靠近肩部，各自在正确的成像阶段完成。',
+          items: english
+              ? const [
+                  (
+                    'A natural starting point',
+                    'Automatic placement reads scene luminance.',
+                  ),
+                  (
+                    'Manual film exposure',
+                    'Shape highlights, shadows, and contrast.',
+                  ),
+                  (
+                    'Keep darkroom logic intact',
+                    'Film and enlarger exposure remain separate.',
+                  ),
+                ]
+              : const [
+                  ('自动获得自然起点', '根据画面亮度计算合适的初始位置。'),
+                  ('手动控制胶片曝光', '塑造高光、阴影与整体反差。'),
+                  ('保持暗房逻辑', '胶片曝光与放大机曝光各司其职。'),
+                ],
+          compact: compact,
+          tinted: true,
+        ),
+        _SpektraGrainZoom(
+          progress: reduceMotion ? .62 : _grainZoom,
+          compact: compact,
+          english: english,
+        ),
+        _SpektraEditorialSection(
+          eyebrow: english ? 'FILM, PAPER, AND TEXTURE' : '胶片与相纸',
+          headline: english
+              ? 'Not one film look. A complete darkroom combination.'
+              : '不是一种胶片效果，\n而是一套暗房组合。',
+          body: english
+              ? 'The same negative changes when paper, enlarger exposure, and filtration change. Grain follows density, halation grows from bright edges, and physical format controls their scale.'
+              : '一张底片的最终样貌，不只取决于胶片。更换相纸、放大机曝光与滤色，同一张底片会呈现不同的色彩、明暗和对比；颗粒随密度变化，光晕从高光边缘自然生长。',
+          items: english
+              ? const [
+                  (
+                    'Pair film with paper',
+                    'Find the print material that completes the negative.',
+                  ),
+                  (
+                    'Density-aware grain',
+                    'Texture changes across shadows, skin, and highlights.',
+                  ),
+                  (
+                    'Format-scaled character',
+                    '135 and medium format retain different physical presence.',
+                  ),
+                ]
+              : const [
+                  ('自由搭配胶片与相纸', '为底片寻找合适的印相材料。'),
+                  ('与密度相关的胶片颗粒', '阴影、肤色与高光拥有不同质感。'),
+                  ('按画幅缩放的物理特征', '135 与中画幅呈现不同的颗粒比例。'),
+                ],
+          compact: compact,
+        ),
+        _SpektraFeatureGrid(english: english, compact: compact),
+        _SpektraWorkflow(english: english, compact: compact),
+        _SpektraFinalCta(
+          english: english,
+          compact: compact,
+          githubUrl: widget.project.githubUrl,
+        ),
+        _PageEnd(text: english ? _en : _zh, dark: dark, compact: compact),
+      ],
+    );
+  }
 
   Widget _buildStandardPage(
     BuildContext context,
@@ -3315,48 +3381,648 @@ class _ProjectNarrativeCard extends StatelessWidget {
   }
 }
 
-class _SpektraFeatureCard extends StatelessWidget {
-  const _SpektraFeatureCard({
-    required this.icon,
-    required this.title,
-    required this.text,
-    required this.dark,
+class _SpektraAction extends StatelessWidget {
+  const _SpektraAction({
+    required this.label,
+    required this.onTap,
+    this.filled = false,
   });
-  final IconData icon;
-  final String title;
-  final String text;
-  final bool dark;
+  final String label;
+  final VoidCallback onTap;
+  final bool filled;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    child: Material(
+      color: filled ? const Color(0xFF0071E3) : Colors.transparent,
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: filled ? Colors.white : const Color(0xFF0071E3),
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _SpektraIntro extends StatelessWidget {
+  const _SpektraIntro({required this.english, required this.compact});
+  final bool english;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = english
+        ? const [
+            (
+              'Not a filter.',
+              'Light travels through film dye layers, forms a negative, then reaches photographic paper.',
+            ),
+            (
+              'One imaging chain.',
+              'RAW decoding, white balance, scene placement, film exposure, printing, and export remain connected.',
+            ),
+            (
+              'Film is part of the image.',
+              'Base, sprockets, edge text, frame numbers, and date imprint return the photograph to a physical format.',
+            ),
+            (
+              'Fast by design.',
+              'Native C++ and Vulkan keep previews responsive while full-resolution rendering finishes in the background.',
+            ),
+          ]
+        : const [
+            ('不是给照片套上一层滤镜。', '光线穿过胶片染料层、形成底片，再经放大机投射到相纸。'),
+            ('从相机到暗房，一条完整链路。', 'RAW 解码、白平衡、场景置位、胶片曝光、相纸印放与导出保持连接。'),
+            ('不只模拟画面，也呈现胶片本身。', '片基、齿孔、片边文字、格号与日期后背让照片回到所属画幅。'),
+            ('专注创作，结果快速抵达。', '原生 C++ 与 Vulkan 负责计算，快速预览与全分辨率后台渲染协同完成。'),
+          ];
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        compact ? 24 : 48,
+        compact ? 90 : 144,
+        compact ? 24 : 48,
+        compact ? 92 : 150,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1120),
+          child: Column(
+            children: [
+              Text(
+                english ? 'Meet SpektraLab.' : '来了解一下 SpektraLab。',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  fontSize: compact ? _typeSectionMobile : _typeHero,
+                  height: 1.06,
+                  letterSpacing: compact ? -1.4 : -2.4,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              SizedBox(height: compact ? 48 : 72),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final gap = compact ? 34.0 : 48.0;
+                  final width = compact
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - gap) / 2;
+                  return Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    children: items
+                        .map(
+                          (item) => SizedBox(
+                            width: width,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.$1,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(
+                                        fontSize: compact ? 27 : 32,
+                                        height: 1.12,
+                                        decoration: TextDecoration.none,
+                                      ),
+                                ),
+                                const SizedBox(height: 14),
+                                Text(
+                                  item.$2,
+                                  style: Theme.of(context).textTheme.bodyLarge!
+                                      .copyWith(
+                                        fontSize: _typeBody,
+                                        height: 1.55,
+                                        color: const Color(0xFF6E6E73),
+                                        decoration: TextDecoration.none,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SpektraEditorialSection extends StatelessWidget {
+  const _SpektraEditorialSection({
+    required this.eyebrow,
+    required this.headline,
+    required this.body,
+    required this.items,
+    required this.compact,
+    this.tinted = false,
+  });
+  final String eyebrow;
+  final String headline;
+  final String body;
+  final List<(String, String)> items;
+  final bool compact;
+  final bool tinted;
 
   @override
   Widget build(BuildContext context) => Container(
-    constraints: const BoxConstraints(minHeight: 300),
-    padding: const EdgeInsets.all(36),
-    decoration: BoxDecoration(
-      color: dark ? _darkCard : const Color(0xFFF5F5F7),
-      borderRadius: BorderRadius.circular(32),
+    width: double.infinity,
+    color: tinted ? const Color(0xFFF5F5F7) : Colors.white,
+    padding: EdgeInsets.fromLTRB(
+      compact ? 24 : 48,
+      compact ? 92 : 148,
+      compact ? 24 : 48,
+      compact ? 94 : 152,
+    ),
+    child: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1120),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              eyebrow,
+              style: const TextStyle(
+                color: Color(0xFF8E5CFF),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.05,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              headline,
+              style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                fontSize: compact ? _typeSectionMobile : _typeHero,
+                height: 1.05,
+                letterSpacing: compact ? -1.5 : -2.6,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            SizedBox(height: compact ? 24 : 32),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 780),
+              child: Text(
+                body,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  fontSize: compact ? _typeBodyLarge : _typeIntro,
+                  height: 1.5,
+                  color: const Color(0xFF6E6E73),
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+            SizedBox(height: compact ? 52 : 78),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final width = compact
+                    ? constraints.maxWidth
+                    : (constraints.maxWidth - 64) / 3;
+                return Wrap(
+                  spacing: 32,
+                  runSpacing: 36,
+                  children: items
+                      .map(
+                        (item) => SizedBox(
+                          width: width,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.$1,
+                                style: const TextStyle(
+                                  color: Color(0xFF1D1D1F),
+                                  fontSize: 19,
+                                  height: 1.25,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                item.$2,
+                                style: const TextStyle(
+                                  color: Color(0xFF6E6E73),
+                                  fontSize: 16,
+                                  height: 1.48,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _SpektraGrainZoom extends StatelessWidget {
+  const _SpektraGrainZoom({
+    required this.progress,
+    required this.compact,
+    required this.english,
+  });
+  final double progress;
+  final bool compact;
+  final bool english;
+
+  @override
+  Widget build(BuildContext context) {
+    final eased = Curves.easeInOutCubic.transform(progress.clamp(0.0, 1.0));
+    final scale = 1 + eased * (compact ? .55 : 1.15);
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFF000000),
+      padding: EdgeInsets.fromLTRB(
+        compact ? 12 : 28,
+        compact ? 86 : 130,
+        compact ? 12 : 28,
+        compact ? 92 : 142,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1440),
+          child: Column(
+            children: [
+              Text(
+                english ? 'Texture grows from the image.' : '质感，从成像中生长出来。',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  color: Colors.white,
+                  fontSize: compact ? _typeSectionMobile : _typeHero,
+                  height: 1.05,
+                  letterSpacing: compact ? -1.5 : -2.6,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: Text(
+                  english
+                      ? 'Scroll closer to see how grain, halation, and paper character remain part of the photograph rather than a uniform noise layer.'
+                      : '向下滚动靠近画面，观察颗粒、光晕和相纸质感如何随影像密度自然变化，而不是均匀覆盖的一层噪点。',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFFA1A1A6),
+                    fontSize: 18,
+                    height: 1.5,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+              SizedBox(height: compact ? 42 : 62),
+              Semantics(
+                image: true,
+                label: english
+                    ? 'Portra 800 film rendering with visible grain and lantern highlights'
+                    : 'Portra 800 胶片效果，展示颗粒和灯笼高光',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(compact ? 20 : 32),
+                  child: AspectRatio(
+                    aspectRatio: 3 / 2,
+                    child: ClipRect(
+                      child: Transform.scale(
+                        scale: scale,
+                        alignment: const Alignment(.18, -.12),
+                        child: Image.asset(
+                          'assets/spektralab/lanterns-portra-800.webp',
+                          width: double.infinity,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                english
+                    ? 'Portra 800 · Crystal Archive Type II'
+                    : 'Portra 800 · Crystal Archive Type II 相纸',
+                style: const TextStyle(
+                  color: Color(0xFFA1A1A6),
+                  fontSize: 13,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SpektraFeatureGrid extends StatelessWidget {
+  const _SpektraFeatureGrid({required this.english, required this.compact});
+  final bool english;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final features = english
+        ? const [
+            (
+              'Film borders',
+              'Base, sprockets, edge text, frame numbers, and multiple physical formats.',
+            ),
+            (
+              'Date imprint',
+              'Use capture date or custom text with placement adapted to the selected format.',
+            ),
+            (
+              'Half-frame pairing',
+              'Edit two frames independently, then export them as one complete strip.',
+            ),
+            (
+              'Non-destructive editing',
+              'Every choice remains recoverable without overwriting the source image.',
+            ),
+          ]
+        : const [
+            ('片边', '片基、齿孔、边缘文字、格号以及多种真实胶片画幅。'),
+            ('日期后背', '读取拍摄日期或输入自定义文字，并按画幅调整位置。'),
+            ('半格拼接', '分别编辑两个片格，再作为一段完整胶片共同导出。'),
+            ('非破坏性编辑', '所有选择均可恢复，原始照片始终不会被覆盖。'),
+          ];
+    return Container(
+      color: const Color(0xFFF5F5F7),
+      padding: EdgeInsets.fromLTRB(
+        compact ? 18 : 40,
+        compact ? 88 : 140,
+        compact ? 18 : 40,
+        compact ? 96 : 150,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: Column(
+            children: [
+              Text(
+                english
+                    ? 'The photograph extends beyond the frame.'
+                    : '画面之外，也是照片的一部分。',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  fontSize: compact ? _typeSectionMobile : _typeHero,
+                  height: 1.05,
+                  letterSpacing: compact ? -1.5 : -2.6,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              SizedBox(height: compact ? 46 : 68),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final gap = compact ? 16.0 : 24.0;
+                  final width = compact
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - gap) / 2;
+                  return Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    children: features
+                        .map(
+                          (feature) => Container(
+                            width: width,
+                            constraints: const BoxConstraints(minHeight: 260),
+                            padding: EdgeInsets.all(compact ? 28 : 38),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  feature.$1,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(
+                                        fontSize: compact ? 29 : _typeCardTitle,
+                                        height: 1.1,
+                                        decoration: TextDecoration.none,
+                                      ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  feature.$2,
+                                  style: const TextStyle(
+                                    color: Color(0xFF6E6E73),
+                                    fontSize: 17,
+                                    height: 1.5,
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SpektraWorkflow extends StatelessWidget {
+  const _SpektraWorkflow({required this.english, required this.compact});
+  final bool english;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      compact ? 24 : 48,
+      compact ? 94 : 150,
+      compact ? 24 : 48,
+      compact ? 98 : 154,
+    ),
+    child: Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1040),
+        child: Column(
+          children: [
+            Text(
+              english
+                  ? 'From camera file to finished print.'
+                  : '从相机文件，到可以交付的成片。',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                fontSize: compact ? _typeSectionMobile : _typeHero,
+                height: 1.05,
+                letterSpacing: compact ? -1.5 : -2.6,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            const SizedBox(height: 28),
+            Text(
+              english
+                  ? 'Open RAW, TIFF, JPEG, or PNG. Make camera-stage adjustments before film exposure, keep every edit non-destructive, soft-proof the output, then export individual photographs or a batch.'
+                  : '直接打开 RAW、TIFF、JPEG 或 PNG；在胶片曝光前完成相机阶段调整，保留每张照片的独立设置，软打样后再单张或批量导出。',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFF6E6E73),
+                fontSize: 20,
+                height: 1.5,
+                decoration: TextDecoration.none,
+              ),
+            ),
+            SizedBox(height: compact ? 52 : 76),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 14,
+              runSpacing: 14,
+              children:
+                  (english
+                          ? const [
+                              'RAW workflow',
+                              'Soft proofing',
+                              'JPEG / PNG / TIFF',
+                              'Batch export',
+                              'LUT / Cineon',
+                            ]
+                          : const [
+                              'RAW 工作流程',
+                              '导出软打样',
+                              'JPEG／PNG／TIFF',
+                              '批量导出',
+                              'LUT／Cineon',
+                            ])
+                      .map(
+                        (label) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 11,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F7),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Text(
+                            label,
+                            style: const TextStyle(
+                              color: Color(0xFF1D1D1F),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _SpektraFinalCta extends StatelessWidget {
+  const _SpektraFinalCta({
+    required this.english,
+    required this.compact,
+    required this.githubUrl,
+  });
+  final bool english;
+  final bool compact;
+  final String githubUrl;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    color: const Color(0xFF000000),
+    padding: EdgeInsets.fromLTRB(
+      compact ? 24 : 48,
+      compact ? 92 : 148,
+      compact ? 24 : 48,
+      compact ? 96 : 154,
     ),
     child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 38, color: const Color(0xFF8E5CFF)),
-        const SizedBox(height: 96),
         Text(
-          title,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            fontSize: _typeCardTitle,
-            height: 1.12,
+          english
+              ? 'Let the next photograph go through a real film process.'
+              : '让下一张照片，\n经历一次真正的胶片过程。',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+            color: Colors.white,
+            fontSize: compact ? _typeSectionMobile : _typeHero,
+            height: 1.05,
+            letterSpacing: compact ? -1.5 : -2.6,
             decoration: TextDecoration.none,
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 24),
         Text(
-          text,
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            fontSize: _typeBody,
-            height: 1.55,
-            color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+          english
+              ? 'Free and open source for Windows. Licensed under GPL-3.0-or-later.'
+              : 'Windows 原生体验，免费开源，遵循 GPL-3.0-or-later 许可。',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFFA1A1A6),
+            fontSize: 18,
+            height: 1.45,
             decoration: TextDecoration.none,
           ),
+        ),
+        const SizedBox(height: 34),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 14,
+          runSpacing: 12,
+          children: [
+            _SpektraAction(
+              label: english ? 'Download' : '下载安装',
+              filled: true,
+              onTap: () => launchUrl(
+                Uri.parse('$githubUrl/releases'),
+                mode: LaunchMode.externalApplication,
+              ),
+            ),
+            _SpektraAction(
+              label: english ? 'View source' : '查看源代码',
+              onTap: () => launchUrl(
+                Uri.parse(githubUrl),
+                mode: LaunchMode.externalApplication,
+              ),
+            ),
+          ],
         ),
       ],
     ),
@@ -3436,14 +4102,14 @@ class _SpektraFilmComparison extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       Image.asset(
-                        'assets/spektrastudio/temple-original-aligned.webp',
+                        'assets/spektralab/temple-original-aligned.webp',
                         fit: BoxFit.fill,
                         filterQuality: FilterQuality.high,
                       ),
                       ClipRect(
                         clipper: _HorizontalRevealClipper(value),
                         child: Image.asset(
-                          'assets/spektrastudio/temple-film.webp',
+                          'assets/spektralab/temple-film.webp',
                           fit: BoxFit.fill,
                           filterQuality: FilterQuality.high,
                         ),
