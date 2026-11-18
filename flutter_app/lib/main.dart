@@ -54,7 +54,8 @@ class HyeApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     debugShowCheckedModeBanner: false,
     title: 'Ye Hongyu | robin.hye',
-    themeMode: ThemeMode.system,
+    // 页面主体固定使用浅色主题；系统深浅色仅用于主页导航栏和展开菜单。
+    themeMode: ThemeMode.light,
     theme: _theme(Brightness.light),
     darkTheme: _theme(Brightness.dark),
     home: const PortfolioPage(),
@@ -269,16 +270,18 @@ class _PortfolioPageState extends State<PortfolioPage>
 
   @override
   Widget build(BuildContext context) {
-    // dark 跟随系统深浅色模式；compact 用于判断是否采用窄屏布局。
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    // 页面内容始终为浅色；导航栏和展开菜单单独跟随系统深浅色。
+    const pageDark = false;
+    final navigationDark =
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 760;
     return GlassScaffold(
-      background: ColoredBox(color: dark ? _darkPage : const Color(0xFFF5F5F7)),
-      backgroundColor: dark ? _darkPage : const Color(0xFFF5F5F7),
+      background: const ColoredBox(color: Color(0xFFF5F5F7)),
+      backgroundColor: const Color(0xFFF5F5F7),
       statusBarStyle: GlassStatusBarStyle.auto,
       edgeToEdge: true,
       edgeFade: true,
-      settings: dark
+      settings: navigationDark
           ? LiquidGlassSettings.ios27Dark
           : LiquidGlassSettings.ios27Light,
       body: Stack(
@@ -291,7 +294,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                 _Hero(
                   key: _homeKey,
                   text: t,
-                  dark: dark,
+                  dark: pageDark,
                   compact: compact,
                   onProjects: () => _scrollTo(_projectsKey),
                   onContact: () => _scrollTo(_contactKey),
@@ -299,7 +302,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                 _Projects(
                   key: _projectsKey,
                   text: t,
-                  dark: dark,
+                  dark: pageDark,
                   compact: compact,
                   onComputer: () => _openDetail(false),
                   onPhotography: () => _openDetail(true),
@@ -307,7 +310,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                 _PageEnd(
                   key: _contactKey,
                   text: t,
-                  dark: dark,
+                  dark: pageDark,
                   compact: compact,
                 ),
               ],
@@ -333,7 +336,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                 },
                 child: _MenuPanel(
                   text: t,
-                  dark: dark,
+                  dark: navigationDark,
                   english: _english,
                   section: _menuSection,
                   onComputer: () =>
@@ -363,7 +366,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                 // 三种状态使用完全相同的外部几何位置，避免切换时发生轻微跳动。
                 top: compact ? 10 : 18,
                 child: _AdaptiveNav(
-                  dark: dark,
+                  dark: navigationDark,
                   compact: compact,
                   english: _english,
                   menuActive: _menuVisible,
@@ -754,7 +757,7 @@ class _ProjectMenuContent extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       if (photography)
-        ..._photographyThemes.map(
+        ..._photographySubjects.map(
           (theme) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 9),
             child: Text(
@@ -1519,85 +1522,99 @@ class _PhotographyTheme {
   String subtitle(bool english) => english ? enSubtitle : zhSubtitle;
 }
 
-const _photographyThemes = <_PhotographyTheme>[
+const _aircraftPhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/aircraft/01-dsc03486.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/aircraft/02-dsc03548.webp', 2400, 1196),
+  _PhotoAsset('assets/photography/aircraft/03-dsc03552.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/aircraft/04-img_6521.webp', 2400, 1600),
+];
+
+const _architecturePhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/architecture/01-dsc00120.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/architecture/02-dsc00485.webp', 1600, 2400),
+  _PhotoAsset('assets/photography/architecture/03-img_6516.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/architecture/04-img_6525.webp', 2400, 1600),
+];
+
+const _naturePhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/nature/01-dsc02009.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/nature/02-dsc04361.webp', 2157, 2400),
+];
+
+const _footballPhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/juventus/01-dsc02391.webp', 2400, 1350),
+  _PhotoAsset('assets/photography/juventus/02-dsc02814.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/juventus/03-dsc02846.webp', 2400, 1599),
+  _PhotoAsset('assets/photography/juventus/04-dsc03025.webp', 2400, 1350),
+  _PhotoAsset('assets/photography/juventus/05-dsc03087.webp', 2400, 2400),
+];
+
+const _taiwanPhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/taiwan/01-dsc01446.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/taiwan/02-img_2291.webp', 1600, 2400),
+  _PhotoAsset('assets/photography/taiwan/03-img_2292.webp', 1600, 2400),
+  _PhotoAsset('assets/photography/taiwan/04-img_2293.webp', 1600, 2400),
+  _PhotoAsset('assets/photography/taiwan/05-img_2294.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/taiwan/06-img_2296.webp', 2400, 1350),
+  _PhotoAsset('assets/photography/taiwan/07-img_2297.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/taiwan/08-img_6528.webp', 1600, 2400),
+];
+
+// 第一层按摄影主题组织，同一作品可在活动专题中再次被引用。
+const _photographySubjects = <_PhotographyTheme>[
   _PhotographyTheme(
-    zhTitle: '飞机',
-    enTitle: 'Aircraft',
-    zhSubtitle: '候机楼、进近航线，以及掠过天空的片刻。',
-    enSubtitle: 'Terminals, final approaches, and fleeting moments overhead.',
-    photos: [
-      _PhotoAsset('assets/photography/aircraft/01-dsc03486.webp', 2400, 1600),
-      _PhotoAsset('assets/photography/aircraft/02-dsc03548.webp', 2400, 1196),
-      _PhotoAsset('assets/photography/aircraft/03-dsc03552.webp', 2400, 1600),
-      _PhotoAsset('assets/photography/aircraft/04-img_6521.webp', 2400, 1600),
-    ],
+    zhTitle: '体育摄影',
+    enTitle: 'Sports Photography',
+    zhSubtitle: '速度、对抗与看台之间，决定性瞬间只出现一次。',
+    enSubtitle: 'Speed, tension, and decisive moments that happen only once.',
+    photos: _footballPhotos,
+  ),
+  _PhotographyTheme(
+    zhTitle: '自然风光',
+    enTitle: 'Landscapes',
+    zhSubtitle: '暮色、海岸、闪电，以及不断变化的天空。',
+    enSubtitle: 'Twilight, coastlines, lightning, and an ever-changing sky.',
+    photos: _naturePhotos,
   ),
   _PhotographyTheme(
     zhTitle: '建筑',
     enTitle: 'Architecture',
-    zhSubtitle: '寻找光线、结构与空间之间的秩序。',
-    enSubtitle: 'Finding order between light, structure, and space.',
-    photos: [
-      _PhotoAsset(
-        'assets/photography/architecture/01-dsc00120.webp',
-        2400,
-        1600,
-      ),
-      _PhotoAsset(
-        'assets/photography/architecture/02-dsc00485.webp',
-        1600,
-        2400,
-      ),
-      _PhotoAsset(
-        'assets/photography/architecture/03-img_6516.webp',
-        2400,
-        1600,
-      ),
-      _PhotoAsset(
-        'assets/photography/architecture/04-img_6525.webp',
-        2400,
-        1600,
-      ),
-    ],
+    zhSubtitle: '寻找光线、结构与空间之间清晰的秩序。',
+    enSubtitle: 'Finding clarity between light, structure, and space.',
+    photos: _architecturePhotos,
   ),
   _PhotographyTheme(
-    zhTitle: '自然',
-    enTitle: 'Nature',
-    zhSubtitle: '暮色、闪电，以及转瞬即逝的天空。',
-    enSubtitle: 'Twilight, lightning, and skies that change in an instant.',
-    photos: [
-      _PhotoAsset('assets/photography/nature/01-dsc02009.webp', 2400, 1600),
-      _PhotoAsset('assets/photography/nature/02-dsc04361.webp', 2157, 2400),
-    ],
+    zhTitle: '航空摄影',
+    enTitle: 'Aviation Photography',
+    zhSubtitle: '候机楼、进近航线，以及掠过天空的片刻。',
+    enSubtitle: 'Terminals, final approaches, and fleeting moments overhead.',
+    photos: _aircraftPhotos,
   ),
   _PhotographyTheme(
-    zhTitle: '足球 · 尤文图斯',
-    enTitle: 'Football · Juventus',
-    zhSubtitle: '从看台出发，记录比赛的节奏与决定性瞬间。',
-    enSubtitle: 'The rhythm of the match and its decisive moments, seen from the stands.',
-    photos: [
-      _PhotoAsset('assets/photography/juventus/01-dsc02391.webp', 2400, 1350),
-      _PhotoAsset('assets/photography/juventus/02-dsc02814.webp', 2400, 1600),
-      _PhotoAsset('assets/photography/juventus/03-dsc02846.webp', 2400, 1599),
-      _PhotoAsset('assets/photography/juventus/04-dsc03025.webp', 2400, 1350),
-      _PhotoAsset('assets/photography/juventus/05-dsc03087.webp', 2400, 2400),
-    ],
+    zhTitle: '街头摄影',
+    enTitle: 'Street Photography',
+    zhSubtitle: '街道、列车、夜色与旅途中偶然相遇的画面。',
+    enSubtitle:
+        'Streets, trains, night light, and unplanned moments on the road.',
+    photos: _taiwanPhotos,
   ),
+];
+
+// 第二层按一次旅行或一场比赛组织，形成更完整的活动叙事。
+const _photographyEvents = <_PhotographyTheme>[
   _PhotographyTheme(
     zhTitle: '台湾',
     enTitle: 'Taiwan',
-    zhSubtitle: '海岸、街道、列车，以及夜色中的旅行片段。',
-    enSubtitle: 'Coastlines, streets, trains, and fragments of a journey into the night.',
-    photos: [
-      _PhotoAsset('assets/photography/taiwan/01-dsc01446.webp', 2400, 1600),
-      _PhotoAsset('assets/photography/taiwan/02-img_2291.webp', 1600, 2400),
-      _PhotoAsset('assets/photography/taiwan/03-img_2292.webp', 1600, 2400),
-      _PhotoAsset('assets/photography/taiwan/04-img_2293.webp', 1600, 2400),
-      _PhotoAsset('assets/photography/taiwan/05-img_2294.webp', 2400, 1600),
-      _PhotoAsset('assets/photography/taiwan/06-img_2296.webp', 2400, 1350),
-      _PhotoAsset('assets/photography/taiwan/07-img_2297.webp', 2400, 1600),
-      _PhotoAsset('assets/photography/taiwan/08-img_6528.webp', 1600, 2400),
-    ],
+    zhSubtitle: '从海岸到城市，在列车、街道与夜色之间展开的一段旅程。',
+    enSubtitle: 'A journey from coast to city, through trains, streets, and night light.',
+    photos: _taiwanPhotos,
+  ),
+  _PhotographyTheme(
+    zhTitle: '切尔西 · 尤文图斯',
+    enTitle: 'Chelsea · Juventus',
+    zhSubtitle: '从看台记录比赛的节奏、对抗与决定性瞬间。',
+    enSubtitle: 'The rhythm, tension, and decisive moments of the match from the stands.',
+    photos: _footballPhotos,
   ),
 ];
 
@@ -1617,37 +1634,216 @@ class _PhotographyThemeList extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
-        english ? 'Explore the series.' : '探索摄影系列。',
-        style: Theme.of(context).textTheme.displayMedium!.copyWith(
-          fontSize: compact ? _typeSectionMobile : _typeSection,
-          height: 1.08,
-          letterSpacing: -1.5,
-          decoration: TextDecoration.none,
-        ),
+      _PhotographySectionHeading(
+        eyebrow: english ? 'BY SUBJECT' : '按主题浏览',
+        title: english ? 'Find a different point of view.' : '从不同视角，重新发现画面。',
+        description: english
+            ? 'Five ways of seeing—from sport and aviation to streets, landscapes, and architecture.'
+            : '从体育与航空，到街头、风光和建筑，以五种主题整理摄影作品。',
+        compact: compact,
+        dark: dark,
       ),
-      SizedBox(height: compact ? 28 : 42),
-      ..._photographyThemes.indexed.map((entry) {
-        final index = entry.$1;
-        final theme = entry.$2;
-        return Padding(
-          padding: EdgeInsets.only(bottom: compact ? 18 : 28),
-          child: _PhotographyThemeCard(
-            theme: theme,
+      SizedBox(height: compact ? 32 : 48),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final gap = compact ? 16.0 : 24.0;
+          final columns = compact ? 1 : (constraints.maxWidth >= 1040 ? 3 : 2);
+          final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: _photographySubjects.indexed.map((entry) {
+              final index = entry.$1;
+              final theme = entry.$2;
+              final featured = !compact && index == 0 && columns == 3;
+              return SizedBox(
+                width: featured ? width * 2 + gap : width,
+                child: _PhotographySubjectCard(
+                  theme: theme,
+                  english: english,
+                  dark: dark,
+                  featured: featured,
+                  onTap: () => onTheme(theme),
+                ),
+              );
+            }).toList(),
+          );
+        },
+      ),
+      SizedBox(height: compact ? 88 : 144),
+      _PhotographySectionHeading(
+        eyebrow: english ? 'BY EVENT' : '按活动浏览',
+        title: english
+            ? 'Stories shaped by a place and time.'
+            : '在特定时间与地点，展开完整故事。',
+        description: english
+            ? 'Travel and match-day collections bring related photographs together as one continuous experience.'
+            : '以一次旅行或一场比赛为线索，将相关照片组织成连续的观看体验。',
+        compact: compact,
+        dark: dark,
+      ),
+      SizedBox(height: compact ? 32 : 48),
+      ..._photographyEvents.indexed.map(
+        (entry) => Padding(
+          padding: EdgeInsets.only(bottom: compact ? 20 : 32),
+          child: _PhotographyEventCard(
+            theme: entry.$2,
             english: english,
             dark: dark,
             compact: compact,
-            imageOnRight: index.isEven,
-            onTap: () => onTheme(theme),
+            imageOnRight: entry.$1.isEven,
+            onTap: () => onTheme(entry.$2),
           ),
-        );
-      }),
+        ),
+      ),
     ],
   );
 }
 
-class _PhotographyThemeCard extends StatelessWidget {
-  const _PhotographyThemeCard({
+class _PhotographySectionHeading extends StatelessWidget {
+  const _PhotographySectionHeading({
+    required this.eyebrow,
+    required this.title,
+    required this.description,
+    required this.compact,
+    required this.dark,
+  });
+  final String eyebrow;
+  final String title;
+  final String description;
+  final bool compact;
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: const BoxConstraints(maxWidth: 820),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          eyebrow,
+          style: const TextStyle(
+            color: Color(0xFF0071E3),
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.05,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.displayMedium!.copyWith(
+            fontSize: compact ? _typeSectionMobile : _typeHero,
+            height: 1.04,
+            letterSpacing: compact ? -1.4 : -2.2,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Text(
+          description,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: compact ? _typeBody : _typeIntro,
+            color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PhotographySubjectCard extends StatelessWidget {
+  const _PhotographySubjectCard({
+    required this.theme,
+    required this.english,
+    required this.dark,
+    required this.featured,
+    required this.onTap,
+  });
+  final _PhotographyTheme theme;
+  final bool english;
+  final bool dark;
+  final bool featured;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(30);
+    return Semantics(
+      button: true,
+      label: english ? 'Open ${theme.enTitle}' : '打开${theme.zhTitle}',
+      child: Material(
+        color: dark ? _darkCard : Colors.white,
+        borderRadius: radius,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            height: featured ? 520 : 410,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  theme.photos.first.path,
+                  fit: BoxFit.cover,
+                  filterQuality: FilterQuality.medium,
+                ),
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x0D000000), Color(0xB8000000)],
+                      stops: [.34, 1],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 28,
+                  right: 28,
+                  bottom: 28,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        theme.title(english),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: featured ? 40 : 30,
+                          height: 1.06,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: featured ? -1.2 : -.7,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        theme.subtitle(english),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xE6FFFFFF),
+                          fontSize: 17,
+                          height: 1.4,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotographyEventCard extends StatelessWidget {
+  const _PhotographyEventCard({
     required this.theme,
     required this.english,
     required this.dark,
@@ -1665,9 +1861,9 @@ class _PhotographyThemeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final image = ClipRRect(
-      borderRadius: BorderRadius.circular(compact ? 24 : 30),
+      borderRadius: BorderRadius.circular(compact ? 24 : 34),
       child: AspectRatio(
-        aspectRatio: compact ? 4 / 3 : 16 / 10,
+        aspectRatio: compact ? 4 / 3 : 16 / 11,
         child: Image.asset(
           theme.photos.first.path,
           fit: BoxFit.cover,
@@ -1676,7 +1872,7 @@ class _PhotographyThemeCard extends StatelessWidget {
       ),
     );
     final copy = Padding(
-      padding: EdgeInsets.all(compact ? 26 : 46),
+      padding: EdgeInsets.all(compact ? 28 : 52),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1684,7 +1880,7 @@ class _PhotographyThemeCard extends StatelessWidget {
           Text(
             theme.title(english),
             style: Theme.of(context).textTheme.displayMedium!.copyWith(
-              fontSize: compact ? _typeCardTitle : _typeSection,
+              fontSize: compact ? _typeCardTitle : _typeHero,
               height: 1.06,
               decoration: TextDecoration.none,
             ),
@@ -1701,9 +1897,7 @@ class _PhotographyThemeCard extends StatelessWidget {
           ),
           const SizedBox(height: 22),
           Text(
-            english
-                ? 'View ${theme.photos.length} photos  ›'
-                : '查看 ${theme.photos.length} 张照片  ›',
+            english ? 'Explore the story  ›' : '查看活动记录  ›',
             style: const TextStyle(
               color: Color(0xFF0071E3),
               fontSize: 16,
@@ -1721,7 +1915,7 @@ class _PhotographyThemeCard extends StatelessWidget {
           : '打开${theme.zhTitle}摄影主题',
       child: Material(
         color: dark ? _darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(compact ? 28 : 36),
+        borderRadius: BorderRadius.circular(compact ? 28 : 40),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
