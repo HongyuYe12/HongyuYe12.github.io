@@ -2490,6 +2490,8 @@ class _ProjectDetailPage extends StatefulWidget {
 
 class _ProjectDetailPageState extends State<_ProjectDetailPage> {
   final _scrollController = ScrollController();
+  final _comparisonImageKey = GlobalKey();
+  final _grainImageKey = GlobalKey();
   double _comparison = 0;
   double _grainZoom = 0;
   bool _draggingComparison = false;
@@ -2499,13 +2501,35 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
   @override
   void initState() {
     super.initState();
-    if (_isSpektra) _scrollController.addListener(_syncComparisonToScroll);
+    if (_isSpektra) {
+      _scrollController.addListener(_syncComparisonToScroll);
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _syncComparisonToScroll(),
+      );
+    }
+  }
+
+  double _viewportProgress(GlobalKey key) {
+    final target = key.currentContext;
+    if (target == null) return 0;
+    final box = target.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) return 0;
+    final viewportHeight = MediaQuery.sizeOf(context).height;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final start = viewportHeight * .96;
+    final end = -box.size.height * .5;
+    return ((start - top) / (start - end)).clamp(0.0, 1.0);
   }
 
   void _syncComparisonToScroll() {
-    if (_draggingComparison || !_scrollController.hasClients) return;
-    final next = ((_scrollController.offset - 220) / 720).clamp(0.0, 1.0);
-    final grain = ((_scrollController.offset - 2600) / 1100).clamp(0.0, 1.0);
+    if (!_scrollController.hasClients || !mounted) return;
+    final rawComparison = _draggingComparison
+        ? _comparison
+        : _viewportProgress(_comparisonImageKey);
+    final next = _draggingComparison
+        ? rawComparison
+        : Curves.easeInCubic.transform(rawComparison);
+    final grain = _viewportProgress(_grainImageKey);
     if ((next - _comparison).abs() > .002 ||
         (grain - _grainZoom).abs() > .002) {
       setState(() {
@@ -2525,7 +2549,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final dark = _isSpektra || Theme.of(context).brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 700;
     final secondary = dark ? _darkSecondary : const Color(0xFF6E6E73);
     final radius = BorderRadius.circular(compact ? 28 : 36);
@@ -2534,11 +2558,14 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
     return Scaffold(
       backgroundColor: dark ? _darkPage : Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: _isSpektra ? Colors.black : Colors.transparent,
         elevation: 0,
         leading: IconButton(
           tooltip: english ? 'Back to projects' : '返回项目列表',
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: _isSpektra ? Colors.white : null,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -2561,7 +2588,9 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Column(
       children: [
-        Padding(
+        Container(
+          width: double.infinity,
+          color: const Color(0xFF000000),
           padding: EdgeInsets.fromLTRB(
             compact ? 24 : 48,
             compact ? 48 : 82,
@@ -2600,7 +2629,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                           fontSize: compact ? 20 : 24,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -.5,
-                          color: dark ? _darkPrimary : const Color(0xFF1D1D1F),
+                          color: _darkPrimary,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -2613,6 +2642,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
                         : '让光穿过胶片，\n再抵达你的照片。',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                      color: _darkPrimary,
                       fontSize: compact ? _typeDisplayMobile : _typeDisplay,
                       height: 1.02,
                       letterSpacing: compact ? -2 : -4,
@@ -2668,7 +2698,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
         _SpektraIntro(english: english, compact: compact),
         Container(
           width: double.infinity,
-          color: dark ? const Color(0xFF090909) : const Color(0xFFF5F5F7),
+          color: const Color(0xFF111111),
           padding: EdgeInsets.fromLTRB(
             compact ? 12 : 32,
             compact ? 62 : 100,
@@ -2679,6 +2709,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1320),
               child: _SpektraFilmComparison(
+                imageKey: _comparisonImageKey,
                 value: _comparison,
                 compact: compact,
                 english: english,
@@ -2752,6 +2783,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
           tinted: true,
         ),
         _SpektraGrainZoom(
+          imageKey: _grainImageKey,
           progress: reduceMotion ? .62 : _grainZoom,
           compact: compact,
           english: english,
@@ -3450,7 +3482,9 @@ class _SpektraIntro extends StatelessWidget {
             ('不只模拟画面，也呈现胶片本身。', '片基、齿孔、片边文字、格号与日期后背让照片回到所属画幅。'),
             ('专注创作，结果快速抵达。', '原生 C++ 与 Vulkan 负责计算，快速预览与全分辨率后台渲染协同完成。'),
           ];
-    return Padding(
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFF000000),
       padding: EdgeInsets.fromLTRB(
         compact ? 24 : 48,
         compact ? 90 : 144,
@@ -3466,6 +3500,7 @@ class _SpektraIntro extends StatelessWidget {
                 english ? 'Meet SpektraLab.' : '来了解一下 SpektraLab。',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  color: _darkPrimary,
                   fontSize: compact ? _typeSectionMobile : _typeHero,
                   height: 1.06,
                   letterSpacing: compact ? -1.4 : -2.4,
@@ -3495,6 +3530,7 @@ class _SpektraIntro extends StatelessWidget {
                                       .textTheme
                                       .headlineMedium!
                                       .copyWith(
+                                        color: _darkPrimary,
                                         fontSize: compact ? 27 : 32,
                                         height: 1.12,
                                         decoration: TextDecoration.none,
@@ -3507,7 +3543,7 @@ class _SpektraIntro extends StatelessWidget {
                                       .copyWith(
                                         fontSize: _typeBody,
                                         height: 1.55,
-                                        color: const Color(0xFF6E6E73),
+                                        color: const Color(0xFFA1A1A6),
                                         decoration: TextDecoration.none,
                                       ),
                                 ),
@@ -3546,7 +3582,7 @@ class _SpektraEditorialSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    color: tinted ? const Color(0xFFF5F5F7) : Colors.white,
+    color: tinted ? const Color(0xFF111111) : const Color(0xFF000000),
     padding: EdgeInsets.fromLTRB(
       compact ? 24 : 48,
       compact ? 92 : 148,
@@ -3573,6 +3609,7 @@ class _SpektraEditorialSection extends StatelessWidget {
             Text(
               headline,
               style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: _darkPrimary,
                 fontSize: compact ? _typeSectionMobile : _typeHero,
                 height: 1.05,
                 letterSpacing: compact ? -1.5 : -2.6,
@@ -3587,7 +3624,7 @@ class _SpektraEditorialSection extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   fontSize: compact ? _typeBodyLarge : _typeIntro,
                   height: 1.5,
-                  color: const Color(0xFF6E6E73),
+                  color: const Color(0xFFA1A1A6),
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -3611,7 +3648,7 @@ class _SpektraEditorialSection extends StatelessWidget {
                               Text(
                                 item.$1,
                                 style: const TextStyle(
-                                  color: Color(0xFF1D1D1F),
+                                  color: Color(0xFFF5F5F7),
                                   fontSize: 19,
                                   height: 1.25,
                                   fontWeight: FontWeight.w600,
@@ -3622,7 +3659,7 @@ class _SpektraEditorialSection extends StatelessWidget {
                               Text(
                                 item.$2,
                                 style: const TextStyle(
-                                  color: Color(0xFF6E6E73),
+                                  color: Color(0xFFA1A1A6),
                                   fontSize: 16,
                                   height: 1.48,
                                   decoration: TextDecoration.none,
@@ -3645,18 +3682,20 @@ class _SpektraEditorialSection extends StatelessWidget {
 
 class _SpektraGrainZoom extends StatelessWidget {
   const _SpektraGrainZoom({
+    required this.imageKey,
     required this.progress,
     required this.compact,
     required this.english,
   });
+  final GlobalKey imageKey;
   final double progress;
   final bool compact;
   final bool english;
 
   @override
   Widget build(BuildContext context) {
-    final eased = Curves.easeInOutCubic.transform(progress.clamp(0.0, 1.0));
-    final scale = 1 + eased * (compact ? .55 : 1.15);
+    final eased = Curves.easeInCubic.transform(progress.clamp(0.0, 1.0));
+    final scale = 1 + eased * 9;
     return Container(
       width: double.infinity,
       color: const Color(0xFF000000),
@@ -3700,6 +3739,7 @@ class _SpektraGrainZoom extends StatelessWidget {
               ),
               SizedBox(height: compact ? 42 : 62),
               Semantics(
+                key: imageKey,
                 image: true,
                 label: english
                     ? 'Portra 800 film rendering with visible grain and lantern highlights'
@@ -3775,7 +3815,7 @@ class _SpektraFeatureGrid extends StatelessWidget {
             ('非破坏性编辑', '所有选择均可恢复，原始照片始终不会被覆盖。'),
           ];
     return Container(
-      color: const Color(0xFFF5F5F7),
+      color: const Color(0xFF111111),
       padding: EdgeInsets.fromLTRB(
         compact ? 18 : 40,
         compact ? 88 : 140,
@@ -3816,7 +3856,7 @@ class _SpektraFeatureGrid extends StatelessWidget {
                             constraints: const BoxConstraints(minHeight: 260),
                             padding: EdgeInsets.all(compact ? 28 : 38),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: const Color(0xFF1C1C1E),
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: Column(
@@ -3837,7 +3877,7 @@ class _SpektraFeatureGrid extends StatelessWidget {
                                 Text(
                                   feature.$2,
                                   style: const TextStyle(
-                                    color: Color(0xFF6E6E73),
+                                    color: Color(0xFFA1A1A6),
                                     fontSize: 17,
                                     height: 1.5,
                                     decoration: TextDecoration.none,
@@ -3865,7 +3905,9 @@ class _SpektraWorkflow extends StatelessWidget {
   final bool compact;
 
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    color: const Color(0xFF000000),
     padding: EdgeInsets.fromLTRB(
       compact ? 24 : 48,
       compact ? 94 : 150,
@@ -3896,7 +3938,7 @@ class _SpektraWorkflow extends StatelessWidget {
                   : '直接打开 RAW、TIFF、JPEG 或 PNG；在胶片曝光前完成相机阶段调整，保留每张照片的独立设置，软打样后再单张或批量导出。',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                color: Color(0xFF6E6E73),
+                color: Color(0xFFA1A1A6),
                 fontSize: 20,
                 height: 1.5,
                 decoration: TextDecoration.none,
@@ -3930,13 +3972,13 @@ class _SpektraWorkflow extends StatelessWidget {
                             vertical: 11,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F7),
+                            color: const Color(0xFF1C1C1E),
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: Text(
                             label,
                             style: const TextStyle(
-                              color: Color(0xFF1D1D1F),
+                              color: Color(0xFFF5F5F7),
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               decoration: TextDecoration.none,
@@ -4031,6 +4073,7 @@ class _SpektraFinalCta extends StatelessWidget {
 
 class _SpektraFilmComparison extends StatelessWidget {
   const _SpektraFilmComparison({
+    required this.imageKey,
     required this.value,
     required this.compact,
     required this.english,
@@ -4039,6 +4082,7 @@ class _SpektraFilmComparison extends StatelessWidget {
     required this.onDragEnd,
   });
 
+  final GlobalKey imageKey;
   final double value;
   final bool compact;
   final bool english;
@@ -4053,6 +4097,7 @@ class _SpektraFilmComparison extends StatelessWidget {
         english ? 'From digital to film.' : '从原图，到胶片。',
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.displayMedium!.copyWith(
+          color: _darkPrimary,
           fontSize: compact ? _typeSectionMobile : _typeSection,
           decoration: TextDecoration.none,
         ),
@@ -4065,9 +4110,7 @@ class _SpektraFilmComparison extends StatelessWidget {
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
           fontSize: compact ? _typeBody : _typeBodyLarge,
-          color: Theme.of(context).brightness == Brightness.dark
-              ? _darkSecondary
-              : const Color(0xFF6E6E73),
+          color: _darkSecondary,
           decoration: TextDecoration.none,
         ),
       ),
@@ -4080,6 +4123,7 @@ class _SpektraFilmComparison extends StatelessWidget {
               onChanged((localX / constraints.maxWidth).clamp(0.0, 1.0));
 
           return Semantics(
+            key: imageKey,
             slider: true,
             label: english ? 'Original and film comparison' : '原图与胶片效果对比',
             value: '${(value * 100).round()}%',
