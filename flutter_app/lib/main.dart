@@ -4540,17 +4540,6 @@ class _PageEnd extends StatelessWidget {
         dark: dark,
         compact: compact,
         onEmail: () => _open('mailto:robin.hye@icloud.com'),
-        onWechat: () async {
-          await Clipboard.setData(const ClipboardData(text: 'HYe_12Dec'));
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(text['wechatCopied']!),
-              behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        },
         onPhone: () => _open('tel:+8613606903960'),
         onGithub: () => _open('https://github.com/HongyuYe12'),
       ),
@@ -4566,7 +4555,6 @@ class _Contact extends StatelessWidget {
     required this.dark,
     required this.compact,
     required this.onEmail,
-    required this.onWechat,
     required this.onPhone,
     required this.onGithub,
   });
@@ -4574,7 +4562,6 @@ class _Contact extends StatelessWidget {
   final bool dark;
   final bool compact;
   final VoidCallback onEmail;
-  final VoidCallback onWechat;
   final VoidCallback onPhone;
   final VoidCallback onGithub;
   @override
@@ -4619,7 +4606,7 @@ class _Contact extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _BlueLink(label: 'robin.hye@icloud.com', onTap: onEmail),
-                _BlueLink(label: 'WeChat · HYe_12Dec', onTap: onWechat),
+                _WechatCopyLink(text: text),
                 _BlueLink(label: '+86 136 0690 3960', onTap: onPhone),
                 _BlueLink(label: 'GitHub', onTap: onGithub),
               ],
@@ -4629,6 +4616,103 @@ class _Contact extends StatelessWidget {
       ),
     ),
   );
+}
+
+// 复制成功后在原位置短暂显示确认状态，避免全局 SnackBar 打断页面。
+class _WechatCopyLink extends StatefulWidget {
+  const _WechatCopyLink({required this.text});
+
+  final Map<String, String> text;
+
+  @override
+  State<_WechatCopyLink> createState() => _WechatCopyLinkState();
+}
+
+class _WechatCopyLinkState extends State<_WechatCopyLink> {
+  bool _copied = false;
+  int _copySequence = 0;
+
+  Future<void> _copy() async {
+    await Clipboard.setData(const ClipboardData(text: 'HYe_12Dec'));
+    if (!mounted) return;
+    final sequence = ++_copySequence;
+    setState(() => _copied = true);
+    await Future<void>.delayed(const Duration(milliseconds: 1800));
+    if (!mounted || sequence != _copySequence) return;
+    setState(() => _copied = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final blue = Theme.of(context).brightness == Brightness.dark
+        ? _darkLink
+        : const Color(0xFF0071E3);
+    return Semantics(
+      button: true,
+      liveRegion: true,
+      label: _copied ? widget.text['wechatCopied']! : 'WeChat · HYe_12Dec',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _copy,
+        child: SizedBox(
+          width: 184,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              reverseDuration: const Duration(milliseconds: 150),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: .96, end: 1).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: _copied
+                  ? Row(
+                      key: const ValueKey('copied'),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check_rounded, size: 17, color: blue),
+                        const SizedBox(width: 5),
+                        Text(
+                          widget.text['copied']!,
+                          style: TextStyle(
+                            color: blue,
+                            fontSize: _typeBody,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -.2,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      key: const ValueKey('wechat'),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'WeChat · HYe_12Dec',
+                          style: TextStyle(
+                            color: blue,
+                            fontSize: _typeBody,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -.2,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        Icon(Icons.content_copy_rounded, size: 15, color: blue),
+                      ],
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // 网站页脚：显示分隔线和自动更新年份的版权信息。
@@ -4678,6 +4762,7 @@ const _zh = <String, String>{
   'contactTitle': '保持联系。',
   'contactText': '如果你想讨论项目、摄影或合作想法，欢迎通过邮件、微信、电话或 GitHub 与我联系。',
   'wechatCopied': '微信号 HYe_12Dec 已复制',
+  'copied': '已复制',
   'computerProjects': '数字作品',
   'photography': '摄影作品',
   'about': '关于叶宏煜',
@@ -4708,5 +4793,6 @@ const _en = <String, String>{
   'contactTitle': 'Stay in touch.',
   'contactText': 'For conversations about projects, photography, or collaboration, reach me by email, WeChat, phone, or GitHub.',
   'wechatCopied': 'WeChat ID HYe_12Dec copied',
+  'copied': 'Copied',
   'copyright': 'Copyright',
 };
