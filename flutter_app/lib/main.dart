@@ -1612,25 +1612,6 @@ class _PhotographyTheme {
   String subtitle(bool english) => english ? enSubtitle : zhSubtitle;
 }
 
-const _aircraftPhotos = <_PhotoAsset>[
-  _PhotoAsset('assets/photography/aircraft/01-dsc03486.webp', 2400, 1600),
-  _PhotoAsset('assets/photography/aircraft/02-dsc03548.webp', 2400, 1196),
-  _PhotoAsset('assets/photography/aircraft/03-dsc03552.webp', 2400, 1600),
-  _PhotoAsset('assets/photography/aircraft/04-img_6521.webp', 2400, 1600),
-];
-
-const _architecturePhotos = <_PhotoAsset>[
-  _PhotoAsset('assets/photography/architecture/01-dsc00120.webp', 2400, 1600),
-  _PhotoAsset('assets/photography/architecture/02-dsc00485.webp', 1600, 2400),
-  _PhotoAsset('assets/photography/architecture/03-img_6516.webp', 2400, 1600),
-  _PhotoAsset('assets/photography/architecture/04-img_6525.webp', 2400, 1600),
-];
-
-const _naturePhotos = <_PhotoAsset>[
-  _PhotoAsset('assets/photography/nature/01-dsc02009.webp', 2400, 1600),
-  _PhotoAsset('assets/photography/nature/02-dsc04361.webp', 2157, 2400),
-];
-
 const _footballPhotos = <_PhotoAsset>[
   _PhotoAsset('assets/photography/juventus/01-dsc02391.webp', 2400, 1350),
   _PhotoAsset('assets/photography/juventus/02-dsc02814.webp', 2400, 1600),
@@ -1650,6 +1631,61 @@ const _taiwanPhotos = <_PhotoAsset>[
   _PhotoAsset('assets/photography/taiwan/08-img_6528.webp', 1600, 2400),
 ];
 
+// 网站题材图库：分别使用用户按五个标准题材整理的独立照片文件夹。
+const _sportsPhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/sports/01-dsc02391.webp', 2400, 1350),
+  _PhotoAsset('assets/photography/sports/02-dsc02814.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/sports/03-dsc02846.webp', 2400, 1599),
+  _PhotoAsset('assets/photography/sports/04-dsc03025.webp', 2400, 1350),
+  _PhotoAsset('assets/photography/sports/05-dsc03087.webp', 2400, 2400),
+];
+
+const _landscapePhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/landscapes/01-dsc01446.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/landscapes/02-dsc02009.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/landscapes/03-dsc04361.webp', 2157, 2400),
+  _PhotoAsset('assets/photography/landscapes/04-img_2291.webp', 1600, 2400),
+  _PhotoAsset('assets/photography/landscapes/05-img_2296.webp', 2400, 1350),
+];
+
+const _architectureSubjectPhotos = <_PhotoAsset>[
+  _PhotoAsset(
+    'assets/photography/architecture-new/01-dsc00120.webp',
+    2400,
+    1600,
+  ),
+  _PhotoAsset(
+    'assets/photography/architecture-new/02-img_2293.webp',
+    1600,
+    2400,
+  ),
+  _PhotoAsset(
+    'assets/photography/architecture-new/03-img_6516.webp',
+    2400,
+    1600,
+  ),
+  _PhotoAsset(
+    'assets/photography/architecture-new/04-img_6525.webp',
+    2400,
+    1600,
+  ),
+];
+
+const _streetPhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/street/01-dsc00485.webp', 1600, 2400),
+  _PhotoAsset('assets/photography/street/02-img_2292.webp', 1600, 2400),
+  _PhotoAsset('assets/photography/street/03-img_2294.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/street/04-img_2297.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/street/05-img_6528.webp', 1600, 2400),
+];
+
+const _aviationPhotos = <_PhotoAsset>[
+  _PhotoAsset('assets/photography/aviation/01-dsc03486.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/aviation/02-dsc03548.webp', 2400, 1196),
+  _PhotoAsset('assets/photography/aviation/03-dsc03552.webp', 2400, 1600),
+  _PhotoAsset('assets/photography/aviation/04-img_6521.webp', 2400, 1600),
+];
+
 // 第一层按摄影主题组织，同一作品可在活动专题中再次被引用。
 const _photographySubjects = <_PhotographyTheme>[
   _PhotographyTheme(
@@ -1658,7 +1694,7 @@ const _photographySubjects = <_PhotographyTheme>[
     enTitle: 'Sports Photography',
     zhSubtitle: '速度、对抗与看台之间，决定性瞬间只出现一次。',
     enSubtitle: 'Speed, tension, and decisive moments that happen only once.',
-    photos: _footballPhotos,
+    photos: _sportsPhotos,
   ),
   _PhotographyTheme(
     slug: 'landscapes',
@@ -1666,7 +1702,7 @@ const _photographySubjects = <_PhotographyTheme>[
     enTitle: 'Landscapes',
     zhSubtitle: '暮色、海岸、闪电，以及不断变化的天空。',
     enSubtitle: 'Twilight, coastlines, lightning, and an ever-changing sky.',
-    photos: _naturePhotos,
+    photos: _landscapePhotos,
   ),
   _PhotographyTheme(
     slug: 'architecture',
@@ -1674,7 +1710,7 @@ const _photographySubjects = <_PhotographyTheme>[
     enTitle: 'Architecture',
     zhSubtitle: '寻找光线、结构与空间之间清晰的秩序。',
     enSubtitle: 'Finding clarity between light, structure, and space.',
-    photos: _architecturePhotos,
+    photos: _architectureSubjectPhotos,
   ),
   _PhotographyTheme(
     slug: 'aviation',
@@ -1682,7 +1718,7 @@ const _photographySubjects = <_PhotographyTheme>[
     enTitle: 'Aviation Photography',
     zhSubtitle: '候机楼、进近航线，以及掠过天空的片刻。',
     enSubtitle: 'Terminals, final approaches, and fleeting moments overhead.',
-    photos: _aircraftPhotos,
+    photos: _aviationPhotos,
   ),
   _PhotographyTheme(
     slug: 'street',
@@ -1691,7 +1727,7 @@ const _photographySubjects = <_PhotographyTheme>[
     zhSubtitle: '街道、列车、夜色与旅途中偶然相遇的画面。',
     enSubtitle:
         'Streets, trains, night light, and unplanned moments on the road.',
-    photos: _taiwanPhotos,
+    photos: _streetPhotos,
   ),
 ];
 

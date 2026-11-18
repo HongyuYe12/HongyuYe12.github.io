@@ -35,6 +35,11 @@ flutter:
     - assets/photography/nature/
     - assets/photography/juventus/
     - assets/photography/taiwan/
+    - assets/photography/sports/
+    - assets/photography/landscapes/
+    - assets/photography/architecture-new/
+    - assets/photography/street/
+    - assets/photography/aviation/
   fonts:
     - family: NotoSansSC
       fonts:
