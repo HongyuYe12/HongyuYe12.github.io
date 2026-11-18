@@ -360,11 +360,13 @@ class _PortfolioPageState extends State<PortfolioPage>
               final progress = Curves.easeOutCubic.transform(
                 _navAnimation.value,
               );
+              // 顶部状态贴合视口四周；开始滚动后再缩进为悬浮栏。
+              final horizontalInset = (compact ? 12.0 : 28.0) * progress;
+              final topInset = (compact ? 10.0 : 18.0) * progress;
               return Positioned(
-                left: compact ? 12 : 28,
-                right: compact ? 12 : 28,
-                // 三种状态使用完全相同的外部几何位置，避免切换时发生轻微跳动。
-                top: compact ? 10 : 18,
+                left: horizontalInset,
+                right: horizontalInset,
+                top: topInset,
                 child: _AdaptiveNav(
                   dark: navigationDark,
                   compact: compact,
@@ -423,9 +425,7 @@ class _AdaptiveNav extends StatelessWidget {
           height: 64,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(
-              menuActive ? 0 : 18 + 18 * eased,
-            ),
+            borderRadius: BorderRadius.circular(menuActive ? 0 : 36 * eased),
             border: Border.all(
               color: menuActive
                   ? Colors.transparent
