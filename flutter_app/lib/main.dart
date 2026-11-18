@@ -1,5 +1,6 @@
 // ignore: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -3540,6 +3541,18 @@ class _PageEnd extends StatelessWidget {
         dark: dark,
         compact: compact,
         onEmail: () => _open('mailto:robin.hye@icloud.com'),
+        onWechat: () async {
+          await Clipboard.setData(const ClipboardData(text: 'HYe_12Dec'));
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(text['wechatCopied']!),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        },
+        onPhone: () => _open('tel:+8613606903960'),
         onGithub: () => _open('https://github.com/HongyuYe12'),
       ),
       _Footer(dark: dark, text: text),
@@ -3547,19 +3560,23 @@ class _PageEnd extends StatelessWidget {
   );
 }
 
-// 联系方式区域：提供公开邮箱和 GitHub 主页链接。
+// 联系方式区域：提供公开邮箱、微信、电话和 GitHub 主页链接。
 class _Contact extends StatelessWidget {
   const _Contact({
     required this.text,
     required this.dark,
     required this.compact,
     required this.onEmail,
+    required this.onWechat,
+    required this.onPhone,
     required this.onGithub,
   });
   final Map<String, String> text;
   final bool dark;
   final bool compact;
   final VoidCallback onEmail;
+  final VoidCallback onWechat;
+  final VoidCallback onPhone;
   final VoidCallback onGithub;
   @override
   Widget build(BuildContext context) => Container(
@@ -3602,6 +3619,8 @@ class _Contact extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _BlueLink(label: 'robin.hye@icloud.com', onTap: onEmail),
+                _BlueLink(label: 'WeChat · HYe_12Dec', onTap: onWechat),
+                _BlueLink(label: '+86 136 0690 3960', onTap: onPhone),
                 _BlueLink(label: 'GitHub', onTap: onGithub),
               ],
             ),
@@ -3659,7 +3678,8 @@ const _zh = <String, String>{
   'contactMe': '与我联系',
   'portraitLabel': 'Ye Hongyu 的拟我头像',
   'contactTitle': '保持联系。',
-  'contactText': '如果你想讨论项目、摄影或合作想法，欢迎通过邮件或 GitHub 与我联系。',
+  'contactText': '如果你想讨论项目、摄影或合作想法，欢迎通过邮件、微信、电话或 GitHub 与我联系。',
+  'wechatCopied': '微信号 HYe_12Dec 已复制',
   'computerProjects': '计算机项目',
   'photography': '摄影作品',
   'computerSubtitle': '用代码、研究与设计，把想法做成可用的工具。',
@@ -3684,6 +3704,7 @@ const _en = <String, String>{
   'photoSubtitle': 'Photographs of light, place, travel, and the moment.',
   'learnMore': 'Learn more',
   'contactTitle': 'Stay in touch.',
-  'contactText': 'For conversations about projects, photography, or collaboration, reach me by email or GitHub.',
+  'contactText': 'For conversations about projects, photography, or collaboration, reach me by email, WeChat, phone, or GitHub.',
+  'wechatCopied': 'WeChat ID HYe_12Dec copied',
   'copyright': 'Copyright',
 };

@@ -51,6 +51,8 @@ flutter build web --release
 - Website: [hongyuye12.github.io](https://hongyuye12.github.io)
 - GitHub: [HongyuYe12](https://github.com/HongyuYe12)
 - Email: [robin.hye@icloud.com](mailto:robin.hye@icloud.com)
+- WeChat: `HYe_12Dec`
+- Phone: [+86 136 0690 3960](tel:+8613606903960)
 
 ## License
 
