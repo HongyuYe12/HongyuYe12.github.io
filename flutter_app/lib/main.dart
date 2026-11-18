@@ -1,5 +1,6 @@
 // ignore: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -37,6 +38,7 @@ const _appleFontFallback = <String>[
 // 应用入口：先初始化 Flutter 和 Liquid Glass，再启动网站。
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
   await LiquidGlassWidgets.initialize(warmUpMode: GlassWarmUpMode.auto);
   runApp(
     LiquidGlassWidgets.wrap(
@@ -58,7 +60,14 @@ class HyeApp extends StatelessWidget {
     themeMode: ThemeMode.light,
     theme: _theme(Brightness.light),
     darkTheme: _theme(Brightness.dark),
-    home: const PortfolioPage(),
+    initialRoute: WidgetsBinding.instance.platformDispatcher.defaultRouteName,
+    onGenerateInitialRoutes: (initialRoute) {
+      final path = _normalizePath(initialRoute);
+      if (path == '/') return [_siteRoute('/')];
+      return [_siteRoute('/'), _siteRoute(path)];
+    },
+    onGenerateRoute: (settings) => _siteRoute(settings.name ?? '/'),
+    onUnknownRoute: (_) => _siteRoute('/'),
   );
 
   // 根据系统亮度生成对应主题。字体、颜色和文字样式都可在这里统一修改。
@@ -130,6 +139,53 @@ class HyeApp extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+String _normalizePath(String rawPath) {
+  final uri = Uri.tryParse(rawPath);
+  var path = uri?.path ?? '/';
+  if (path.isEmpty) path = '/';
+  if (!path.startsWith('/')) path = '/$path';
+  if (path != '/' && !path.endsWith('/')) path = '$path/';
+  return path;
+}
+
+Route<dynamic> _siteRoute(String rawPath) {
+  final path = _normalizePath(rawPath);
+  Widget page;
+  if (path == '/') {
+    page = const PortfolioPage();
+  } else if (path == '/projects/') {
+    page = const _DetailPage(photography: false, english: false);
+  } else if (path == '/photography/') {
+    page = const _DetailPage(photography: true, english: false);
+  } else {
+    final project = _computerProjects
+        .where((item) => '/projects/${item.slug}/' == path)
+        .firstOrNull;
+    final photographyTheme = [
+      ..._photographySubjects,
+      ..._photographyEvents,
+    ].where((item) => '/photography/${item.slug}/' == path).firstOrNull;
+    if (project != null) {
+      page = _ProjectDetailPage(project: project, english: false);
+    } else if (photographyTheme != null) {
+      page = _PhotographyGalleryPage(theme: photographyTheme, english: false);
+    } else {
+      page = const PortfolioPage();
+    }
+  }
+  return MaterialPageRoute<void>(
+    settings: RouteSettings(name: path),
+    builder: (_) => page,
+  );
+}
+
+extension _FirstOrNull<T> on Iterable<T> {
+  T? get firstOrNull {
+    final iterator = this.iterator;
+    return iterator.moveNext() ? iterator.current : null;
   }
 }
 
@@ -253,7 +309,10 @@ class _PortfolioPageState extends State<PortfolioPage>
   // 打开计算机项目或摄影作品的详情页。
   void _openDetail(bool photography) {
     Navigator.of(context).push(
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
+        settings: RouteSettings(
+          name: photography ? '/photography/' : '/projects/',
+        ),
         builder: (_) =>
             _DetailPage(photography: photography, english: _english),
       ),
@@ -262,8 +321,19 @@ class _PortfolioPageState extends State<PortfolioPage>
 
   void _openProjectDetail(_ProjectInfo project) {
     Navigator.of(context).push(
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
+        settings: RouteSettings(name: '/projects/${project.slug}/'),
         builder: (_) => _ProjectDetailPage(project: project, english: _english),
+      ),
+    );
+  }
+
+  void _openPhotographyTheme(_PhotographyTheme theme) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        settings: RouteSettings(name: '/photography/${theme.slug}/'),
+        builder: (_) =>
+            _PhotographyGalleryPage(theme: theme, english: _english),
       ),
     );
   }
@@ -348,6 +418,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                   onExploreComputer: () => _openDetail(false),
                   onExplorePhotography: () => _openDetail(true),
                   onProject: _openProjectDetail,
+                  onPhotographyTheme: _openPhotographyTheme,
                   onContact: () => _closeMenuThen(() => _scrollTo(_contactKey)),
                   onLanguage: () => setState(() => _english = !_english),
                 ),
@@ -597,6 +668,7 @@ class _MenuPanel extends StatelessWidget {
     required this.onExploreComputer,
     required this.onExplorePhotography,
     required this.onProject,
+    required this.onPhotographyTheme,
     required this.onContact,
     required this.onLanguage,
   });
@@ -610,6 +682,7 @@ class _MenuPanel extends StatelessWidget {
   final VoidCallback onExploreComputer;
   final VoidCallback onExplorePhotography;
   final ValueChanged<_ProjectInfo> onProject;
+  final ValueChanged<_PhotographyTheme> onPhotographyTheme;
   final VoidCallback onContact;
   final VoidCallback onLanguage;
 
@@ -664,6 +737,7 @@ class _MenuPanel extends StatelessWidget {
                             ? onExplorePhotography
                             : onExploreComputer,
                         onProject: onProject,
+                        onPhotographyTheme: onPhotographyTheme,
                       ),
               ),
             ),
@@ -727,6 +801,7 @@ class _ProjectMenuContent extends StatelessWidget {
     required this.onBack,
     required this.onExplore,
     required this.onProject,
+    required this.onPhotographyTheme,
   });
 
   final bool photography;
@@ -737,6 +812,7 @@ class _ProjectMenuContent extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onExplore;
   final ValueChanged<_ProjectInfo> onProject;
+  final ValueChanged<_PhotographyTheme> onPhotographyTheme;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -758,18 +834,10 @@ class _ProjectMenuContent extends StatelessWidget {
       const SizedBox(height: 12),
       if (photography)
         ..._photographySubjects.map(
-          (theme) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 9),
-            child: Text(
-              theme.title(english),
-              style: TextStyle(
-                color: secondary,
-                fontSize: _typeBodyLarge,
-                height: 1.35,
-                fontWeight: FontWeight.w500,
-                decoration: TextDecoration.none,
-              ),
-            ),
+          (theme) => _MenuItem(
+            theme.title(english),
+            () => onPhotographyTheme(theme),
+            color,
           ),
         )
       else
@@ -1472,7 +1540,10 @@ class _DetailPage extends StatelessWidget {
                           compact: compact,
                           onTheme: (theme) {
                             Navigator.of(context).push(
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
+                                settings: RouteSettings(
+                                  name: '/photography/${theme.slug}/',
+                                ),
                                 builder: (_) => _PhotographyGalleryPage(
                                   theme: theme,
                                   english: english,
@@ -1487,7 +1558,10 @@ class _DetailPage extends StatelessWidget {
                           compact: compact,
                           onProject: (project) {
                             Navigator.of(context).push(
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
+                                settings: RouteSettings(
+                                  name: '/projects/${project.slug}/',
+                                ),
                                 builder: (_) => _ProjectDetailPage(
                                   project: project,
                                   english: english,
@@ -1517,12 +1591,14 @@ class _PhotoAsset {
 
 class _PhotographyTheme {
   const _PhotographyTheme({
+    required this.slug,
     required this.zhTitle,
     required this.enTitle,
     required this.zhSubtitle,
     required this.enSubtitle,
     required this.photos,
   });
+  final String slug;
   final String zhTitle;
   final String enTitle;
   final String zhSubtitle;
@@ -1573,6 +1649,7 @@ const _taiwanPhotos = <_PhotoAsset>[
 // 第一层按摄影主题组织，同一作品可在活动专题中再次被引用。
 const _photographySubjects = <_PhotographyTheme>[
   _PhotographyTheme(
+    slug: 'sports',
     zhTitle: '体育摄影',
     enTitle: 'Sports Photography',
     zhSubtitle: '速度、对抗与看台之间，决定性瞬间只出现一次。',
@@ -1580,6 +1657,7 @@ const _photographySubjects = <_PhotographyTheme>[
     photos: _footballPhotos,
   ),
   _PhotographyTheme(
+    slug: 'landscapes',
     zhTitle: '自然风光',
     enTitle: 'Landscapes',
     zhSubtitle: '暮色、海岸、闪电，以及不断变化的天空。',
@@ -1587,6 +1665,7 @@ const _photographySubjects = <_PhotographyTheme>[
     photos: _naturePhotos,
   ),
   _PhotographyTheme(
+    slug: 'architecture',
     zhTitle: '建筑',
     enTitle: 'Architecture',
     zhSubtitle: '寻找光线、结构与空间之间清晰的秩序。',
@@ -1594,6 +1673,7 @@ const _photographySubjects = <_PhotographyTheme>[
     photos: _architecturePhotos,
   ),
   _PhotographyTheme(
+    slug: 'aviation',
     zhTitle: '航空摄影',
     enTitle: 'Aviation Photography',
     zhSubtitle: '候机楼、进近航线，以及掠过天空的片刻。',
@@ -1601,6 +1681,7 @@ const _photographySubjects = <_PhotographyTheme>[
     photos: _aircraftPhotos,
   ),
   _PhotographyTheme(
+    slug: 'street',
     zhTitle: '街头摄影',
     enTitle: 'Street Photography',
     zhSubtitle: '街道、列车、夜色与旅途中偶然相遇的画面。',
@@ -1613,6 +1694,7 @@ const _photographySubjects = <_PhotographyTheme>[
 // 第二层按一次旅行或一场比赛组织，形成更完整的活动叙事。
 const _photographyEvents = <_PhotographyTheme>[
   _PhotographyTheme(
+    slug: 'taiwan',
     zhTitle: '台湾',
     enTitle: 'Taiwan',
     zhSubtitle: '从海岸到城市，在列车、街道与夜色之间展开的一段旅程。',
@@ -1620,6 +1702,7 @@ const _photographyEvents = <_PhotographyTheme>[
     photos: _taiwanPhotos,
   ),
   _PhotographyTheme(
+    slug: 'chelsea-juventus',
     zhTitle: '切尔西 · 尤文图斯',
     enTitle: 'Chelsea · Juventus',
     zhSubtitle: '从看台记录比赛的节奏、对抗与决定性瞬间。',
@@ -2166,6 +2249,7 @@ class _ProjectCollectionHeader extends StatelessWidget {
 // 计算机项目数据。需要修改项目名称或简介时，可直接编辑此列表。
 const _computerProjects = <_ProjectInfo>[
   _ProjectInfo(
+    slug: 'spektrastudio',
     name: 'SpektraStudio',
     zhDescription: '以光谱计算重现胶片、相纸、颗粒与光晕的双语 Windows 影像工具。',
     enDescription: 'A bilingual Windows imaging tool that recreates film, paper, grain, and halation through spectral processing.',
@@ -2174,6 +2258,7 @@ const _computerProjects = <_ProjectInfo>[
     githubUrl: 'https://github.com/HongyuYe12/SpektraStudio',
   ),
   _ProjectInfo(
+    slug: 'monocular-depth-robustness',
     name: 'Monocular Depth Robustness',
     zhDescription: '评估单目深度估计在暗光、多深度与复杂场景中的稳定性，并探索深度引导自动对焦。',
     enDescription: 'Evaluating monocular-depth robustness in low-light and complex scenes, with experiments in depth-guided autofocus.',
@@ -2182,6 +2267,7 @@ const _computerProjects = <_ProjectInfo>[
     githubUrl: 'https://github.com/HongyuYe12/monocular-depth-robustness',
   ),
   _ProjectInfo(
+    slug: 'cabinet-ai-assistant',
     name: 'Cabinet AI Assistant',
     zhDescription: '连接 DXF 图纸、AI 设计建议与本地视觉分析的橱柜设计和施工核验平台。',
     enDescription: 'A cabinet-planning and build-verification platform connecting DXF drawings, AI guidance, and local vision analysis.',
@@ -2190,6 +2276,7 @@ const _computerProjects = <_ProjectInfo>[
     githubUrl: 'https://github.com/HongyuYe12/cabinet-ai-assistant',
   ),
   _ProjectInfo(
+    slug: 'mineru',
     name: 'MinerU',
     zhDescription: '把 PDF 转换为可检索 Markdown，同时保留可靠、可追溯的原始页码映射。',
     enDescription: 'A local workflow that turns PDFs into searchable Markdown while preserving traceable source-page mappings.',
@@ -2198,6 +2285,7 @@ const _computerProjects = <_ProjectInfo>[
     githubUrl: 'https://github.com/HongyuYe12/mineru-book-page-map',
   ),
   _ProjectInfo(
+    slug: 'the-auctioneer',
     name: 'The Auctioneer',
     zhDescription: '一款 JavaFX 拍卖行经营游戏，在 30 天内通过探索、鉴定、库存与拍卖完成经营目标。',
     enDescription: 'A JavaFX auction-house management game built around exploration, appraisal, inventory, and live auctions over 30 days.',
@@ -2209,6 +2297,7 @@ const _computerProjects = <_ProjectInfo>[
 
 class _ProjectInfo {
   const _ProjectInfo({
+    required this.slug,
     required this.name,
     required this.zhDescription,
     required this.enDescription,
@@ -2216,6 +2305,7 @@ class _ProjectInfo {
     required this.accent,
     required this.githubUrl,
   });
+  final String slug;
 
   final String name;
   final String zhDescription;
