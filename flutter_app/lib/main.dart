@@ -160,6 +160,8 @@ Route<dynamic> _siteRoute(String rawPath) {
   Widget page;
   if (path == '/') {
     page = const PortfolioPage();
+  } else if (path == '/about/') {
+    page = const _AboutPage(english: false);
   } else if (path == '/projects/') {
     page = const _DetailPage(photography: false, english: false);
   } else if (path == '/photography/') {
@@ -206,7 +208,6 @@ class _PortfolioPageState extends State<PortfolioPage>
     with TickerProviderStateMixin {
   // 各页面区域的定位锚点，用于点击按钮后平滑滚动到对应位置。
   final _homeKey = GlobalKey();
-  final _projectsKey = GlobalKey();
   final _contactKey = GlobalKey();
   final _scrollController = ScrollController();
 
@@ -323,6 +324,15 @@ class _PortfolioPageState extends State<PortfolioPage>
     );
   }
 
+  void _openAbout() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: '/about/'),
+        builder: (_) => _AboutPage(english: _english),
+      ),
+    );
+  }
+
   void _openProjectDetail(_ProjectInfo project) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -350,8 +360,8 @@ class _PortfolioPageState extends State<PortfolioPage>
         MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 760;
     return GlassScaffold(
-      background: const ColoredBox(color: Color(0xFFF5F5F7)),
-      backgroundColor: const Color(0xFFF5F5F7),
+      background: const ColoredBox(color: Colors.white),
+      backgroundColor: Colors.white,
       statusBarStyle: GlassStatusBarStyle.auto,
       edgeToEdge: true,
       edgeFade: true,
@@ -360,26 +370,19 @@ class _PortfolioPageState extends State<PortfolioPage>
           : LiquidGlassSettings.ios27Light,
       body: Stack(
         children: [
-          // 主页面内容，从上到下依次为首屏、项目、联系方式和页脚。
+          // 主页面聚焦三个主要入口，个人头像与介绍移至独立“关于”页面。
           SingleChildScrollView(
             controller: _scrollController,
             child: Column(
               children: [
-                _Hero(
-                  key: _homeKey,
-                  text: t,
-                  dark: pageDark,
-                  compact: compact,
-                  onProjects: () => _scrollTo(_projectsKey),
-                  onContact: () => _scrollTo(_contactKey),
-                ),
                 _Projects(
-                  key: _projectsKey,
+                  key: _homeKey,
                   text: t,
                   dark: pageDark,
                   compact: compact,
                   onComputer: () => _openDetail(false),
                   onPhotography: () => _openDetail(true),
+                  onAbout: _openAbout,
                 ),
                 _PageEnd(
                   key: _contactKey,
@@ -423,6 +426,7 @@ class _PortfolioPageState extends State<PortfolioPage>
                   onExplorePhotography: () => _openDetail(true),
                   onProject: _openProjectDetail,
                   onPhotographyTheme: _openPhotographyTheme,
+                  onAbout: () => _closeMenuThen(_openAbout),
                   onContact: () => _closeMenuThen(() => _scrollTo(_contactKey)),
                   onLanguage: () => setState(() => _english = !_english),
                 ),
@@ -673,6 +677,7 @@ class _MenuPanel extends StatelessWidget {
     required this.onExplorePhotography,
     required this.onProject,
     required this.onPhotographyTheme,
+    required this.onAbout,
     required this.onContact,
     required this.onLanguage,
   });
@@ -687,6 +692,7 @@ class _MenuPanel extends StatelessWidget {
   final VoidCallback onExplorePhotography;
   final ValueChanged<_ProjectInfo> onProject;
   final ValueChanged<_PhotographyTheme> onPhotographyTheme;
+  final VoidCallback onAbout;
   final VoidCallback onContact;
   final VoidCallback onLanguage;
 
@@ -726,6 +732,7 @@ class _MenuPanel extends StatelessWidget {
                         color: color,
                         onComputer: onComputer,
                         onPhotography: onPhotography,
+                        onAbout: onAbout,
                         onContact: onContact,
                         onLanguage: onLanguage,
                       )
@@ -761,6 +768,7 @@ class _MainMenuContent extends StatelessWidget {
     required this.color,
     required this.onComputer,
     required this.onPhotography,
+    required this.onAbout,
     required this.onContact,
     required this.onLanguage,
   });
@@ -771,6 +779,7 @@ class _MainMenuContent extends StatelessWidget {
   final Color color;
   final VoidCallback onComputer;
   final VoidCallback onPhotography;
+  final VoidCallback onAbout;
   final VoidCallback onContact;
   final VoidCallback onLanguage;
 
@@ -780,6 +789,7 @@ class _MainMenuContent extends StatelessWidget {
     children: [
       _MenuItem(text['computerProjects']!, onComputer, color),
       _MenuItem(text['photography']!, onPhotography, color),
+      _MenuItem(text['about']!, onAbout, color),
       _MenuItem(text['contact']!, onContact, color),
       const SizedBox(height: 28),
       Divider(color: dark ? Colors.white12 : Colors.black12),
@@ -831,7 +841,7 @@ class _ProjectMenuContent extends StatelessWidget {
       _MenuItem(
         photography
             ? (english ? 'Explore all photography' : '查看全部摄影作品')
-            : (english ? 'Explore all projects' : '查看全部项目'),
+            : (english ? 'Explore all digital work' : '查看全部数字作品'),
         onExplore,
         color,
       ),
@@ -936,7 +946,6 @@ class _MenuItem extends StatelessWidget {
 // 首页首屏区域：展示姓名、个人介绍、操作链接和透明背景头像。
 class _Hero extends StatelessWidget {
   const _Hero({
-    super.key,
     required this.text,
     required this.dark,
     required this.compact,
@@ -1104,6 +1113,83 @@ class _BlueLink extends StatelessWidget {
   );
 }
 
+class _HomeLogoButton extends StatelessWidget {
+  const _HomeLogoButton({required this.dark});
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: '返回主页',
+    child: IconButton(
+      tooltip: '返回主页',
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      onPressed: () =>
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false),
+      icon: Image.asset(
+        dark ? 'assets/hye-mark-white.png' : 'assets/hye-mark-black.png',
+        width: 42,
+        height: 24,
+        fit: BoxFit.contain,
+      ),
+    ),
+  );
+}
+
+class _AboutPage extends StatefulWidget {
+  const _AboutPage({required this.english});
+  final bool english;
+
+  @override
+  State<_AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<_AboutPage> {
+  final _contactKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 760;
+    final text = widget.english ? _en : _zh;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leadingWidth: 78,
+        leading: const _HomeLogoButton(dark: false),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _Hero(
+              text: text,
+              dark: false,
+              compact: compact,
+              onProjects: () => Navigator.of(context).pushNamed('/projects/'),
+              onContact: () {
+                final target = _contactKey.currentContext;
+                if (target == null) return;
+                Scrollable.ensureVisible(
+                  target,
+                  duration: const Duration(milliseconds: 520),
+                  curve: Curves.easeOutCubic,
+                );
+              },
+            ),
+            _PageEnd(
+              key: _contactKey,
+              text: text,
+              dark: false,
+              compact: compact,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // 主题展示区域：依次放置计算机项目和摄影作品两个独立窗口。
 class _Projects extends StatelessWidget {
   const _Projects({
@@ -1113,12 +1199,14 @@ class _Projects extends StatelessWidget {
     required this.compact,
     required this.onComputer,
     required this.onPhotography,
+    required this.onAbout,
   });
   final Map<String, String> text;
   final bool dark;
   final bool compact;
   final VoidCallback onComputer;
   final VoidCallback onPhotography;
+  final VoidCallback onAbout;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -1139,7 +1227,7 @@ class _Projects extends StatelessWidget {
           child: Column(
             children: [
               _ThemeCard(
-                photography: false,
+                kind: _ThemeCardKind.digital,
                 dark: dark,
                 compact: compact,
                 title: text['computerProjects']!,
@@ -1149,13 +1237,23 @@ class _Projects extends StatelessWidget {
               ),
               SizedBox(height: compact ? 24 : 32),
               _ThemeCard(
-                photography: true,
+                kind: _ThemeCardKind.photography,
                 dark: dark,
                 compact: compact,
                 title: text['photography']!,
                 subtitle: text['photoSubtitle']!,
                 button: text['learnMore']!,
                 onTap: onPhotography,
+              ),
+              SizedBox(height: compact ? 24 : 32),
+              _ThemeCard(
+                kind: _ThemeCardKind.about,
+                dark: dark,
+                compact: compact,
+                title: text['about']!,
+                subtitle: text['aboutSubtitle']!,
+                button: text['learnMore']!,
+                onTap: onAbout,
               ),
             ],
           ),
@@ -1166,9 +1264,11 @@ class _Projects extends StatelessWidget {
 }
 
 // 单个主题卡片。宽屏左右排列，窄屏自动切换为文字在上、视觉在下。
+enum _ThemeCardKind { digital, photography, about }
+
 class _ThemeCard extends StatelessWidget {
   const _ThemeCard({
-    required this.photography,
+    required this.kind,
     required this.dark,
     required this.compact,
     required this.title,
@@ -1176,7 +1276,7 @@ class _ThemeCard extends StatelessWidget {
     required this.button,
     required this.onTap,
   });
-  final bool photography;
+  final _ThemeCardKind kind;
   final bool dark;
   final bool compact;
   final String title;
@@ -1189,6 +1289,7 @@ class _ThemeCard extends StatelessWidget {
     builder: (context, constraints) {
       // 参考 Apple 支持页面：约 980px 起切换为横向大卡片。
       final horizontal = constraints.maxWidth >= 980;
+      final photography = kind == _ThemeCardKind.photography;
       final foreground = dark || photography
           ? _darkPrimary
           : const Color(0xFF1D1D1F);
@@ -1241,7 +1342,7 @@ class _ThemeCard extends StatelessWidget {
       );
 
       final visual = _ThemeVisual(
-        photography: photography,
+        kind: kind,
         dark: dark,
         horizontal: horizontal,
       );
@@ -1256,9 +1357,7 @@ class _ThemeCard extends StatelessWidget {
                 ? (photography
                       ? const Color(0xFF050505)
                       : const Color(0xFF111113))
-                : (photography
-                      ? const Color(0xFF050505)
-                      : const Color(0xFFF5F5F7)),
+                : (photography ? const Color(0xFF050505) : Colors.white),
             gradient: dark && !photography
                 ? const LinearGradient(
                     begin: Alignment.topLeft,
@@ -1304,22 +1403,26 @@ class _ThemeCard extends StatelessWidget {
 // 主题卡片的视觉区域。使用抽象设备构图替代单一大图标，使横竖排版都更接近参考图。
 class _ThemeVisual extends StatelessWidget {
   const _ThemeVisual({
-    required this.photography,
+    required this.kind,
     required this.dark,
     required this.horizontal,
   });
 
-  final bool photography;
+  final _ThemeCardKind kind;
   final bool dark;
   final bool horizontal;
 
   @override
   Widget build(BuildContext context) {
+    final photography = kind == _ThemeCardKind.photography;
+    final about = kind == _ThemeCardKind.about;
     final foreground = dark || photography
         ? Colors.white
         : const Color(0xFF1D1D1F);
     final accent = photography
         ? const Color(0xFF7B61FF)
+        : about
+        ? const Color(0xFFFF7A32)
         : const Color(0xFF2997FF);
 
     return DecoratedBox(
@@ -1329,6 +1432,8 @@ class _ThemeVisual extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: photography
               ? const [Color(0xFF17151D), Color(0xFF050505)]
+              : about
+              ? const [Color(0xFFFFF3EB), Color(0xFFFFFFFF)]
               : dark
               ? const [Color(0xFF2A2040), Color(0xFF0A0A0C)]
               : const [Color(0xFFE9F3FF), Color(0xFFF5F5F7)],
@@ -1344,6 +1449,8 @@ class _ThemeVisual extends StatelessWidget {
               size: horizontal ? 250 : 160,
               icon: photography
                   ? Icons.photo_camera_back_rounded
+                  : about
+                  ? Icons.person_rounded
                   : Icons.terminal_rounded,
               foreground: foreground,
               accent: accent,
@@ -1354,7 +1461,11 @@ class _ThemeVisual extends StatelessWidget {
             top: horizontal ? 58 : 34,
             child: _VisualTile(
               size: horizontal ? 150 : 112,
-              icon: photography ? Icons.camera_rounded : Icons.memory_rounded,
+              icon: photography
+                  ? Icons.camera_rounded
+                  : about
+                  ? Icons.lightbulb_rounded
+                  : Icons.memory_rounded,
               foreground: foreground,
               accent: accent,
             ),
@@ -1366,6 +1477,8 @@ class _ThemeVisual extends StatelessWidget {
               size: horizontal ? 210 : 142,
               icon: photography
                   ? Icons.filter_hdr_rounded
+                  : about
+                  ? Icons.explore_rounded
                   : Icons.data_object_rounded,
               foreground: foreground,
               accent: accent,
@@ -1395,6 +1508,8 @@ class _ThemeVisual extends StatelessWidget {
               child: Icon(
                 photography
                     ? Icons.camera_alt_rounded
+                    : about
+                    ? Icons.face_rounded
                     : Icons.laptop_mac_rounded,
                 size: horizontal ? 108 : 78,
                 color: accent,
@@ -1433,7 +1548,7 @@ class _VisualTile extends StatelessWidget {
   );
 }
 
-// 项目分类页。摄影页面展示主题画廊，计算机项目页面展示项目列表。
+// 作品分类页。摄影页面展示主题画廊，数字作品页面展示项目列表。
 class _DetailPage extends StatelessWidget {
   const _DetailPage({required this.photography, required this.english});
   final bool photography;
@@ -1444,7 +1559,7 @@ class _DetailPage extends StatelessWidget {
     final compact = MediaQuery.sizeOf(context).width < 700;
     final title = photography
         ? (english ? 'Photography' : '摄影作品')
-        : (english ? 'Computer Projects' : '计算机项目');
+        : (english ? 'Digital Work' : '数字作品');
     final headline = photography
         ? (english ? 'A closer look at the world.' : '用影像，重新看见日常。')
         : (english ? 'Ideas, made useful.' : '把想法，做成真正可用的作品。');
@@ -1460,10 +1575,8 @@ class _DetailPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leadingWidth: 78,
+        leading: _HomeLogoButton(dark: dark),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -1527,7 +1640,7 @@ class _DetailPage extends StatelessWidget {
             ),
             Container(
               width: double.infinity,
-              color: dark ? const Color(0xFF111111) : const Color(0xFFF5F5F7),
+              color: dark ? const Color(0xFF111111) : Colors.white,
               padding: EdgeInsets.fromLTRB(
                 compact ? 18 : 40,
                 compact ? 56 : 88,
@@ -2082,11 +2195,8 @@ class _PhotographyGalleryPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          tooltip: english ? 'Back to photography' : '返回摄影作品',
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leadingWidth: 78,
+        leading: _HomeLogoButton(dark: dark),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
@@ -2589,21 +2699,13 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
     final compact = MediaQuery.sizeOf(context).width < 700;
     final secondary = dark ? _darkSecondary : const Color(0xFF6E6E73);
     final radius = BorderRadius.circular(compact ? 28 : 36);
-    final english = widget.english;
-
     return Scaffold(
       backgroundColor: dark ? _darkPage : Colors.white,
       appBar: AppBar(
         backgroundColor: _isSpektra ? Colors.black : Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          tooltip: english ? 'Back to projects' : '返回项目列表',
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: _isSpektra ? Colors.white : null,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leadingWidth: 78,
+        leading: _HomeLogoButton(dark: _isSpektra),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -2861,7 +2963,7 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
           compact: compact,
           githubUrl: widget.project.githubUrl,
         ),
-        _PageEnd(text: english ? _en : _zh, dark: dark, compact: compact),
+        _PageEnd(text: english ? _en : _zh, dark: false, compact: compact),
       ],
     );
   }
@@ -3869,6 +3971,7 @@ class _SpektraFeatureGrid extends StatelessWidget {
                     : '画面之外，也是照片的一部分。',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                  color: _darkPrimary,
                   fontSize: compact ? _typeSectionMobile : _typeHero,
                   height: 1.05,
                   letterSpacing: compact ? -1.5 : -2.6,
@@ -3904,6 +4007,7 @@ class _SpektraFeatureGrid extends StatelessWidget {
                                       .textTheme
                                       .headlineMedium!
                                       .copyWith(
+                                        color: _darkPrimary,
                                         fontSize: compact ? 29 : _typeCardTitle,
                                         height: 1.1,
                                         decoration: TextDecoration.none,
@@ -3961,6 +4065,7 @@ class _SpektraWorkflow extends StatelessWidget {
                   : '从相机文件，到可以交付的成片。',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: _darkPrimary,
                 fontSize: compact ? _typeSectionMobile : _typeHero,
                 height: 1.05,
                 letterSpacing: compact ? -1.5 : -2.6,
@@ -4326,7 +4431,7 @@ class _Contact extends StatelessWidget {
   final VoidCallback onGithub;
   @override
   Widget build(BuildContext context) => Container(
-    color: dark ? _darkPage : const Color(0xFFF5F5F7),
+    color: const Color(0xFFF5F5F7),
     padding: EdgeInsets.fromLTRB(
       compact ? 24 : 48,
       compact ? 84 : 124,
@@ -4343,6 +4448,7 @@ class _Contact extends StatelessWidget {
               text['contactTitle']!,
               textAlign: TextAlign.left,
               style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                color: const Color(0xFF1D1D1F),
                 fontSize: compact ? _typeSectionMobile : _typeSection,
               ),
             ),
@@ -4354,7 +4460,7 @@ class _Contact extends StatelessWidget {
                 textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   fontSize: compact ? _typeBody : _typeBodyLarge,
-                  color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+                  color: const Color(0xFF6E6E73),
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -4385,7 +4491,7 @@ class _Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    color: dark ? _darkPage : const Color(0xFFF5F5F7),
+    color: const Color(0xFFF5F5F7),
     padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
     child: Center(
       child: ConstrainedBox(
@@ -4394,16 +4500,14 @@ class _Footer extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.only(top: 18),
           decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: dark ? Colors.white12 : Colors.black12),
-            ),
+            border: Border(top: const BorderSide(color: Colors.black12)),
           ),
           child: Text(
             '${text['copyright']} © ${DateTime.now().year} Ye Hongyu.',
             style: TextStyle(
               fontSize: 12.5,
               height: 1.33,
-              color: dark ? Colors.white54 : Colors.black54,
+              color: Colors.black54,
               decoration: TextDecoration.none,
             ),
           ),
@@ -4426,10 +4530,12 @@ const _zh = <String, String>{
   'contactTitle': '保持联系。',
   'contactText': '如果你想讨论项目、摄影或合作想法，欢迎通过邮件、微信、电话或 GitHub 与我联系。',
   'wechatCopied': '微信号 HYe_12Dec 已复制',
-  'computerProjects': '计算机项目',
+  'computerProjects': '数字作品',
   'photography': '摄影作品',
+  'about': '关于叶宏煜',
   'computerSubtitle': '用代码、研究与设计，把想法做成可用的工具。',
   'photoSubtitle': '关于光线、空间、旅途与现场的影像记录。',
+  'aboutSubtitle': '关于我的方向、经历，以及持续探索影像与技术的过程。',
   'learnMore': '进一步了解',
   'copyright': '版权所有',
 };
@@ -4444,10 +4550,12 @@ const _en = <String, String>{
   'viewProjects': 'Explore the work',
   'contactMe': 'Get in touch',
   'portraitLabel': 'Memoji portrait of Ye Hongyu',
-  'computerProjects': 'Computer Projects',
+  'computerProjects': 'Digital Work',
   'photography': 'Photography',
+  'about': 'About Ye Hongyu',
   'computerSubtitle': 'Code, research, and design shaped into useful tools.',
   'photoSubtitle': 'Photographs of light, place, travel, and the moment.',
+  'aboutSubtitle': 'My interests, experience, and ongoing exploration of imaging and technology.',
   'learnMore': 'Learn more',
   'contactTitle': 'Stay in touch.',
   'contactText': 'For conversations about projects, photography, or collaboration, reach me by email, WeChat, phone, or GitHub.',
