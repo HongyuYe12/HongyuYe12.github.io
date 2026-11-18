@@ -798,6 +798,11 @@ class _MenuBackButton extends StatelessWidget {
     child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
         child: Row(
@@ -831,6 +836,11 @@ class _MenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) => InkWell(
     onTap: onTap,
+    hoverColor: Colors.transparent,
+    highlightColor: Colors.transparent,
+    splashColor: Colors.transparent,
+    focusColor: Colors.transparent,
+    overlayColor: const WidgetStatePropertyAll(Colors.transparent),
     child: SizedBox(
       width: double.infinity,
       child: Padding(
