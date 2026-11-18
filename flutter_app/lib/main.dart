@@ -571,6 +571,186 @@ class _AdaptiveNav extends StatelessWidget {
   }
 }
 
+// 普通子页面共用的导航外壳：保持主页相同的贴边、悬浮与展开菜单动画。
+class _PageChrome extends StatefulWidget {
+  const _PageChrome({
+    required this.child,
+    required this.english,
+    this.forceDarkNavigation = false,
+  });
+
+  final Widget child;
+  final bool english;
+  final bool forceDarkNavigation;
+
+  @override
+  State<_PageChrome> createState() => _PageChromeState();
+}
+
+class _PageChromeState extends State<_PageChrome>
+    with TickerProviderStateMixin {
+  late final AnimationController _menuAnimation;
+  late final AnimationController _navAnimation;
+  bool _menuOpen = false;
+  bool _menuVisible = false;
+  bool _navFloating = false;
+  late bool _english;
+  _MenuSection _menuSection = _MenuSection.main;
+
+  @override
+  void initState() {
+    super.initState();
+    _english = widget.english;
+    _menuAnimation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 360),
+      reverseDuration: const Duration(milliseconds: 300),
+    );
+    _navAnimation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 460),
+      reverseDuration: const Duration(milliseconds: 380),
+    );
+  }
+
+  @override
+  void dispose() {
+    _menuAnimation.dispose();
+    _navAnimation.dispose();
+    super.dispose();
+  }
+
+  bool _handleScroll(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+    final offset = notification.metrics.pixels;
+    if (!_navFloating && offset > 28) {
+      _navFloating = true;
+      _navAnimation.forward();
+    } else if (_navFloating && offset < 8) {
+      _navFloating = false;
+      _navAnimation.reverse();
+    }
+    return false;
+  }
+
+  Future<void> _toggleMenu() async {
+    if (_menuOpen) {
+      setState(() => _menuOpen = false);
+      await _menuAnimation.reverse();
+      if (!mounted) return;
+      setState(() {
+        _menuVisible = false;
+        _menuSection = _MenuSection.main;
+      });
+      return;
+    }
+    setState(() {
+      _menuVisible = true;
+      _menuOpen = true;
+      _menuSection = _MenuSection.main;
+    });
+    await _menuAnimation.forward();
+  }
+
+  Future<void> _closeMenuThen(VoidCallback action) async {
+    if (_menuOpen) {
+      setState(() => _menuOpen = false);
+      await _menuAnimation.reverse();
+    }
+    if (!mounted) return;
+    setState(() {
+      _menuVisible = false;
+      _menuSection = _MenuSection.main;
+    });
+    action();
+  }
+
+  void _open(String path) => Navigator.of(context).pushNamed(path);
+
+  @override
+  Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 760;
+    final navigationDark =
+        widget.forceDarkNavigation ||
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final text = _english ? _en : _zh;
+    return Stack(
+      children: [
+        NotificationListener<ScrollNotification>(
+          onNotification: _handleScroll,
+          child: widget.child,
+        ),
+        if (_menuVisible)
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _menuAnimation,
+              builder: (context, child) {
+                final progress = Curves.easeOutCubic.transform(
+                  _menuAnimation.value,
+                );
+                return Opacity(
+                  opacity: progress,
+                  child: Transform.scale(
+                    alignment: Alignment.topRight,
+                    scale: .88 + .12 * progress,
+                    child: child,
+                  ),
+                );
+              },
+              child: _MenuPanel(
+                text: text,
+                dark: navigationDark,
+                english: _english,
+                section: _menuSection,
+                onComputer: () =>
+                    setState(() => _menuSection = _MenuSection.computer),
+                onPhotography: () =>
+                    setState(() => _menuSection = _MenuSection.photography),
+                onBack: () => setState(() => _menuSection = _MenuSection.main),
+                onExploreComputer: () =>
+                    _closeMenuThen(() => _open('/projects/')),
+                onExplorePhotography: () =>
+                    _closeMenuThen(() => _open('/photography/')),
+                onProject: (project) =>
+                    _closeMenuThen(() => _open('/projects/${project.slug}/')),
+                onPhotographyTheme: (theme) =>
+                    _closeMenuThen(() => _open('/photography/${theme.slug}/')),
+                onAbout: () => _closeMenuThen(() => _open('/about/')),
+                onContact: () => _closeMenuThen(() => _open('/about/')),
+                onLanguage: () => setState(() => _english = !_english),
+              ),
+            ),
+          ),
+        AnimatedBuilder(
+          animation: _navAnimation,
+          builder: (context, _) {
+            final progress = Curves.easeOutCubic.transform(_navAnimation.value);
+            final horizontalInset = (compact ? 12.0 : 28.0) * progress;
+            final topInset = (compact ? 10.0 : 18.0) * progress;
+            return Positioned(
+              left: horizontalInset,
+              right: horizontalInset,
+              top: topInset,
+              child: _AdaptiveNav(
+                dark: navigationDark,
+                compact: compact,
+                english: _english,
+                menuActive: _menuVisible,
+                progress: progress,
+                menuAnimation: _menuAnimation,
+                onHome: () =>
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/', (route) => false),
+                onMenu: _toggleMenu,
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
 // 圆形菜单按钮。按钮本身没有额外边框，点击区域仍保持足够大。
 class _MenuButton extends StatelessWidget {
   const _MenuButton({
@@ -1113,29 +1293,6 @@ class _BlueLink extends StatelessWidget {
   );
 }
 
-class _HomeLogoButton extends StatelessWidget {
-  const _HomeLogoButton({required this.dark});
-  final bool dark;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: '返回主页',
-    child: IconButton(
-      tooltip: '返回主页',
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      onPressed: () =>
-          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false),
-      icon: Image.asset(
-        dark ? 'assets/hye-mark-white.png' : 'assets/hye-mark-black.png',
-        width: 42,
-        height: 24,
-        fit: BoxFit.contain,
-      ),
-    ),
-  );
-}
-
 class _AboutPage extends StatefulWidget {
   const _AboutPage({required this.english});
   final bool english;
@@ -1151,39 +1308,36 @@ class _AboutPageState extends State<_AboutPage> {
   Widget build(BuildContext context) {
     final compact = MediaQuery.sizeOf(context).width < 760;
     final text = widget.english ? _en : _zh;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return _PageChrome(
+      english: widget.english,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leadingWidth: 78,
-        leading: const _HomeLogoButton(dark: false),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _Hero(
-              text: text,
-              dark: false,
-              compact: compact,
-              onProjects: () => Navigator.of(context).pushNamed('/projects/'),
-              onContact: () {
-                final target = _contactKey.currentContext;
-                if (target == null) return;
-                Scrollable.ensureVisible(
-                  target,
-                  duration: const Duration(milliseconds: 520),
-                  curve: Curves.easeOutCubic,
-                );
-              },
-            ),
-            _PageEnd(
-              key: _contactKey,
-              text: text,
-              dark: false,
-              compact: compact,
-            ),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _Hero(
+                text: text,
+                dark: false,
+                compact: compact,
+                onProjects: () => Navigator.of(context).pushNamed('/projects/'),
+                onContact: () {
+                  final target = _contactKey.currentContext;
+                  if (target == null) return;
+                  Scrollable.ensureVisible(
+                    target,
+                    duration: const Duration(milliseconds: 520),
+                    curve: Curves.easeOutCubic,
+                  );
+                },
+              ),
+              _PageEnd(
+                key: _contactKey,
+                text: text,
+                dark: false,
+                compact: compact,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1570,128 +1724,127 @@ class _DetailPage extends StatelessWidget {
         : (english
               ? 'Software, research, and experiments developed from first question to working result.'
               : '从问题出发，以代码、研究与设计完成的软件和实验。');
-    return Scaffold(
-      backgroundColor: dark ? _darkPage : Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leadingWidth: 78,
-        leading: _HomeLogoButton(dark: dark),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                compact ? 24 : 48,
-                compact ? 64 : 94,
-                compact ? 24 : 48,
-                compact ? 74 : 112,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1080),
-                  child: Column(
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: compact ? 17 : 21,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF0071E3),
-                          decoration: TextDecoration.none,
+    return _PageChrome(
+      english: english,
+      child: Scaffold(
+        backgroundColor: dark ? _darkPage : Colors.white,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  compact ? 24 : 48,
+                  compact ? 64 : 94,
+                  compact ? 24 : 48,
+                  compact ? 74 : 112,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1080),
+                    child: Column(
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: compact ? 17 : 21,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF0071E3),
+                            decoration: TextDecoration.none,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: compact ? 18 : 24),
-                      Text(
-                        headline,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.displayLarge!
-                            .copyWith(
-                              fontSize: compact
-                                  ? _typeDisplayMobile
-                                  : _typeDisplay,
-                              height: 1.04,
-                              letterSpacing: compact ? -1.6 : -3,
-                              decoration: TextDecoration.none,
-                            ),
-                      ),
-                      SizedBox(height: compact ? 22 : 30),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 720),
-                        child: Text(
-                          intro,
+                        SizedBox(height: compact ? 18 : 24),
+                        Text(
+                          headline,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge!
+                          style: Theme.of(context).textTheme.displayLarge!
                               .copyWith(
-                                fontSize: compact ? _typeBodyLarge : _typeIntro,
-                                height: 1.48,
-                                color: dark
-                                    ? _darkSecondary
-                                    : const Color(0xFF6E6E73),
+                                fontSize: compact
+                                    ? _typeDisplayMobile
+                                    : _typeDisplay,
+                                height: 1.04,
+                                letterSpacing: compact ? -1.6 : -3,
                                 decoration: TextDecoration.none,
                               ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: compact ? 22 : 30),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 720),
+                          child: Text(
+                            intro,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge!
+                                .copyWith(
+                                  fontSize: compact
+                                      ? _typeBodyLarge
+                                      : _typeIntro,
+                                  height: 1.48,
+                                  color: dark
+                                      ? _darkSecondary
+                                      : const Color(0xFF6E6E73),
+                                  decoration: TextDecoration.none,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            Container(
-              width: double.infinity,
-              color: dark ? const Color(0xFF111111) : Colors.white,
-              padding: EdgeInsets.fromLTRB(
-                compact ? 18 : 40,
-                compact ? 56 : 88,
-                compact ? 18 : 40,
-                compact ? 84 : 128,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1180),
-                  child: photography
-                      ? _PhotographyThemeList(
-                          dark: dark,
-                          english: english,
-                          compact: compact,
-                          onTheme: (theme) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                settings: RouteSettings(
-                                  name: '/photography/${theme.slug}/',
+              Container(
+                width: double.infinity,
+                color: dark ? const Color(0xFF111111) : Colors.white,
+                padding: EdgeInsets.fromLTRB(
+                  compact ? 18 : 40,
+                  compact ? 56 : 88,
+                  compact ? 18 : 40,
+                  compact ? 84 : 128,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1180),
+                    child: photography
+                        ? _PhotographyThemeList(
+                            dark: dark,
+                            english: english,
+                            compact: compact,
+                            onTheme: (theme) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  settings: RouteSettings(
+                                    name: '/photography/${theme.slug}/',
+                                  ),
+                                  builder: (_) => _PhotographyGalleryPage(
+                                    theme: theme,
+                                    english: english,
+                                  ),
                                 ),
-                                builder: (_) => _PhotographyGalleryPage(
-                                  theme: theme,
-                                  english: english,
+                              );
+                            },
+                          )
+                        : _ComputerProjectList(
+                            dark: dark,
+                            english: english,
+                            compact: compact,
+                            onProject: (project) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  settings: RouteSettings(
+                                    name: '/projects/${project.slug}/',
+                                  ),
+                                  builder: (_) => _ProjectDetailPage(
+                                    project: project,
+                                    english: english,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        )
-                      : _ComputerProjectList(
-                          dark: dark,
-                          english: english,
-                          compact: compact,
-                          onProject: (project) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                settings: RouteSettings(
-                                  name: '/projects/${project.slug}/',
-                                ),
-                                builder: (_) => _ProjectDetailPage(
-                                  project: project,
-                                  english: english,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                              );
+                            },
+                          ),
+                  ),
                 ),
               ),
-            ),
-            _PageEnd(text: english ? _en : _zh, dark: dark, compact: compact),
-          ],
+              _PageEnd(text: english ? _en : _zh, dark: dark, compact: compact),
+            ],
+          ),
         ),
       ),
     );
@@ -2190,69 +2343,66 @@ class _PhotographyGalleryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 700;
-    return Scaffold(
-      backgroundColor: dark ? _darkPage : Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leadingWidth: 78,
-        leading: _HomeLogoButton(dark: dark),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          compact ? 16 : 32,
-          compact ? 48 : 76,
-          compact ? 16 : 32,
-          compact ? 88 : 128,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1320),
-            child: Column(
-              children: [
-                Text(
-                  english ? 'PHOTOGRAPHY' : '摄影系列',
-                  style: const TextStyle(
-                    color: Color(0xFF0071E3),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.1,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  theme.title(english),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                    fontSize: compact ? _typeDisplayMobile : _typeDisplay,
-                    height: 1.02,
-                    letterSpacing: compact ? -1.8 : -3.2,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-                const SizedBox(height: 22),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 680),
-                  child: Text(
-                    theme.subtitle(english),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: compact ? _typeBody : _typeIntro,
-                      height: 1.5,
-                      color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+    return _PageChrome(
+      english: english,
+      child: Scaffold(
+        backgroundColor: dark ? _darkPage : Colors.white,
+        body: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            compact ? 16 : 32,
+            compact ? 48 : 76,
+            compact ? 16 : 32,
+            compact ? 88 : 128,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1320),
+              child: Column(
+                children: [
+                  Text(
+                    english ? 'PHOTOGRAPHY' : '摄影系列',
+                    style: const TextStyle(
+                      color: Color(0xFF0071E3),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.1,
                       decoration: TextDecoration.none,
                     ),
                   ),
-                ),
-                SizedBox(height: compact ? 54 : 82),
-                _PhotographyGallery(
-                  theme: theme,
-                  compact: compact,
-                  dark: dark,
-                  english: english,
-                ),
-              ],
+                  const SizedBox(height: 18),
+                  Text(
+                    theme.title(english),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                      fontSize: compact ? _typeDisplayMobile : _typeDisplay,
+                      height: 1.02,
+                      letterSpacing: compact ? -1.8 : -3.2,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 680),
+                    child: Text(
+                      theme.subtitle(english),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: compact ? _typeBody : _typeIntro,
+                        height: 1.5,
+                        color: dark ? _darkSecondary : const Color(0xFF6E6E73),
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: compact ? 54 : 82),
+                  _PhotographyGallery(
+                    theme: theme,
+                    compact: compact,
+                    dark: dark,
+                    english: english,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -2699,19 +2849,17 @@ class _ProjectDetailPageState extends State<_ProjectDetailPage> {
     final compact = MediaQuery.sizeOf(context).width < 700;
     final secondary = dark ? _darkSecondary : const Color(0xFF6E6E73);
     final radius = BorderRadius.circular(compact ? 28 : 36);
-    return Scaffold(
-      backgroundColor: dark ? _darkPage : Colors.white,
-      appBar: AppBar(
-        backgroundColor: _isSpektra ? Colors.black : Colors.transparent,
-        elevation: 0,
-        leadingWidth: 78,
-        leading: _HomeLogoButton(dark: _isSpektra),
-      ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: _isSpektra
-            ? _buildSpektraPage(context, dark, compact, secondary)
-            : _buildStandardPage(context, dark, compact, secondary, radius),
+    return _PageChrome(
+      english: widget.english,
+      forceDarkNavigation: _isSpektra,
+      child: Scaffold(
+        backgroundColor: dark ? _darkPage : Colors.white,
+        body: SingleChildScrollView(
+          controller: _scrollController,
+          child: _isSpektra
+              ? _buildSpektraPage(context, dark, compact, secondary)
+              : _buildStandardPage(context, dark, compact, secondary, radius),
+        ),
       ),
     );
   }
