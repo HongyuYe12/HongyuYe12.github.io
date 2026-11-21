@@ -1,78 +1,29 @@
-import { createLiquidGlass, isChromium } from './liquid-glass.js';
-
-document.documentElement.classList.add('js');
-const languageButton = document.querySelector('.language-toggle');
-const translations = {
-  zh: {
-    navAbout: '关于', navProjects: '探索', navContact: '联系',
-    heroTitle: '在学习中探索。<br><span>在实践中成长。</span>',
-    heroIntro: '你好，我是 Ye Hongyu，一名学生。这里记录我的学习、经历与持续探索的事情。',
-    viewProjects: '查看探索', contactMe: '联系我', photoPlaceholder: '个人照片即将更新',
-    aboutTitle: '关于我', aboutLead: '我是一名保持好奇、乐于学习和探索新事物的学生。',
-    aboutDetail: '目前我正在积累知识与实践经验。这个网站会持续记录我的成长、想法和未来完成的项目。',
-    skill1: '持续学习', skill2: '独立思考', skill3: '探索实践', skill4: '开放合作',
-    projectsTitle: '学习与探索', projectType1: '个人成长', projectTitle1: '学习记录',
-    projectDesc1: '未来将在这里分享课程学习、读书笔记和实践成果。', projectType2: '项目实践',
-    projectTitle2: '未来项目', projectDesc2: '完成新的个人或团队项目后，我会在这里记录过程与收获。',
-    projectType3: '兴趣探索', projectTitle3: '想法与发现', projectDesc3: '这里将收录我感兴趣的主题、文章以及生活中的新发现。',
-    comingSoon: '持续更新中', contactTitle: '欢迎与我联系。',
-    contactText: '如果你想交流学习、兴趣或合作想法，可以通过邮件或 GitHub 找到我。', backToTop: '回到顶部 ↑'
-  },
-  en: {
-    navAbout: 'About', navProjects: 'Explore', navContact: 'Contact',
-    heroTitle: 'Explore through learning.<br><span>Grow through practice.</span>',
-    heroIntro: "Hi, I'm Ye Hongyu, a student documenting what I learn, experience, and explore.",
-    viewProjects: 'View exploration', contactMe: 'Contact me', photoPlaceholder: 'Photo coming soon',
-    aboutTitle: 'About me', aboutLead: "I'm a curious student who enjoys learning and exploring new things.",
-    aboutDetail: "I'm currently building knowledge and practical experience. This site will document my growth, ideas, and future projects.",
-    skill1: 'Continuous learning', skill2: 'Independent thinking', skill3: 'Hands-on exploration', skill4: 'Open collaboration',
-    projectsTitle: 'Learning & exploration', projectType1: 'Personal growth', projectTitle1: 'Learning journal',
-    projectDesc1: 'I will share coursework, reading notes, and practical outcomes here.', projectType2: 'Project practice',
-    projectTitle2: 'Future projects', projectDesc2: 'New personal and team projects will be documented here with their process and lessons.',
-    projectType3: 'Interests', projectTitle3: 'Ideas & discoveries', projectDesc3: 'A place for topics, writing, and discoveries that interest me.',
-    comingSoon: 'Coming soon', contactTitle: "Let's connect.",
-    contactText: 'Reach out by email or GitHub to talk about learning, shared interests, or collaboration.', backToTop: 'Back to top ↑'
-  }
-};
-
-function setLanguage(language) {
-  document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
-  document.querySelectorAll('[data-i18n]').forEach((element) => {
-    const value = translations[language][element.dataset.i18n];
-    if (value) element.innerHTML = value;
-  });
-  languageButton.textContent = language === 'zh' ? 'EN' : '中';
-  localStorage.setItem('language', language);
-}
-
-setLanguage(localStorage.getItem('language') || 'zh');
-languageButton.addEventListener('click', () => {
-  setLanguage(document.documentElement.lang.startsWith('zh') ? 'en' : 'zh');
-});
-
-document.getElementById('year').textContent = new Date().getFullYear();
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-
-document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
-
-const reduceTransparency = window.matchMedia('(prefers-reduced-transparency: reduce)').matches;
-if (!reduceTransparency) {
-  const glassTargets = [
-    [document.querySelector('.site-header'), { scale: -72, borderRadius: 19, border: 0.075, blur: 7, lightness: 54, alpha: 0.9, aberration: [0, 4, 8], saturation: 1.35, fallbackFilter: 'saturate(180%) blur(22px)' }],
-    [document.querySelector('.language-toggle'), { scale: -44, borderRadius: 17, border: 0.11, blur: 5, lightness: 56, alpha: 0.9, aberration: [0, 3, 6], saturation: 1.25, fallbackFilter: 'saturate(170%) blur(14px)' }],
-    ...[...document.querySelectorAll('.hero-actions .button')].map((element) => [element, { scale: -52, borderRadius: 999, border: 0.1, blur: 5, lightness: 54, alpha: 0.91, aberration: [0, 3, 7], saturation: 1.3, fallbackFilter: 'saturate(170%) blur(16px)' }])
-  ];
-
-  glassTargets.forEach(([element, options]) => {
-    if (element) createLiquidGlass(element, options);
-  });
-  document.documentElement.classList.toggle('chromium-liquid-glass', isChromium);
-}
+const A='/assets/assets/';
+const projects=[
+{slug:'spektralab',name:'SpektraLab',color:'#8e5cff',mark:'✦',zh:'从 RAW 到胶片负片与相纸成像，以光谱计算重现色彩、颗粒、光晕和暗房印放的 Windows 工具。',en:'A Windows darkroom carrying RAW photographs through spectral film, paper, grain, halation, and print rendering.',github:'https://github.com/HongyuYe12/SpektraStudio'},
+{slug:'monocular-depth-robustness',name:'Monocular Depth Robustness',color:'#0071e3',mark:'◉',zh:'评估单目深度估计在暗光、多深度与复杂场景中的稳定性，并探索深度引导自动对焦。',en:'Evaluating monocular-depth robustness in low-light and complex scenes, with experiments in depth-guided autofocus.',github:'https://github.com/HongyuYe12/monocular-depth-robustness'},
+{slug:'cabinet-ai-assistant',name:'Cabinet AI Assistant',color:'#00a87e',mark:'▣',zh:'连接 DXF 图纸、AI 设计建议与本地视觉分析的橱柜设计和施工核验平台。',en:'A cabinet-planning and build-verification platform connecting DXF drawings, AI guidance, and local vision analysis.',github:'https://github.com/HongyuYe12/cabinet-ai-assistant'},
+{slug:'mineru',name:'MinerU',color:'#ff9f0a',mark:'页',zh:'把 PDF 转换为可检索 Markdown，同时保留可靠、可追溯的原始页码映射。',en:'A local workflow turning PDFs into searchable Markdown while preserving traceable source-page mappings.',github:'https://github.com/HongyuYe12/mineru-book-page-map'},
+{slug:'the-auctioneer',name:'The Auctioneer',color:'#ff375f',mark:'槌',zh:'一款 JavaFX 拍卖行经营游戏，在 30 天内通过探索、鉴定、库存与拍卖完成经营目标。',en:'A JavaFX auction-house management game built around exploration, appraisal, inventory, and live auctions over 30 days.',github:'https://github.com/HongyuYe12/the-auctioneer'}];
+const themes=[
+{slug:'sports',zh:'体育摄影',en:'Sports Photography',zhSub:'速度、对抗与看台之间，决定性瞬间只出现一次。',enSub:'Speed, tension, and decisive moments that happen only once.',folder:'sports',files:['01-dsc02391.webp','02-dsc02814.webp','03-dsc02846.webp','04-dsc03025.webp','05-dsc03087.webp']},
+{slug:'landscapes',zh:'自然风光',en:'Landscapes',zhSub:'暮色、海岸、闪电，以及不断变化的天空。',enSub:'Twilight, coastlines, lightning, and an ever-changing sky.',folder:'landscapes',files:['01-dsc01446.webp','02-dsc02009.webp','03-dsc04361.webp','04-img_2291.webp','05-img_2296.webp']},
+{slug:'architecture',zh:'建筑',en:'Architecture',zhSub:'寻找光线、结构与空间之间清晰的秩序。',enSub:'Finding clarity between light, structure, and space.',folder:'architecture-new',files:['01-dsc00120.webp','02-img_2293.webp','03-img_6516.webp','04-img_6525.webp']},
+{slug:'aviation',zh:'航空摄影',en:'Aviation Photography',zhSub:'候机楼、进近航线，以及掠过天空的片刻。',enSub:'Terminals, final approaches, and fleeting moments overhead.',folder:'aviation',files:['01-dsc03486.webp','02-dsc03548.webp','03-dsc03552.webp','04-img_6521.webp']},
+{slug:'street',zh:'街头摄影',en:'Street Photography',zhSub:'街道、列车、夜色与旅途中偶然相遇的画面。',enSub:'Streets, trains, night light, and unplanned moments on the road.',folder:'street',files:['01-dsc00485.webp','02-img_2292.webp','03-img_2294.webp','04-img_2297.webp','05-img_6528.webp']},
+{slug:'taiwan',zh:'台湾',en:'Taiwan',zhSub:'从海岸到城市，在列车、街道与夜色之间展开的一段旅程。',enSub:'A journey from coast to city, through trains, streets, and night light.',folder:'taiwan',files:['01-dsc01446.webp','02-img_2291.webp','03-img_2292.webp','04-img_2293.webp','05-img_2294.webp','06-img_2296.webp','07-img_2297.webp','08-img_6528.webp'],event:true},
+{slug:'chelsea-juventus',zh:'切尔西 · 尤文图斯',en:'Chelsea · Juventus',zhSub:'从看台记录比赛的节奏、对抗与决定性瞬间。',enSub:'The rhythm, tension, and decisive moments of the match from the stands.',folder:'juventus',files:['01-dsc02391.webp','02-dsc02814.webp','03-dsc02846.webp','04-dsc03025.webp','05-dsc03087.webp'],event:true}];
+const text={zh:{navProjects:'数字作品',navPhotography:'摄影作品',navAbout:'关于叶宏煜',navContact:'联系',homeTitle:'创造、观察，\n并持续探索。',homeIntro:'这里收录我的软件项目、计算机视觉研究与摄影作品。',digital:'数字作品',digitalSub:'软件、研究与实验。',photo:'摄影作品',photoSub:'关于光线、空间、旅途与现场。',about:'关于叶宏煜',aboutSub:'我关注影像、计算机视觉与实用软件。',learn:'进一步了解',contactTitle:'保持联系。',contactText:'如果你想讨论项目、摄影或合作想法，欢迎通过邮件、微信、电话或 GitHub 与我联系。',copied:'✓ 已复制'},en:{navProjects:'Digital Work',navPhotography:'Photography',navAbout:'About Ye Hongyu',navContact:'Contact',homeTitle:'Create, observe,\nand keep exploring.',homeIntro:'A collection of software projects, computer-vision research, and photography.',digital:'Digital Work',digitalSub:'Software, research, and experiments.',photo:'Photography',photoSub:'Light, space, journeys, and moments.',about:'About Ye Hongyu',aboutSub:'I work across images, computer vision, and practical software.',learn:'Learn more',contactTitle:'Stay in touch.',contactText:'For conversations about projects, photography, or collaboration, reach me by email, WeChat, phone, or GitHub.',copied:'✓ Copied'}};
+let lang=localStorage.getItem('language')||'zh';const t=()=>text[lang];
+const path=location.pathname.replace(/\/+$/,'')||'/';const main=document.querySelector('main');
+function footer(){return `<section class="contact" id="contact"><div class="container"><h2>${t().contactTitle}</h2><p>${t().contactText}</p><div class="contact-links"><a href="mailto:robin.hye@icloud.com">robin.hye@icloud.com ›</a><button class="copy-wechat" data-copy>WeChat · HYe_12Dec ⧉</button><a href="tel:+8613606903960">+86 136 0690 3960 ›</a><a href="https://github.com/HongyuYe12" target="_blank" rel="noreferrer">GitHub ›</a></div></div></section><footer class="site-footer"><div class="site-footer-inner">版权所有 © ${new Date().getFullYear()} Ye Hongyu.</div></footer>`}
+function home(){return `<div class="page"><section class="hero-home container"><div><h1>${t().homeTitle.replace('\n','<br>')}</h1><p>${t().homeIntro}</p></div></section><section class="home-grid"><a class="home-card projects" href="/projects/"><span class="eyebrow">${t().digital}</span><h2>${t().digitalSub}</h2><span class="learn">${t().learn} ›</span><img src="${A}spektralab/lanterns-portra-800.webp" alt="SpektraLab 胶片效果"></a><a class="home-card photography" href="/photography/"><span class="eyebrow">${t().photo}</span><h2>${t().photoSub}</h2><span class="learn">${t().learn} ›</span><img src="${A}photography/taiwan/01-dsc01446.webp" alt="摄影作品"></a><a class="home-card about" href="/about/"><span class="eyebrow">${t().about}</span><h2>${t().aboutSub}</h2><span class="learn">${t().learn} ›</span><img src="${A}memoji-portrait-transparent.png" alt="Ye Hongyu 的拟我头像"></a></section>${footer()}</div>`}
+function projectIndex(){return `<div class="page"><header class="page-hero container"><span class="eyebrow">${t().digital}</span><h1>${lang==='zh'?'把想法，做成可以使用的作品。':'Turn ideas into work people can use.'}</h1><p>${lang==='zh'?'从问题出发，以代码、研究与设计完成的软件和实验。':'Software, research, and experiments developed from first question to working result.'}</p></header><section class="section"><div class="container card-grid">${projects.map((p,i)=>`<a class="editorial-card ${i===0?'featured':''}" href="/projects/${p.slug}/"><span class="eyebrow">${p.name}</span><h3>${lang==='zh'?p.zh:p.en}</h3><span class="accent" style="background:${p.color}">${p.mark}</span></a>`).join('')}</div></section>${footer()}</div>`}
+function photographyIndex(){let subjects=themes.filter(x=>!x.event),events=themes.filter(x=>x.event);const cards=a=>a.map(x=>`<a class="editorial-card photo-card" href="/photography/${x.slug}/"><img src="${A}photography/${x.folder}/${x.files[0]}" alt="${lang==='zh'?x.zh:x.en}"><h3>${lang==='zh'?x.zh:x.en}</h3><p>${lang==='zh'?x.zhSub:x.enSub}</p></a>`).join('');return `<div class="page"><header class="page-hero container"><span class="eyebrow">${t().photo}</span><h1>${lang==='zh'?'用影像，重新看见日常。':'See the everyday through images.'}</h1><p>${lang==='zh'?'关于光线、空间、旅途与现场的摄影记录。':'Photographic notes on light, space, journeys, and moments.'}</p></header><section class="section"><div class="container"><h2>${lang==='zh'?'按主题浏览':'Explore by subject'}</h2><p class="section-lead">${lang==='zh'?'从体育与航空，到街头、风光和建筑。':'From sports and aviation to streets, landscapes, and architecture.'}</p><div class="card-grid">${cards(subjects)}</div></div></section><section class="section tint"><div class="container"><h2>${lang==='zh'?'按活动浏览':'Explore by event'}</h2><p class="section-lead">${lang==='zh'?'以一次旅行或一场比赛为线索，展开完整故事。':'Follow a journey or a match as a complete visual story.'}</p><div class="card-grid">${cards(events)}</div></div></section>${footer()}</div>`}
+function gallery(theme){return `<div class="page"><header class="page-hero container"><span class="eyebrow">${t().photo}</span><h1>${lang==='zh'?theme.zh:theme.en}</h1><p>${lang==='zh'?theme.zhSub:theme.enSub}</p></header><section class="container gallery">${theme.files.map((f,i)=>`<figure><img src="${A}photography/${theme.folder}/${f}" alt="${lang==='zh'?theme.zh:theme.en} ${i+1}" loading="${i<2?'eager':'lazy'}"></figure>`).join('')}</section>${footer()}</div>`}
+function about(){return `<div class="page"><section class="container about-layout"><div><h1>Ye Hongyu</h1><p>${lang==='zh'?'我关注影像、计算机视觉与实用软件。这里收录我的项目、实验与摄影作品，也记录每一次从想法到实现的过程。':'I work across images, computer vision, and practical software. This site collects projects, experiments, and photography, documenting each path from idea to implementation.'}</p><a class="text-link" href="/projects/">${lang==='zh'?'查看作品':'View work'} ›</a><a class="text-link" href="#contact">${lang==='zh'?'与我联系':'Contact me'} ›</a></div><img src="${A}memoji-portrait-transparent.png" alt="Ye Hongyu 的拟我头像"></section>${footer()}</div>`}
+function standardProject(p){return `<div class="page"><header class="project-hero container"><div class="project-icon" style="background:${p.color}">${p.mark}</div><span class="eyebrow">${p.name}</span><h1>${lang==='zh'?p.zh:p.en}</h1><div class="project-actions"><a class="pill" href="${p.github}" target="_blank" rel="noreferrer">${lang==='zh'?'查看源代码':'View source'}</a></div></header><section class="section"><div class="container project-story"><article class="story-card"><h2>${lang==='zh'?'从问题开始。':'Start with the problem.'}</h2><p>${lang==='zh'?p.zh:p.en}</p></article><article class="story-card"><h2>${lang==='zh'?'把研究做成工具。':'Turn research into a tool.'}</h2><p>${lang==='zh'?'围绕真实使用场景组织信息、交互和实现，让技术最终形成可理解、可操作的体验。':'Organizing information, interaction, and implementation around real use, so the technology becomes an understandable experience.'}</p></article></div></section>${footer()}</div>`}
+function spektra(){return `<div class="page spektra"><header class="project-hero container"><div class="project-icon" style="background:#8e5cff">✦</div><span class="eyebrow">SpektraLab</span><h1>${lang==='zh'?'让光穿过胶片，<br>再抵达你的照片。':'Let light pass through film,<br>then reach your photograph.'}</h1><p>${lang==='zh'?'一款为 Windows 打造的胶片与相纸模拟工具。打开一张 RAW，选择胶片、画幅与相纸，让色彩、颗粒、光晕和层次自然形成。':'A Windows darkroom for film and paper simulation, carrying RAW photographs through color, grain, halation, and print rendering.'}</p><div class="project-actions"><a class="pill" href="https://github.com/HongyuYe12/SpektraStudio" target="_blank">查看源代码</a></div></header><section class="compare-section"><div class="container"><h2>${lang==='zh'?'从原图，到胶片。':'From original to film.'}</h2><p class="section-lead">${lang==='zh'?'拖动分隔位置，直接比较原图与完整胶片成像。':'Drag to compare the original photograph with the finished film rendering.'}</p></div><div class="compare" data-compare style="--reveal:50%"><img src="${A}spektralab/temple-original-aligned.webp" alt="原始照片"><img class="film" src="${A}spektralab/temple-film.webp" alt="胶片效果"><div class="compare-handle"></div></div></section><section class="section"><div class="container"><h2>${lang==='zh'?'胶片与相纸。':'Film and paper.'}</h2><p class="section-lead">${lang==='zh'?'不是一种胶片效果，而是一套暗房组合。颗粒、光晕与色彩从材料和曝光中生长出来。':'Not one film effect, but a complete darkroom combination. Grain, halation, and color grow from material and exposure.'}</p></div></section><section class="grain-stage" data-grain><div class="grain-sticky"><img src="${A}spektralab/lanterns-portra-800.webp" alt="Portra 800 胶片颗粒"><span class="grain-caption">Portra 800 · Crystal Archive Type II</span></div></section>${footer()}</div>`}
+function render(){document.documentElement.lang=lang==='zh'?'zh-CN':'en';document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t()[e.dataset.i18n]);document.querySelector('[data-language]').textContent=lang==='zh'?'English':'中文';let html;if(path==='/')html=home();else if(path==='/projects')html=projectIndex();else if(path==='/photography')html=photographyIndex();else if(path==='/about')html=about();else if(path.startsWith('/projects/')){const p=projects.find(x=>`/projects/${x.slug}`===path);html=p?(p.slug==='spektralab'?spektra():standardProject(p)):home()}else if(path.startsWith('/photography/')){const x=themes.find(x=>`/photography/${x.slug}`===path);html=x?gallery(x):photographyIndex()}else html=home();main.innerHTML=html;document.body.classList.toggle('spektra',path==='/projects/spektralab');bindPage()}
+function bindPage(){document.querySelector('[data-copy]')?.addEventListener('click',async e=>{await navigator.clipboard.writeText('HYe_12Dec');const b=e.currentTarget,old=b.textContent;b.textContent=t().copied;setTimeout(()=>b.textContent=old,1800)});const cmp=document.querySelector('[data-compare]');if(cmp){const move=e=>{const r=cmp.getBoundingClientRect(),x=e.touches?e.touches[0].clientX:e.clientX;cmp.style.setProperty('--reveal',`${Math.max(0,Math.min(100,(x-r.left)/r.width*100))}%`)};cmp.addEventListener('pointerdown',e=>{cmp.setPointerCapture(e.pointerId);move(e)});cmp.addEventListener('pointermove',e=>{if(cmp.hasPointerCapture(e.pointerId))move(e)})}const grain=document.querySelector('[data-grain]');if(grain){const update=()=>{const r=grain.getBoundingClientRect(),p=Math.max(0,Math.min(1,-r.top/(r.height-innerHeight))),z=1+p*9;grain.querySelector('img').style.setProperty('--zoom',z)};addEventListener('scroll',update,{passive:true});update()}}
+const nav=document.querySelector('[data-site-nav]'),toggle=document.querySelector('.menu-toggle'),menu=document.querySelector('.menu-surface');let floating=false;function scrollNav(){const next=scrollY>28;if(next!==floating){floating=next;nav.classList.toggle('floating',floating)}}addEventListener('scroll',scrollNav,{passive:true});scrollNav();toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',open);toggle.setAttribute('aria-label',open?'关闭菜单':'打开菜单');menu.classList.toggle('open',open);menu.setAttribute('aria-hidden',!open);nav.classList.toggle('menu-mode',open);document.body.classList.toggle('menu-open',open)});document.querySelector('[data-language]').addEventListener('click',()=>{lang=lang==='zh'?'en':'zh';localStorage.setItem('language',lang);render()});render();

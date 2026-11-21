@@ -1,51 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <base href="/">
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Ye Hongyu 的个人主页，记录学习、探索与成长。">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Ye Hongyu 的个人网站，展示数字作品、摄影与个人经历。">
   <meta name="theme-color" content="#ffffff">
   <meta name="color-scheme" content="light">
-  <meta name="supported-color-schemes" content="light">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Ye Hongyu">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/png" href="favicon.png" media="(prefers-color-scheme: light)">
-  <link rel="icon" type="image/png" href="favicon-dark.png" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="/favicon.png" media="(prefers-color-scheme: light)">
+  <link rel="icon" href="/favicon-dark.png" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <title>Ye Hongyu | robin.hye</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    :root {
-      color-scheme: only light;
-      background-color: #ffffff;
-    }
-    html, body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      background: #ffffff !important;
-      color-scheme: only light;
-      overscroll-behavior-y: none;
-    }
-    body {
-      min-height: 100dvh;
-    }
-    flutter-view, flt-glass-pane {
-      background: #ffffff !important;
-    }
-  </style>
-  <script>
-    document.documentElement.style.colorScheme = 'only light';
-    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
-  </script>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <!-- Cloudflare Web Analytics：匿名统计访问量、来源、地区与设备信息。 -->
-  <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
-    data-cf-beacon='{"token": "37a4942cee6a42be8ddc15f26c6049ed"}'></script>
-  <script src="flutter_bootstrap.js" async></script>
+  <a class="skip-link" href="#content">跳到主要内容</a>
+  <header class="site-nav" data-site-nav>
+    <a class="brand" href="/" aria-label="返回主页">
+      <picture><source srcset="/assets/assets/hye-mark-white.png" media="(prefers-color-scheme: dark)"><img src="/assets/assets/hye-mark-black.png" alt="HYe" width="72" height="38"></picture>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="site-menu"><span></span><span></span></button>
+  </header>
+  <div class="menu-surface" id="site-menu" aria-hidden="true">
+    <nav class="menu-content" aria-label="主导航">
+      <a href="/projects/" data-i18n="navProjects">数字作品</a>
+      <a href="/photography/" data-i18n="navPhotography">摄影作品</a>
+      <a href="/about/" data-i18n="navAbout">关于叶宏煜</a>
+      <a href="/about/#contact" data-i18n="navContact">联系</a>
+      <button class="language-control" type="button" data-language>English</button>
+    </nav>
+  </div>
+  <main id="content" tabindex="-1"></main>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"37a4942cee6a42be8ddc15f26c6049ed"}'></script>
+  <script type="module" src="/script.js"></script>
 </body>
 </html>

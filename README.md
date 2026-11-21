@@ -1,17 +1,17 @@
 # Ye Hongyu — Personal Website
 
 [![Website](https://img.shields.io/badge/Website-hongyuye12.github.io-0071E3?style=flat-square)](https://hongyuye12.github.io)
-[![Built with Flutter](https://img.shields.io/badge/Built%20with-Flutter-02569B?style=flat-square&logo=flutter)](https://flutter.dev)
+[![Built with Web Standards](https://img.shields.io/badge/Built%20with-HTML%20%2F%20CSS%20%2F%20JavaScript-1d1d1f?style=flat-square)](https://developer.mozilla.org/)
 
-Ye Hongyu 的双语个人网站，用于展示计算机项目、摄影作品与联系方式。整体设计参考 Apple 的简洁排版与系统级深浅色体验，并使用 Flutter Web 构建。
+Ye Hongyu 的双语个人网站，用于展示数字作品、摄影作品与联系方式。网站使用语义化 HTML、原生 CSS 和模块化 JavaScript 构建，保留 Apple 风格排版、响应式布局与滚动交互。
 
 ## 网站功能
 
 - 中文 / English 双语切换
-- 跟随系统自动切换浅色与深色模式
 - 计算机项目与摄影作品独立详情页
 - 响应式桌面、平板与手机布局
 - Apple 风格悬浮导航与克制的 Liquid Glass 视觉效果
+- SpektraLab 原图／胶片拖动对比与滚动颗粒放大
 - GitHub Pages 公开访问
 
 ## 计算机项目
@@ -24,27 +24,23 @@ Ye Hongyu 的双语个人网站，用于展示计算机项目、摄影作品与�
 
 ## 技术栈
 
-- Flutter Web
-- Dart
-- `liquid_glass_widgets`
+- Semantic HTML5
+- Native CSS（Grid、Columns、Sticky、Backdrop Filter）
+- Vanilla JavaScript（ES Modules）
+- SVG / WebP 图像资源
 - GitHub Pages
 
 ## 本地运行
 
 ```bash
-cd flutter_app
-flutter pub get
-flutter run -d chrome
+python -m http.server 8765
 ```
+
+然后访问 `http://127.0.0.1:8765/`。
 
 ## 构建与发布
 
-```bash
-cd flutter_app
-flutter build web --release
-```
-
-构建结果位于 `flutter_app/build/web`。本仓库根目录保存 GitHub Pages 使用的发布文件。
+根目录就是 GitHub Pages 发布目录，不需要额外构建。修改 `index.html`、`style.css` 或 `script.js` 后提交并推送即可发布。旧 Flutter 工程保留在 `flutter_app/` 中，作为迁移前版本和内容参考。
 
 ## 联系方式
 
